@@ -21,7 +21,6 @@
       --green:#22c55e;
       --green-dark:#16a34a;
 
-      /* valeurs par défaut, écrasées par theme-dark / theme-light */
       --bg:#000000;
       --panel:#0b1220;
       --panel-soft:#020617;
@@ -30,7 +29,6 @@
       --border:rgba(255,255,255,.15);
     }
 
-    /* ===== THEMES ===== */
     body.theme-dark{
       --bg:#000000;
       --panel:#0b1220;
@@ -60,7 +58,7 @@
     }
     main{flex:1}
 
-    /* ===== BG vidéo ===== */
+    /* BG vidéo */
     .rsl-bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
     .rsl-bg-video{
       position:absolute;inset:0;width:100%;height:100%;
@@ -75,7 +73,7 @@
       background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
     }
 
-    /* ===== NAV top (unifiée) ===== */
+    /* NAV top */
     nav.nav{
       position:sticky;top:0;z-index:1000;
       background:rgba(0,0,0,.65);
@@ -148,13 +146,13 @@
       opacity:0;
     }
 
-    /* ===== Mini hero ===== */
+    /* Hero */
     .page-mini-hero{position:relative;z-index:10;padding:16px 0 6px}
     .page-mini-hero .container{max-width:1200px;margin:0 auto;padding:0 20px}
     .page-mini-hero h1{margin:0 0 6px;font-size:clamp(26px,4vw,38px);font-weight:800}
     .page-mini-hero p{margin:0;color:var(--dim);font-size:14px;max-width:720px}
 
-    /* ===== Contenu profil ===== */
+    /* Contenu */
     main .container{
       max-width:980px;
       margin:0 auto 110px;
@@ -178,8 +176,18 @@
     .p-head{
       display:grid;
       grid-template-columns:84px 1fr auto;
-      gap:14px;
-      align-items:center;
+      gap:16px;
+      align-items:flex-start;
+    }
+    @media(max-width:720px){
+      .p-head{
+        grid-template-columns:72px 1fr;
+        grid-template-rows:auto auto;
+      }
+      .p-actions{
+        grid-column:1/-1;
+        margin-top:10px;
+      }
     }
     .avatar{
       width:84px;
@@ -201,8 +209,24 @@
       object-fit:cover;
       display:block;
     }
-    .name{font-size:22px;font-weight:800;margin:0;color:var(--text)}
-    .sub{color:var(--dim);font-weight:600;font-size:13px;margin-top:4px}
+    .name{
+      font-size:22px;
+      font-weight:800;
+      margin:0;
+      color:var(--text);
+    }
+    .meta-line{
+      font-size:13px;
+      color:var(--dim);
+      margin-top:4px;
+      font-weight:600;
+    }
+    .loc-line{
+      font-size:13px;
+      color:var(--dim);
+      margin-top:2px;
+    }
+
     .btn{
       appearance:none;
       border:1px solid var(--border);
@@ -223,10 +247,11 @@
       border:0;
       box-shadow:0 10px 24px rgba(0,0,0,.5);
     }
-    .stat{font-size:13px;color:#cdd6ff;margin-right:12px}
-    .bio{margin-top:10px;color:#cdd6ff;white-space:pre-line;font-size:14px}
-    .links a{color:var(--text);text-decoration:none;font-weight:700}
-    .links a:hover{color:#22c55e}
+    .p-actions{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
 
     .flash-strip{
       margin-top:14px;
@@ -235,7 +260,11 @@
       overflow:auto;
       padding-bottom:6px;
     }
-    .flash{flex:0 0 auto;width:70px}
+    .flash{
+      flex:0 0 auto;
+      width:70px;
+      position:relative;
+    }
     .flash .ring{
       width:70px;
       height:70px;
@@ -264,12 +293,42 @@
       margin-top:6px;
       color:#cdd6ff;
     }
+    .flash-actions{
+      position:absolute;
+      right:4px;
+      bottom:2px;
+      display:flex;
+      gap:4px;
+    }
+    .flash-actions button{
+      border:0;
+      background:rgba(0,0,0,.75);
+      color:#f9fafb;
+      border-radius:999px;
+      width:18px;
+      height:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:11px;
+      cursor:pointer;
+    }
 
     .edit{margin-top:14px;display:none}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
     .row .full{grid-column:1/-1}
-    label{display:block;font-size:12px;font-weight:700;color:#e2e8f0;margin:6px 0 6px}
-    .input,textarea.input{
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      color:#e2e8f0;
+      margin:6px 0 6px;
+    }
+    .input,textarea.input,select.input{
       width:100%;
       background:#0b1220;
       border:1px solid var(--border);
@@ -279,7 +338,8 @@
       font-size:14px;
     }
     body.theme-light .input,
-    body.theme-light textarea.input{
+    body.theme-light textarea.input,
+    body.theme-light select.input{
       background:#f9fafb;
       color:#020617;
       border-color:rgba(15,23,42,.15);
@@ -293,7 +353,6 @@
     }
     @media (max-width:720px){
       .post-grid{grid-template-columns:repeat(2,1fr)}
-      .p-head{grid-template-columns:64px 1fr}
     }
     .thumb{
       position:relative;
@@ -320,9 +379,22 @@
       padding:3px 6px;
       border-radius:8px;
     }
+    .thumb-del{
+      position:absolute;
+      right:4px;
+      top:4px;
+      width:20px;
+      height:20px;
+      border-radius:999px;
+      border:0;
+      background:rgba(0,0,0,.78);
+      color:#f9fafb;
+      font-size:12px;
+      cursor:pointer;
+    }
     .empty{color:#9aa5b1;text-align:center;margin:18px 0 8px}
 
-    /* ===== Tabbar ===== */
+    /* Tabbar */
     .tabbar{
       position:fixed;
       left:0;right:0;bottom:0;
@@ -360,7 +432,7 @@
   <div class="rsl-bg-dim"></div>
 </div>
 
-<!-- Nav top unifiée -->
+<!-- Nav top -->
 <nav class="nav">
   <div class="row">
     <a class="brand" href="ou_rider.html">
@@ -389,7 +461,7 @@
 
 <main>
   <div class="container">
-    <!-- Carte profil -->
+    <!-- Profil -->
     <section class="card">
       <div class="p-head">
         <div class="avatar">
@@ -397,13 +469,8 @@
         </div>
         <div>
           <h1 class="name" id="pName">—</h1>
-          <div class="sub" id="pSub">—</div>
-          <div class="links" id="pLinks"></div>
-          <div class="bio" id="pBio"></div>
-          <div style="margin-top:8px">
-            <span class="stat" id="statPosts">0 posts</span>
-            <span class="stat" id="statFlashes">0 flashs</span>
-          </div>
+          <div class="meta-line" id="pStats">0 posts • 0 flashs • 0 abonnés • Moyenne compte : —</div>
+          <div class="loc-line" id="pSub">—</div>
         </div>
         <div class="p-actions" id="actionsBox"></div>
       </div>
@@ -413,8 +480,8 @@
       <form id="editForm" class="edit">
         <div class="row">
           <div>
-            <label for="fUsername">Pseudo</label>
-            <input id="fUsername" class="input" type="text" placeholder="rider_name"/>
+            <label for="fPseudo">Pseudo</label>
+            <input id="fPseudo" class="input" type="text" placeholder="rider_name"/>
           </div>
           <div>
             <label for="fFullname">Nom complet</label>
@@ -427,6 +494,25 @@
           <div>
             <label for="fCanton">Canton</label>
             <input id="fCanton" class="input" type="text" placeholder="VD"/>
+          </div>
+          <div>
+            <label for="fCountry">Pays</label>
+            <select id="fCountry" class="input">
+              <option value="">—</option>
+              <option value="Suisse">Suisse</option>
+              <option value="France">France</option>
+              <option value="Allemagne">Allemagne</option>
+              <option value="Autre Europe">Autre Europe</option>
+              <option value="Monde">Monde</option>
+            </select>
+          </div>
+          <div>
+            <label for="fGender">Genre</label>
+            <select id="fGender" class="input">
+              <option value="">Non spécifié</option>
+              <option value="Homme">Homme</option>
+              <option value="Femme">Femme</option>
+            </select>
           </div>
           <div class="full">
             <label for="fInsta">Instagram (URL)</label>
@@ -485,7 +571,7 @@
 </nav>
 
 <script>
-/* ===== THEME (clair / sombre) ===== */
+/* Thème */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -510,12 +596,11 @@
 </script>
 
 <script>
-/* ===== Supabase init ===== */
+/* Supabase init + BG vidéo */
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-/* BG vidéo RIDLY */
 (function(){
   const v = document.getElementById('rslBg');
   if(!v) return;
@@ -530,7 +615,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Profil / data ===== */
+/* Profil logic */
 const params = new URLSearchParams(location.search);
 const qId    = params.get('id');
 const qUser  = params.get('u');
@@ -538,10 +623,7 @@ const qUser  = params.get('u');
 const avatarImg   = document.getElementById('avatarImg');
 const pName       = document.getElementById('pName');
 const pSub        = document.getElementById('pSub');
-const pLinks      = document.getElementById('pLinks');
-const pBio        = document.getElementById('pBio');
-const statPosts   = document.getElementById('statPosts');
-const statFlashes = document.getElementById('statFlashes');
+const pStats      = document.getElementById('pStats');
 const actionsBox  = document.getElementById('actionsBox');
 const editForm    = document.getElementById('editForm');
 const saveMsg     = document.getElementById('saveMsg');
@@ -552,27 +634,44 @@ const btnNewPost  = document.getElementById('btnNewPost');
 const chatDot     = document.getElementById('chatDot');
 
 const avatarInput = document.getElementById('fAvatar');
-const fUsername   = document.getElementById('fUsername');
+const fPseudo     = document.getElementById('fPseudo');
 const fFullname   = document.getElementById('fFullname');
 const fCity       = document.getElementById('fCity');
 const fCanton     = document.getElementById('fCanton');
+const fCountry    = document.getElementById('fCountry');
 const fInsta      = document.getElementById('fInsta');
 const fBio        = document.getElementById('fBio');
+const fGender     = document.getElementById('fGender');
 
 let sessionUser   = null;
 let profileUserId = null;
 let isOwn         = false;
 
+let countPosts = 0;
+let countFlashes = 0;
+let accountAvg = null;
+
+function updateStatsLine(){
+  const followers = 0; // à implémenter plus tard
+  const avgTxt = (accountAvg != null)
+    ? `Moyenne compte : ${accountAvg.toFixed(1)} / 5`
+    : `Moyenne compte : —`;
+  pStats.textContent = `${countPosts} posts • ${countFlashes} flashs • ${followers} abonnés • ${avgTxt}`;
+}
+
 (async function init(){
   const { data:{ user } } = await supa.auth.getUser();
   sessionUser = user || null;
-
   if(sessionUser && chatDot) chatDot.style.opacity = 1;
 
   if(qId){
     profileUserId = qId;
   }else if(qUser){
-    const { data } = await supa.from('profiles').select('id').eq('username', qUser).maybeSingle();
+    const { data } = await supa
+      .from('profiles')
+      .select('id')
+      .or(`pseudo.eq.${qUser},username.eq.${qUser}`)
+      .maybeSingle();
     profileUserId = data?.id || null;
   }else{
     profileUserId = sessionUser?.id || null;
@@ -592,27 +691,44 @@ let isOwn         = false;
 })();
 
 async function loadProfile(){
-  const { data:prof } = await supa.from('profiles').select('*').eq('id', profileUserId).maybeSingle();
+  const { data:prof } = await supa
+    .from('profiles')
+    .select('*')
+    .eq('id', profileUserId)
+    .maybeSingle();
+
   if(!prof){
     pName.textContent = "Profil introuvable";
     return;
   }
 
-  pName.textContent = prof.username || (prof.full_name || "Rider");
-  pSub.textContent  = `${prof.city || '—'}${prof.canton ? ' ('+prof.canton+')' : ''}`;
-  pBio.textContent  = prof.bio || "";
-  avatarImg.src     = prof.avatar_url || "image/logo_pn360.png";
-  pLinks.innerHTML  = prof.insta_url
-    ? `<a href="${prof.insta_url}" target="_blank" rel="noopener">@instagram</a>`
-    : "";
+  const displayName =
+    prof.pseudo ||
+    prof.username ||
+    prof.full_name ||
+    (sessionUser?.email || 'Rider');
+
+  pName.textContent = displayName;
+
+  const locParts = [];
+  if(prof.city)    locParts.push(prof.city);
+  if(prof.canton)  locParts.push(prof.canton);
+  if(prof.country) locParts.push(prof.country);
+  const loc = locParts.join(' • ');
+  const genderTxt = prof.gender || '';
+  pSub.textContent = [loc || '—', genderTxt].filter(Boolean).join(' • ');
+
+  avatarImg.src = prof.avatar_url || "image/logo_pn360.png";
 
   if(isOwn){
-    fUsername.value = prof.username || "";
+    fPseudo.value   = prof.pseudo || prof.username || "";
     fFullname.value = prof.full_name || "";
     fCity.value     = prof.city || "";
     fCanton.value   = prof.canton || "";
+    fCountry.value  = prof.country || "";
     fInsta.value    = prof.insta_url || "";
     fBio.value      = prof.bio || "";
+    fGender.value   = prof.gender || "";
   }
 }
 
@@ -622,7 +738,7 @@ function buildActions(){
     actionsBox.append(
       makeBtn("✏️ Éditer", toggleEdit),
       (()=>{ const b = makeBtn("+ Flash", addFlash); b.classList.add('green'); return b; })(),
-      makeBtn("Déconnexion", async ()=>{ await supa.auth.signOut(); location.reload(); })
+      makeBtn("Déconnexion", async ()=>{ await supa.auth.signOut(); location.href="index.html"; })
     );
     btnNewPost.style.display = "inline-block";
     btnNewPost.onclick = ()=>location.href="ajouter.html";
@@ -649,12 +765,15 @@ editForm?.addEventListener('submit', async e=>{
   saveMsg.textContent = "Enregistrement…";
 
   const up = {
-    username:(fUsername.value||"").trim() || null,
+    pseudo:(fPseudo.value||"").trim() || null,
+    username:(fPseudo.value||"").trim() || null,
     full_name:(fFullname.value||"").trim() || null,
     city:(fCity.value||"").trim() || null,
     canton:(fCanton.value||"").trim() || null,
+    country:(fCountry.value||"").trim() || null,
     insta_url:(fInsta.value||"").trim() || null,
-    bio:(fBio.value||"").trim() || null
+    bio:(fBio.value||"").trim() || null,
+    gender:(fGender.value||"").trim() || null
   };
 
   const { error } = await supa.from('profiles').update(up).eq('id', profileUserId);
@@ -686,17 +805,21 @@ avatarInput?.addEventListener('change', async ()=>{
   }
 });
 
+/* Flashes */
 async function loadFlashes(){
   const { data:fl } = await supa
     .from('flashes')
     .select('id,media_url,caption,created_at,expires_at')
     .eq('user_id', profileUserId)
     .gt('expires_at', new Date().toISOString())
-    .order('created_at', { ascending:false })
+    .order('created_at',{ascending:false})
     .limit(20);
 
   const list = fl || [];
   flashStrip.innerHTML = "";
+  countFlashes = list.length;
+  updateStatsLine();
+
   list.forEach(f=>{
     const d = document.createElement('div');
     d.className = "flash";
@@ -710,13 +833,38 @@ async function loadFlashes(){
         </div>
       </div>
       <div class="cap">${(f.caption||"").slice(0,18)}</div>
+      ${isOwn ? `
+        <div class="flash-actions">
+          <button type="button" data-id="${f.id}" data-act="repost" title="Repartager">↺</button>
+          <button type="button" data-id="${f.id}" data-act="delete" title="Supprimer">✕</button>
+        </div>` : ``}
     `;
-    d.onclick = ()=>window.open(f.media_url, '_blank');
+    d.addEventListener('click',()=>window.open(f.media_url,'_blank'));
     flashStrip.appendChild(d);
   });
-  statFlashes.textContent = `${list.length} flashs`;
+
+  if(isOwn){
+    flashStrip.querySelectorAll('.flash-actions button').forEach(btn=>{
+      btn.addEventListener('click', async ev=>{
+        ev.stopPropagation();
+        const id  = btn.getAttribute('data-id');
+        const act = btn.getAttribute('data-act');
+        if(act === 'delete'){
+          if(!confirm('Supprimer ce flash ?')) return;
+          await supa.from('flashes').delete().eq('id', id);
+          loadFlashes();
+        }else if(act === 'repost'){
+          await supa.from('flashes').update({
+            created_at:new Date().toISOString()
+          }).eq('id', id);
+          loadFlashes();
+        }
+      });
+    });
+  }
 }
 
+/* Ajout flash */
 async function addFlash(){
   const inp = document.createElement('input');
   inp.type = "file";
@@ -735,32 +883,33 @@ async function addFlash(){
     const { data:pub } = supa.storage.from('flashes').getPublicUrl(path);
     const url = pub?.publicUrl;
     if(url){
-      await supa.from('flashes').insert([{ user_id:profileUserId, media_url:url, caption:"" }]);
+      const expires = new Date(Date.now() + 48*60*60*1000).toISOString();
+      await supa.from('flashes').insert([{ user_id:profileUserId, media_url:url, caption:"", expires_at:expires }]);
       loadFlashes();
     }
   };
   inp.click();
 }
 
+/* Posts */
 async function loadPosts(){
   const { data:posts } = await supa
     .from('spot_posts')
     .select('id,media_url,caption,spot_type,created_at')
     .eq('user_id', profileUserId)
-    .order('created_at', { ascending:false })
+    .order('created_at',{ascending:false})
     .limit(60);
 
   const list = posts || [];
   postGrid.innerHTML = "";
+  countPosts = list.length;
+  updateStatsLine();
 
   if(!list.length){
     postsEmpty.style.display = "block";
-    statPosts.textContent = "0 posts";
     return;
   }
-
   postsEmpty.style.display = "none";
-  statPosts.textContent = `${list.length} posts`;
 
   list.forEach(p=>{
     const isVideo = /\.(mp4|webm|mov)$/i.test(p.media_url||"");
@@ -773,9 +922,41 @@ async function loadPosts(){
         ? `<video src="${p.media_url}" muted playsinline></video>`
         : `<img src="${p.media_url}" alt="">`}
       <span class="tag">${p.spot_type==='street'?'Street':'Park'}</span>
+      ${isOwn ? `<button type="button" class="thumb-del" data-id="${p.id}" title="Supprimer">✕</button>` : ``}
     `;
     postGrid.appendChild(a);
   });
+
+  if(isOwn){
+    postGrid.querySelectorAll('.thumb-del').forEach(btn=>{
+      btn.addEventListener('click', async ev=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(!confirm('Supprimer ce post ?')) return;
+        await supa.from('spot_posts').delete().eq('id', btn.getAttribute('data-id'));
+        loadPosts();
+      });
+    });
+  }
+
+  // moyenne de toutes les notes du rider
+  try{
+    const ids = list.map(p=>p.id);
+    if(!ids.length){ accountAvg = null; updateStatsLine(); return; }
+    const { data:likes } = await supa
+      .from('post_likes')
+      .select('post_id,rating')
+      .in('post_id', ids);
+    if(likes && likes.length){
+      const sum = likes.reduce((a,b)=> a + (b.rating || 0), 0);
+      accountAvg = sum / likes.length;
+    }else{
+      accountAvg = null;
+    }
+    updateStatsLine();
+  }catch(e){
+    console.error(e);
+  }
 }
 </script>
 

@@ -58,8 +58,9 @@
     header .brand img{
       height:40px;width:40px;
       border-radius:10px;
-      background:#fff;
+      background:#000;
       padding:4px;
+      box-shadow:0 0 10px rgba(34,197,94,.6);
     }
     header .auth{font-size:13px;color:var(--dim);font-weight:600}
     header .auth a{color:var(--green);font-weight:800;text-decoration:none}
@@ -188,7 +189,8 @@
 <!-- Header -->
 <header>
   <a class="brand" href="ou_rider.html">
-    <img src="images/logo_pn360.png" alt="RIDLY"/>
+    <!-- chemin corrigé : dossier image/ comme sur les autres pages -->
+    <img src="image/logo_pn360.png" alt="RIDLY"/>
     <span>RIDLY</span>
   </a>
   <div class="auth" id="authState">Vérif session…</div>
@@ -285,13 +287,12 @@ const chatError   = document.getElementById('chatError');
 let me = null;
 let profile = null;
 
-/* Liste de mots interdits (à compléter tranquillement) */
+/* Liste de mots interdits (à compléter) */
 const BANNED_WORDS = [
   "con",
   "connard",
   "fdp",
   "merde"
-  // ➜ ajoute ici tous les mots que tu veux bloquer, en minuscules
 ];
 
 /* Helpers */
@@ -311,7 +312,6 @@ function containsBannedWords(text){
   const clean = (text||"").toLowerCase();
   for(const w of BANNED_WORDS){
     if(!w) continue;
-    // recherche simple, tu pourras raffiner plus tard
     if(clean.includes(w)) return true;
   }
   return false;
@@ -333,10 +333,10 @@ function containsBannedWords(text){
     chatLocked.style.display = "none";
     chatBox.style.display    = "flex";
 
-    // on récupère le profil pour afficher le pseudo
+    // profil → pseudo + nom complet
     const { data: prof } = await supa
       .from('profiles')
-      .select('username, full_name')
+      .select('pseudo, full_name, avatar_url')
       .eq('id', me.id)
       .maybeSingle();
     profile = prof || null;
@@ -356,11 +356,16 @@ async function loadMessages(){
   try{
     const { data, error } = await supa
       .from('ridly_chat_messages')
-      .select('id, user_id, content, created_at, profiles(username,full_name)')
+      /* ⬇⬇ nécessite la clé étrangère user_id → profiles.id dans Supabase */
+      .select('id, user_id, content, created_at, profiles(pseudo,full_name,avatar_url)')
       .order('created_at', { ascending:false })
       .limit(80);
-    if(error){ console.error(error); chatMessages.innerHTML='<div class="muted">Erreur de chargement du chat.</div>';return;}
-    const list = (data||[]).slice().reverse(); // plus ancien en premier
+    if(error){
+      console.error(error);
+      chatMessages.innerHTML='<div class="muted">Erreur de chargement du chat.</div>';
+      return;
+    }
+    const list = (data||[]).slice().reverse(); // plus anciens en premier
 
     chatMessages.innerHTML = "";
     if(!list.length){
@@ -377,7 +382,7 @@ async function loadMessages(){
 
 /* Ajouter un message dans le DOM */
 function appendMessage(m, scroll=true){
-  const who = m.profiles?.username || m.profiles?.full_name || "Rider";
+  const who = m.profiles?.pseudo || m.profiles?.full_name || "Rider";
   const div = document.createElement('div');
   div.className = "msg";
   div.innerHTML = `
@@ -402,8 +407,6 @@ function subscribeNewMessages(){
       table:'ridly_chat_messages'
     }, payload => {
       const m = payload.new;
-      // on n’a pas le join profiles ici -> on va juste afficher un placeholder simple
-      // (pour les messages récents de toi-même, l’UX reste ok)
       const fake = {
         ...m,
         profiles: (m.user_id === me?.id && profile) ? profile : null
