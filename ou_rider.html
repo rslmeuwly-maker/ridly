@@ -1,396 +1,526 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Où rider ? — RIDLY</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Où rider ? — RIDLY</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#22c55e">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22c55e">
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Supabase -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="js/env.js"></script>
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
 
-<!-- Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-<style>
-  :root{
-    --green:#22c55e;
-    --green-dark:#16a34a;
+  <style>
+    :root{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --card:#020617;
+      --accent:#22c55e;
+      --accent-soft:rgba(34,197,94,.08);
+      --accent-strong:rgba(34,197,94,.25);
+      --text:#f9fafb;
+      --text-dim:#9ca3af;
+      --border:rgba(148,163,184,.35);
+      --radius-xl:18px;
+    }
 
-    --bg:#000000;
-    --panel:#0b1220;
-    --panel-soft:#020617;
-    --text:#ffffff;
-    --dim:#9aa5b1;
-    --border:rgba(255,255,255,.15);
-  }
+    body.theme-dark{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --card:#020617;
+      --text:#f9fafb;
+      --text-dim:#9ca3af;
+      --border:rgba(148,163,184,.35);
+    }
+    body.theme-light{
+      --bg:#f4f4f5;
+      --bg-soft:#e5e7eb;
+      --card:#ffffff;
+      --text:#020617;
+      --text-dim:#6b7280;
+      --border:rgba(148,163,184,.25);
+    }
 
-  /* ===== THEMES ===== */
-  body.theme-dark{
-    --bg:#000000;
-    --panel:#0b1220;
-    --panel-soft:#020617;
-    --text:#ffffff;
-    --dim:#9aa5b1;
-    --border:rgba(255,255,255,.15);
-  }
-  body.theme-light{
-    --bg:#f3f4f6;
-    --panel:#ffffff;
-    --panel-soft:#e5e7eb;
-    --text:#020617;
-    --dim:#4b5563;
-    --border:rgba(15,23,42,.12);
-  }
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+    }
+    body{
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      background:#000;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
 
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial;
-    display:flex;
-    flex-direction:column;
-  }
-  main{flex:1}
+    /* ===== BG VIDÉO ===== */
+    .rsl-bg-wrap{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+    }
+    .rsl-bg-video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#000;
+      filter:brightness(.55) saturate(1.05);
+    }
+    .rsl-bg-dim{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7));
+    }
+    body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
+    }
 
-  /* ===== BG vidéo ===== */
-  .rsl-bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
-  .rsl-bg-video{
-    position:absolute;inset:0;width:100%;height:100%;
-    object-fit:cover;background:#000;
-    filter:brightness(.55) saturate(1.05);
-  }
-  .rsl-bg-dim{
-    position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55));
-  }
-  body.theme-light .rsl-bg-dim{
-    background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
-  }
+    .page-wrap{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      max-width:900px;
+      margin:0 auto;
+      width:100%;
+      position:relative;
+      z-index:1;
+    }
 
-  /* ===== NAV top ===== */
-  nav.nav{
-    position:sticky;
-    top:0;
-    z-index:1000;
-    background:rgba(0,0,0,.65);
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid rgba(255,255,255,.12);
-  }
-  body.theme-light nav.nav{
-    background:rgba(243,244,246,.9);
-    border-bottom:1px solid rgba(15,23,42,.1);
-  }
-  nav .row{
-    max-width:1200px;margin:0 auto;
-    padding:10px 20px;
-    display:flex;justify-content:space-between;align-items:center;
-  }
-  nav .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-weight:800;
-    color:var(--text);
-    text-decoration:none;
-  }
-  nav .brand img{
-    height:40px !important;
-    width:40px !important;
-    border-radius:12px;
-    background:#000;
-    padding:4px;
-    box-shadow:0 0 10px rgba(34,197,94,.6);
-  }
-  nav .brand span{
-    font-size:18px !important;
-  }
-  nav a{color:var(--text);text-decoration:none;font-weight:700}
-  nav a:hover{color:var(--green)}
+    /* ===== TOP NAV (style feed + bouton PWA) ===== */
+    nav.nav{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(2,6,23,.9);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+    }
+    body.theme-light nav.nav{
+      background:rgba(244,244,245,.95);
+    }
+    nav.nav .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 14px;
+    }
 
-  .nav-tools{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    margin-left:auto;
-  }
-  .icon-btn{
-    border:1px solid var(--border);
-    background:rgba(0,0,0,.8);
-    color:var(--text);
-    border-radius:999px;
-    min-width:34px;height:34px;
-    padding:0 10px;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    font-size:15px;
-    text-decoration:none;
-    position:relative;
-    gap:6px;
-  }
-  .icon-btn span.label{
-    font-size:12px;
-    font-weight:700;
-  }
-  @media(max-width:640px){
-    .icon-btn span.label{display:none}
-    .icon-btn{min-width:34px;padding:0}
-  }
-  body.theme-light .icon-btn{
-    background:#e5e7eb;
-  }
-  .icon-btn:hover{
-    border-color:var(--green);
-    color:var(--green);
-  }
-  .chat-dot{
-    position:absolute;
-    top:5px;
-    right:6px;
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:#22c55e;
-    box-shadow:0 0 8px rgba(34,197,94,.9);
-    opacity:0;
-  }
+    .nav-left{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
 
-  /* ===== Titre ===== */
-  .page-mini-hero{position:relative;z-index:10;padding:12px 0 6px}
-  .page-mini-hero .container{max-width:1200px;margin:0 auto;padding:0 20px}
-  .page-mini-hero h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px);font-weight:800}
-  .page-mini-hero p{margin:0;color:var(--dim);font-size:14px}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:var(--text);
+    }
+    .brand img{
+      width:32px;
+      height:32px;
+      border-radius:12px;
+      background:#000;
+      padding:3px;
+      box-shadow:0 0 12px rgba(34,197,94,.7);
+    }
+    .brand span{
+      font-weight:700;
+      letter-spacing:-0.03em;
+      font-size:20px;
+    }
 
-  /* ===== Carte ===== */
-  main .container{max-width:1200px;margin:0 auto;padding:0 20px 120px;position:relative;z-index:10}
-  .map-wrap{position:relative}
-  #map{
-    height:73vh;
-    min-height:480px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.18);
-    background:var(--panel);
-  }
-  body.theme-light #map{
-    border-color:rgba(15,23,42,.12);
-  }
-  @media(max-width:900px){
-    #map{height:calc(100vh - 38vh);min-height:58vh}
-  }
-  .leaflet-pane,.leaflet-top,.leaflet-bottom{z-index:2}
+    .add-btn{
+      border:none;
+      outline:none;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      background:radial-gradient(circle at 30% 20%,#4ade80 0,#22c55e 35%,#16a34a 100%);
+      color:#022c16;
+      box-shadow:0 10px 22px rgba(34,197,94,.7);
+    }
+    .add-btn span{
+      transform:translateY(-1px);
+    }
 
-  /* ===== Bouton Filtres ===== */
-  .filters-fab{
-    position:absolute;
-    right:12px;top:12px;
-    z-index:3100;
-    display:block;
-  }
-  .btn{
-    appearance:none;
-    border:1px solid var(--border);
-    background:rgba(255,255,255,.06);
-    color:var(--text);
-    border-radius:10px;
-    padding:10px 16px;
-    font:800 13px Outfit;
-    cursor:pointer;
-  }
-  .btn.green{
-    background:linear-gradient(180deg,var(--green),var(--green-dark));
-    color:#062312;
-    border:0;
-  }
+    .nav-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-left:auto;
+    }
+    .icon-btn{
+      border:1px solid rgba(15,23,42,.8);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      border-radius:999px;
+      height:32px;
+      min-width:32px;
+      padding:0 10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:15px;
+      text-decoration:none;
+      position:relative;
+      cursor:pointer;
+      gap:6px;
+    }
+    .icon-btn .label{
+      font-size:11px;
+      font-weight:700;
+    }
+    @media(max-width:640px){
+      .icon-btn .label{display:none}
+      .icon-btn{padding:0;min-width:32px;}
+    }
+    body.theme-light .icon-btn{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.6);
+    }
+    .icon-btn:hover{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+    .chat-dot{
+      position:absolute;
+      top:5px;
+      right:5px;
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:#22c55e;
+      box-shadow:0 0 8px rgba(34,197,94,.8);
+      opacity:0;
+    }
 
-  .filters-fab .btn{
-    background:rgba(0,0,0,0.85)!important;
-    border:1px solid #22c55e!important;
-    box-shadow:0 0 8px rgba(34,197,94,.4);
-  }
-  body.theme-light .filters-fab .btn{
-    background:#ffffff !important;
-    color:#111827;
-    border-color:rgba(15,23,42,.2) !important;
-    box-shadow:0 0 8px rgba(0,0,0,.08);
-  }
+    /* ===== MAIN ===== */
+    .main{
+      flex:1;
+      padding:4px 10px 80px;
+    }
 
-  /* ===== Panneau Filtres ===== */
-  .filters-wrap{
-    position:absolute;
-    top:12px;right:12px;
-    z-index:3000;
-    width:min(92vw,360px);
-    display:none;
-  }
-  body.show-filters .filters-wrap{display:block}
-  .filters-card{
-    background:rgba(0,0,0,.82);
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:14px;
-    padding:12px;
-    box-shadow:0 20px 60px rgba(0,0,0,.6);
-    backdrop-filter:blur(6px) saturate(140%);
-    max-height:70vh;
-    overflow:auto;
-    color:var(--text);
-  }
-  body.theme-light .filters-card{
-    background:rgba(255,255,255,.96);
-    border-color:rgba(15,23,42,.12);
-    box-shadow:0 18px 45px rgba(15,23,42,.15);
-  }
-  .filters-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    margin-top:8px;
-  }
-  .chip{
-    display:flex;align-items:center;gap:8px;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.12);
-    padding:10px 12px;border-radius:10px;
-    font:700 13px Outfit;
-  }
-  body.theme-light .chip{
-    background:#f3f4f6;
-    border-color:rgba(15,23,42,.12);
-  }
-  .chip input{width:18px;height:18px}
-  .input,.select{
-    width:100%;
-    background:#0b1220;
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:10px;
-    color:#fff;
-    padding:10px 12px;
-    font:600 14px Outfit;
-  }
-  body.theme-light .input,
-  body.theme-light .select{
-    background:#f9fafb;
-    color:#020617;
-    border-color:rgba(15,23,42,.15);
-  }
-  .filters-foot{
-    display:flex;flex-wrap:wrap;gap:8px;
-    margin-top:10px;
-  }
+    .mini-title{
+      padding:8px 4px 4px;
+      font-size:13px;
+      font-weight:600;
+      color:var(--text-dim);
+    }
 
-  /* ===== Popups ===== */
-  .leaflet-popup-content-wrapper{
-    background:rgba(0,0,0,.9);
-    border:1px solid rgba(34,197,94,.5);
-    border-radius:14px;
-    box-shadow:0 30px 60px rgba(0,0,0,.8);
-    color:#fff;
-  }
-  .leaflet-popup-tip{
-    background:rgba(0,0,0,.9);
-    border:1px solid rgba(34,197,94,.5);
-  }
-  .leaflet-popup-content{margin:10px;min-width:200px;max-width:240px}
-  .rsl-pop-title{font:700 14px/1.25 Outfit}
-  .rsl-pop-loc{color:#9aa5b1;font:600 12px/1.3 Outfit;margin:2px 0 6px}
-  .rsl-pop-desc{color:#cdd6ff;font:500 12px/1.4 Outfit;margin-bottom:8px}
-  .rsl-pop-btn{
-    display:inline-block;
-    font:800 12px/1.2 Outfit;
-    padding:8px 10px;
-    border-radius:8px;
-    background:linear-gradient(180deg,#22c55e,#16a34a);
-    color:#062312;
-    text-decoration:none;
-  }
+    .hero{
+      padding:4px 4px 8px;
+      font-size:13px;
+      color:var(--text-dim);
+      line-height:1.4;
+    }
+    .hero b{color:var(--text);}
 
-  /* ===== Modales ===== */
-  .modal{position:fixed;inset:0;z-index:4000;display:none}
-  .modal.show{display:block}
-  .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
-  .modal-card{
-    position:relative;
-    margin:6vh auto 0;
-    max-width:min(92vw,720px);
-    background:rgba(8,12,24,.96);
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:16px;
-    padding:14px;
-    color:#fff;
-  }
-  body.theme-light .modal-card{
-    background:#ffffff;
-    color:#020617;
-    border-color:rgba(15,23,42,.12);
-  }
-  .modal-card h3{margin:2px 0 10px;font-size:18px;font-weight:800}
-  .modal .row{display:flex;gap:10px;margin-bottom:8px}
-  .modal .row .col{flex:1}
-  .modal input,.modal select,.modal textarea{
-    width:100%;
-    padding:10px 12px;
-    border-radius:10px;
-    background:#07101f;
-    border:1px solid rgba(255,255,255,.16);
-    color:#fff;
-    font:600 14px Outfit;
-  }
-  body.theme-light .modal input,
-  body.theme-light .modal select,
-  body.theme-light .modal textarea{
-    background:#f9fafb;
-    color:#020617;
-    border-color:rgba(15,23,42,.15);
-  }
-  .modal textarea{min-height:82px;resize:vertical}
-  .modal .actions{
-    display:flex;gap:8px;justify-content:flex-end;
-    margin-top:10px;
-  }
-  #asMsg{font:700 12px;color:#7cffb0}
-  #asMsg.error{color:#ff9f9f}
-  @media(max-width:520px){ .modal .row{flex-direction:column} }
+    /* ===== CARTE / CARD ===== */
+    .map-card{
+      background:var(--card);
+      border-radius:var(--radius-xl);
+      border:1px solid rgba(15,23,42,.9);
+      box-shadow:0 18px 45px rgba(0,0,0,.6);
+      padding:10px 10px 12px;
+      margin-top:4px;
+    }
+    body.theme-light .map-card{
+      border-color:rgba(209,213,219,.9);
+      box-shadow:0 14px 30px rgba(15,23,42,.15);
+    }
 
-  /* ===== Tabbar ===== */
-  .tabbar{
-    position:fixed;
-    left:0;right:0;bottom:0;
-    z-index:2000;
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    padding:14px 18px;
-    border-top:1px solid var(--border);
-    background:rgba(0,0,0,.78);
-    backdrop-filter:blur(10px);
-  }
-  body.theme-light .tabbar{
-    background:rgba(243,244,246,.96);
-  }
-  .tab{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:4px;
-    text-decoration:none;
-  }
-  .tab .ic{font-size:24px}
-  .tab span{font-size:13px;color:#e5e7eb;font-weight:700}
-  body.theme-light .tab span{color:#111827}
-  .tab.active span{color:#22c55e}
-  @media(min-width:900px){ .tab span{font-size:12px} }
-</style>
+    .map-wrap{
+      position:relative;
+    }
+    #map{
+      width:100%;
+      height:70vh;
+      min-height:420px;
+      border-radius:16px;
+      border:1px solid rgba(15,23,42,.9);
+      background:var(--bg-soft);
+      overflow:hidden;
+    }
+    body.theme-light #map{
+      border-color:rgba(17,24,39,.12);
+    }
+    .leaflet-pane,.leaflet-top,.leaflet-bottom{z-index:2}
+
+    /* ===== Bouton Filtres flottant ===== */
+    .filters-fab{
+      position:absolute;
+      right:10px;
+      top:10px;
+      z-index:3100;
+    }
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      border-radius:999px;
+      padding:8px 14px;
+      font:800 12px Outfit;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn.green{
+      background:linear-gradient(180deg,var(--accent),#16a34a);
+      color:#022c16;
+      border:0;
+      box-shadow:0 10px 22px rgba(0,0,0,.6);
+    }
+    body.theme-light .btn{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.6);
+      color:#111827;
+    }
+
+    .filters-fab .btn{
+      background:rgba(0,0,0,0.9)!important;
+      border:1px solid #22c55e!important;
+      box-shadow:0 0 10px rgba(34,197,94,.5);
+    }
+    body.theme-light .filters-fab .btn{
+      background:#ffffff!important;
+      border-color:rgba(15,23,42,.18)!important;
+      box-shadow:0 0 10px rgba(0,0,0,.08);
+      color:#111827;
+    }
+
+    /* ===== Panneau Filtres ===== */
+    .filters-wrap{
+      position:absolute;
+      top:10px;
+      right:10px;
+      z-index:3000;
+      width:min(92%,360px);
+      display:none;
+    }
+    body.show-filters .filters-wrap{display:block;}
+    .filters-card{
+      background:rgba(0,0,0,.85);
+      border:1px solid rgba(148,163,184,.6);
+      border-radius:16px;
+      padding:10px;
+      box-shadow:0 20px 60px rgba(0,0,0,.8);
+      backdrop-filter:blur(8px);
+      max-height:70vh;
+      overflow:auto;
+      color:#f9fafb;
+    }
+    body.theme-light .filters-card{
+      background:rgba(255,255,255,.98);
+      border-color:rgba(148,163,184,.6);
+      box-shadow:0 16px 38px rgba(15,23,42,.18);
+      color:#020617;
+    }
+
+    .filters-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:8px;
+    }
+    .chip{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background:rgba(15,23,42,.9);
+      border:1px solid rgba(148,163,184,.7);
+      padding:8px 10px;
+      border-radius:10px;
+      font:700 12px Outfit;
+    }
+    body.theme-light .chip{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.9);
+    }
+    .chip input{width:16px;height:16px}
+
+    .input,.select{
+      width:100%;
+      background:#020617;
+      border:1px solid var(--border);
+      border-radius:10px;
+      color:var(--text);
+      padding:8px 10px;
+      font:600 13px Outfit;
+    }
+    body.theme-light .input,
+    body.theme-light .select{
+      background:#f3f4f6;
+      color:#111827;
+      border:1px solid rgba(148,163,184,.6);
+    }
+
+    .filters-foot{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+      align-items:center;
+    }
+    #shareState{
+      font:600 11px Outfit;
+      color:var(--text-dim);
+    }
+
+    /* ===== Popups Leaflet ===== */
+    .leaflet-popup-content-wrapper{
+      background:rgba(0,0,0,.9);
+      border:1px solid rgba(34,197,94,.5);
+      border-radius:14px;
+      box-shadow:0 30px 60px rgba(0,0,0,.8);
+      color:#fff;
+    }
+    .leaflet-popup-tip{
+      background:rgba(0,0,0,.9);
+      border:1px solid rgba(34,197,94,.5);
+    }
+    .leaflet-popup-content{margin:10px;min-width:200px;max-width:240px}
+    .rsl-pop-title{font:700 14px/1.25 Outfit}
+    .rsl-pop-loc{color:#9aa5b1;font:600 12px/1.3 Outfit;margin:2px 0 6px}
+    .rsl-pop-desc{color:#cdd6ff;font:500 12px/1.4 Outfit;margin-bottom:8px}
+    .rsl-pop-btn{
+      display:inline-block;
+      font:800 12px/1.2 Outfit;
+      padding:7px 10px;
+      border-radius:8px;
+      background:linear-gradient(180deg,#22c55e,#16a34a);
+      color:#062312;
+      text-decoration:none;
+    }
+
+    /* ===== Modales ===== */
+    .modal{position:fixed;inset:0;z-index:40;display:none}
+    .modal.show{display:block}
+    .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+    .modal-card{
+      position:relative;
+      margin:6vh auto 0;
+      max-width:min(92vw,720px);
+      background:rgba(8,12,24,.96);
+      border:1px solid rgba(148,163,184,.7);
+      border-radius:16px;
+      padding:14px;
+      color:#fff;
+    }
+    body.theme-light .modal-card{
+      background:#ffffff;
+      color:#020617;
+      border-color:rgba(148,163,184,.7);
+    }
+    .modal-card h3{margin:2px 0 10px;font-size:18px;font-weight:800}
+    .modal .row{display:flex;gap:10px;margin-bottom:8px}
+    .modal .row .col{flex:1}
+    .modal input,.modal select,.modal textarea{
+      width:100%;
+      padding:9px 11px;
+      border-radius:10px;
+      background:#020617;
+      border:1px solid var(--border);
+      color:#fff;
+      font:600 14px Outfit;
+    }
+    body.theme-light .modal input,
+    body.theme-light .modal select,
+    body.theme-light .modal textarea{
+      background:#f3f4f6;
+      color:#020617;
+      border-color:rgba(148,163,184,.6);
+    }
+    .modal textarea{min-height:82px;resize:vertical}
+    .modal .actions{
+      display:flex;gap:8px;justify-content:flex-end;
+      margin-top:10px;
+    }
+    #asMsg{font:700 12px;color:#7cffb0}
+    #asMsg.error{color:#ff9f9f}
+    @media(max-width:520px){ .modal .row{flex-direction:column} }
+
+    /* ===== TABBAR (comme feed) ===== */
+    .tabbar{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:30;
+      border-top:1px solid var(--border);
+      background:rgba(2,6,23,.97);
+      backdrop-filter:blur(18px);
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      padding:6px 8px 10px;
+    }
+    body.theme-light .tabbar{
+      background:rgba(244,244,245,.97);
+    }
+
+    .tab{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      text-decoration:none;
+      color:var(--text-dim);
+      font-size:9px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:4px 0;
+    }
+    .tab .ic{
+      font-size:20px;
+      line-height:1;
+    }
+    .tab.active{
+      color:var(--accent);
+    }
+
+    @media(min-width:700px){
+      nav.nav .row{
+        padding-inline:20px;
+      }
+      .main{
+        padding-inline:14px;
+      }
+      .tabbar{
+        border-radius:22px 22px 0 0;
+      }
+    }
+  </style>
 </head>
-<body>
+<body class="theme-dark">
 
 <!-- BG vidéo -->
 <div class="rsl-bg-wrap" aria-hidden="true">
@@ -398,139 +528,94 @@
   <div class="rsl-bg-dim"></div>
 </div>
 
-<!-- NAV TOP -->
-<nav class="nav">
-  <div class="row">
-    <a class="brand" href="ou_rider.html">
-      <img src="image/1logo_ridly.png" alt="RIDLY" />
-      <span>RIDLY</span>
-    </a>
-    <div class="nav-tools">
-      <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-      <button type="button" class="icon-btn" id="btnPwa" title="Installer l'app RIDLY">
-        📲 <span class="label">App</span>
-      </button>
-      <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
-        <span class="chat-dot" id="chatDot"></span>
-        💬
-      </a>
+<div class="page-wrap">
+
+  <!-- NAV TOP (style feed + PWA) -->
+  <nav class="nav">
+    <div class="row">
+      <div class="nav-left">
+        <a class="brand" href="ou_rider.html">
+          <img src="image/1logo_ridly.png" alt="RIDLY"/>
+          <span>RIDLY</span>
+        </a>
+        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post">
+          <span>+</span>
+        </button>
+      </div>
+      <div class="nav-tools">
+        <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">
+          🌙
+        </button>
+        <button type="button" class="icon-btn" id="btnPwa" title="Installer l'app RIDLY">
+          📲 <span class="label">App</span>
+        </button>
+        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
+          <span class="chat-dot" id="chatDot"></span>
+          💬
+        </a>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<script>
-/* === Gestion du thème clair/sombre === */
-(function(){
-  const saved = localStorage.getItem('ridlyTheme') || 'dark';
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
-  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
-
-  const btnTheme = document.getElementById('btnTheme');
-  const updateIcon = () => {
-    const isLight = document.body.classList.contains('theme-light');
-    btnTheme.textContent = isLight ? '☀️' : '🌙';
-  };
-  updateIcon();
-
-  btnTheme.addEventListener('click', ()=>{
-    const isLight = document.body.classList.contains('theme-light');
-    document.body.classList.toggle('theme-light', !isLight);
-    document.body.classList.toggle('theme-dark',  isLight);
-    localStorage.setItem('ridlyTheme', isLight ? 'dark' : 'light');
-    updateIcon();
-  });
-})();
-</script>
-
-<script>
-/* === PWA : bouton dans la nav === */
-let deferredInstallPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e)=>{
-  e.preventDefault();
-  deferredInstallPrompt = e;
-});
-
-const btnPwa = document.getElementById('btnPwa');
-if(btnPwa){
-  btnPwa.addEventListener('click', async ()=>{
-    if(deferredInstallPrompt){
-      deferredInstallPrompt.prompt();
-      try{
-        await deferredInstallPrompt.userChoice;
-      }catch(e){}
-      deferredInstallPrompt = null;
-    }else{
-      alert("Pour installer RIDLY, utilise \"Ajouter à l'écran d'accueil\" dans ton navigateur.");
-    }
-  });
-}
-</script>
-
-<!-- Titre -->
-<section class="page-mini-hero">
-  <div class="container">
-    <h1>Où rider ?</h1>
-    <p>
+  <!-- CONTENU PRINCIPAL -->
+  <main class="main">
+    <div class="mini-title">Où rider ?</div>
+    <div class="hero">
       Carte des <b>skateparks</b>, <b>street spots</b>, <b>shops partenaires</b> et <b>lieux de cours RSL</b>.<br>
       Partage ta position, ou ajoute ton propre spot.
-    </p>
-  </div>
-</section>
+    </div>
 
-<!-- Carte + Filtres -->
-<main>
-  <div class="container">
-    <div class="map-wrap">
+    <section class="map-card">
+      <div class="map-wrap">
 
-      <!-- bouton filtres -->
-      <div class="filters-fab">
-        <button id="btnToggleFilters" class="btn">Filtres</button>
-      </div>
+        <!-- bouton filtres -->
+        <div class="filters-fab">
+          <button id="btnToggleFilters" class="btn">Filtres</button>
+        </div>
 
-      <!-- panneau filtres -->
-      <div class="filters-wrap" id="filtersWrap">
-        <div class="filters-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-            <b style="font:800 13px Outfit">Filtres</b>
-            <button id="btnCloseFilters" class="btn" style="padding:4px 10px">✕</button>
-          </div>
+        <!-- panneau filtres -->
+        <div class="filters-wrap" id="filtersWrap">
+          <div class="filters-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <b style="font:800 13px Outfit">Filtres</b>
+              <button id="btnCloseFilters" class="btn" style="padding:4px 10px">✕</button>
+            </div>
 
-          <div class="filters-grid" style="margin-top:8px">
-            <label class="chip"><input type="checkbox" id="f-park" checked/> Parks</label>
-            <label class="chip"><input type="checkbox" id="f-street" checked/> Street</label>
-            <label class="chip"><input type="checkbox" id="f-shop" checked/> Shops</label>
-            <label class="chip"><input type="checkbox" id="f-cours" checked/> Cours</label>
+            <div class="filters-grid" style="margin-top:8px">
+              <label class="chip"><input type="checkbox" id="f-park" checked/> Parks</label>
+              <label class="chip"><input type="checkbox" id="f-street" checked/> Street</label>
+              <label class="chip"><input type="checkbox" id="f-shop" checked/> Shops</label>
+              <label class="chip"><input type="checkbox" id="f-cours" checked/> Cours</label>
 
-            <select id="f-country" class="select">
-              <option value="">Pays (tous)</option>
-              <option value="CH">Suisse</option>
-              <option value="FR">France</option>
-              <option value="DE">Allemagne</option>
-              <option value="EU">Autres Europe</option>
-              <option value="WORLD">Monde</option>
-            </select>
+              <select id="f-country" class="select">
+                <option value="">Pays (tous)</option>
+                <option value="CH">Suisse</option>
+                <option value="FR">France</option>
+                <option value="DE">Allemagne</option>
+                <option value="EU">Autres Europe</option>
+                <option value="WORLD">Monde</option>
+              </select>
 
-            <select id="f-canton" class="select"><option value="">Canton (CH)</option></select>
+              <select id="f-canton" class="select"><option value="">Canton (CH)</option></select>
 
-            <input id="f-type" class="input" placeholder="Type/texte (bowl, pumptrack, rail…)" />
-          </div>
+              <input id="f-type" class="input" placeholder="Type/texte (bowl, pumptrack, rail…)" />
+            </div>
 
-          <div class="filters-foot">
-            <button id="btnReset" class="btn">Réinitialiser</button>
-            <button id="btnLocate" class="btn green">📍 Ma position</button>
-            <button id="btnShare" class="btn" title="Partage ta position avec les riders">Activer partage</button>
-            <span id="shareState" style="font:600 12px Outfit;color:var(--dim);align-self:center"></span>
-            <button id="btnAddSpot" class="btn green" style="margin-left:auto">➕ Ajouter un spot</button>
+            <div class="filters-foot">
+              <button id="btnReset" class="btn">Réinitialiser</button>
+              <button id="btnLocate" class="btn green">📍 Ma position</button>
+              <button id="btnShare" class="btn green" title="Partage ta position avec les riders">Partage riders</button>
+              <span id="shareState"></span>
+              <button id="btnAddSpot" class="btn green" style="margin-left:auto">➕ Ajouter un spot</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div id="map"></div>
-    </div>
-  </div>
-</main>
+        <div id="map"></div>
+      </div>
+    </section>
+  </main>
+</div>
 
 <!-- Modale Ajouter un spot -->
 <div class="modal" id="addSpotModal">
@@ -632,7 +717,7 @@ if(btnPwa){
       <button type="button" class="btn" id="pickSearchBtn" style="white-space:nowrap">Rechercher</button>
     </div>
 
-    <div id="pickMap" style="height:320px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.18);"></div>
+    <div id="pickMap" style="height:320px;border-radius:12px;overflow:hidden;border:1px solid rgba(148,163,184,.6);"></div>
     <div class="actions" style="margin-top:10px">
       <button type="button" class="btn" id="pickMapCancel">Annuler</button>
       <button type="button" class="btn green" id="pickMapOk">OK</button>
@@ -640,25 +725,22 @@ if(btnPwa){
   </div>
 </div>
 
-<!-- Tabbar -->
+<!-- TABBAR -->
 <nav class="tabbar" aria-label="Navigation">
-  <a class="tab active" href="ou_rider.html" title="Carte / Spots">
-    <div class="ic">🏠</div><span>Spots</span>
-  </a>
-  <a class="tab" href="ajouter.html" title="Ajouter">
-    <div class="ic">➕</div><span>Ajouter</span>
+  <a class="tab active" href="ou_rider.html" title="Spots">
+    <div class="ic">📍</div><span>Spots</span>
   </a>
   <a class="tab" href="feed.html" title="Feed">
     <div class="ic">🎬</div><span>Feed</span>
   </a>
   <a class="tab" href="recherche.html" title="Recherche">
-    <div class="ic">🔎</div><span>Recherche</span>
+    <div class="ic">🔎</div><span>Search</span>
   </a>
   <a class="tab" href="games.html" title="Games">
     <div class="ic">🎮</div><span>Game</span>
   </a>
   <a class="tab" href="classement.html" title="Classement">
-    <div class="ic">🏆</div><span>Classement</span>
+    <div class="ic">🏆</div><span>Rank</span>
   </a>
   <a class="tab" href="profil_ou_rider.html" title="Profil">
     <div class="ic">👤</div><span>Profil</span>
@@ -666,13 +748,38 @@ if(btnPwa){
 </nav>
 
 <script>
+/* ===== Thème clair/sombre (même logique que feed) ===== */
+(function(){
+  const saved = localStorage.getItem('ridlyTheme') || 'dark';
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
+  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+
+  const btnTheme = document.getElementById('btnTheme');
+  const updateIcon = () => {
+    const isLight = document.body.classList.contains('theme-light');
+    btnTheme.textContent = isLight ? '☀️' : '🌙';
+  };
+  updateIcon();
+
+  btnTheme.addEventListener('click', ()=>{
+    const isLight = document.body.classList.contains('theme-light');
+    document.body.classList.toggle('theme-light', !isLight);
+    document.body.classList.toggle('theme-dark',  isLight);
+    localStorage.setItem('ridlyTheme', isLight ? 'dark' : 'light');
+    updateIcon();
+  });
+})();
+</script>
+
+<script>
+/* ===== Supabase init + auth ===== */
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentUser = null;
 
-/* Auth guard */
 (async function(){
   try{
     const { data:{ user } } = await supa.auth.getUser();
@@ -681,7 +788,6 @@ let currentUser = null;
       return;
     }
     currentUser = user;
-
     const dot = document.getElementById('chatDot');
     if(dot) dot.style.opacity = 1;
   }catch(e){
@@ -689,25 +795,56 @@ let currentUser = null;
     window.location.href = 'index.html';
   }
 })();
+</script>
 
-/* VIDÉO DE FOND */
+<script>
+/* ===== BG vidéo ===== */
 (function(){
   const v = document.getElementById('rslBg');
-  if (!v) return;
+  if(!v) return;
   const s = document.createElement('source');
   s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
   s.type = "video/mp4";
   v.appendChild(s);
-  const play = ()=>{ 
+  const play = ()=>{
     try{
-      v.playbackRate = .6;
+      v.playbackRate = 0.6;
       const p = v.play();
       if(p && p.catch) p.catch(()=>{});
     }catch(e){}
   };
   play();
-  document.addEventListener('visibilitychange',()=>{ document.hidden ? v.pause() : play(); });
+  document.addEventListener('visibilitychange',()=>{
+    document.hidden ? v.pause() : play();
+  });
 })();
+</script>
+
+<script>
+/* ===== PWA : bouton qui lance directement le prompt d'install quand dispo ===== */
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+
+const btnPwa = document.getElementById('btnPwa');
+if(btnPwa){
+  btnPwa.addEventListener('click', async ()=>{
+    // Si le navigateur permet l'installation, on déclenche DIRECT le prompt
+    if(deferredInstallPrompt){
+      deferredInstallPrompt.prompt();
+      try{
+        await deferredInstallPrompt.userChoice;
+      }catch(e){}
+      deferredInstallPrompt = null;
+    }else{
+      // Fallback : message pour iOS / cas où le prompt n'est pas dispo
+      alert("Pour installer RIDLY, utilise « Ajouter à l'écran d'accueil » dans ton navigateur.");
+    }
+  });
+}
 </script>
 
 <script>
@@ -813,7 +950,7 @@ F.locate.onclick = ()=>{
   },()=>alert("Impossible d'obtenir ta position."));
 };
 
-/* Données Supabase */
+/* Données Supabase (shops / parks / street / cours) */
 (async function loadData(){
   // shops
   let { data: shops } = await supa.from('shops').select('*');
@@ -926,11 +1063,12 @@ const shareBtn   = document.getElementById('btnShare');
 const shareState = document.getElementById('shareState');
 
 function updateShareUi(active, hint){
-  shareBtn.textContent = active ? "Couper partage" : "Activer partage";
   if(active){
     shareBtn.classList.remove('green');
+    shareBtn.textContent = 'Stop partage';
   }else{
     shareBtn.classList.add('green');
+    shareBtn.textContent = 'Partage riders';
   }
   if(hint!==undefined) shareState.textContent = hint || "";
 }
@@ -1027,7 +1165,7 @@ document.getElementById('btnAddSpot').onclick = ()=> openAddModal();
 function openAddModal(){
   addModal.classList.add('show');
   asMsg.classList.remove('error');
-  asMsg.textContent='📍 Utilise le bouton « Choisir sur une petite carte » ou clique la grande carte.';
+  asMsg.textContent='📍 Utilise la petite carte ou clique la grande carte.';
   updateCantonVisibility();
   updateAsSaveState();
 }
@@ -1056,7 +1194,7 @@ function updateAsSaveState(){
   });
 });
 
-/* Cliquer sur la GRANDE carte quand la modale est ouverte */
+/* Clic sur la grande carte pour lat/lng */
 map.on('click',e=>{
   if(!addModal.classList.contains('show')) return;
   asLat.value = e.latlng.lat.toFixed(6);

@@ -21,42 +21,44 @@
       --green:#22c55e;
       --green-dark:#16a34a;
 
-      --bg:#000000;
-      --panel:#0b1220;
+      --bg:#020617;
+      --bg-soft:#030712;
+      --panel:#020617;
       --panel-soft:#020617;
-      --text:#ffffff;
-      --dim:#9aa5b1;
-      --border:rgba(255,255,255,.15);
+      --text:#f9fafb;
+      --dim:#9ca3af;
+      --border:rgba(148,163,184,.4);
+      --radius-xl:18px;
     }
 
     body.theme-dark{
-      --bg:#000000;
-      --panel:#0b1220;
+      --bg:#020617;
+      --bg-soft:#030712;
+      --panel:#020617;
       --panel-soft:#020617;
-      --text:#ffffff;
-      --dim:#9aa5b1;
-      --border:rgba(255,255,255,.15);
+      --text:#f9fafb;
+      --dim:#9ca3af;
+      --border:rgba(148,163,184,.4);
     }
     body.theme-light{
       --bg:#f3f4f6;
+      --bg-soft:#e5e7eb;
       --panel:#ffffff;
       --panel-soft:#e5e7eb;
       --text:#020617;
       --dim:#4b5563;
-      --border:rgba(15,23,42,.12);
+      --border:rgba(148,163,184,.25);
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;margin:0;padding:0}
     body{
-      margin:0;
-      background:var(--bg);
+      background:#000;
       color:var(--text);
-      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      font-family:"Outfit",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       display:flex;
       flex-direction:column;
     }
-    main{flex:1}
 
     /* BG vidéo */
     .rsl-bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
@@ -67,68 +69,108 @@
     }
     .rsl-bg-dim{
       position:absolute;inset:0;
-      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.6));
+      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7));
     }
     body.theme-light .rsl-bg-dim{
       background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
     }
 
-    /* NAV top */
+    .page-wrap{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      max-width:800px;
+      margin:0 auto;
+      width:100%;
+      position:relative;
+      z-index:1;
+    }
+
+    /* NAV top (style feed/games/classement) */
     nav.nav{
-      position:sticky;top:0;z-index:1000;
-      background:rgba(0,0,0,.65);
-      backdrop-filter:blur(8px);
-      border-bottom:1px solid rgba(255,255,255,.12);
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(2,6,23,.9);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
     }
     body.theme-light nav.nav{
-      background:rgba(243,244,246,.9);
-      border-bottom:1px solid rgba(15,23,42,.1);
+      background:rgba(244,244,245,.95);
     }
-    nav .row{
-      max-width:1200px;margin:0 auto;
-      padding:12px 20px;
-      display:flex;justify-content:space-between;align-items:center;
-    }
-    nav .brand{
+    nav.nav .row{
       display:flex;
       align-items:center;
-      gap:10px;
-      font-weight:800;
-      color:var(--text);
-      text-decoration:none;
+      justify-content:space-between;
+      padding:8px 14px;
     }
-    nav .brand img{
-      height:52px;
-      width:52px;
+    .nav-left{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:var(--text);
+    }
+    .brand img{
+      width:32px;
+      height:32px;
       border-radius:12px;
       background:#000;
-      padding:6px;
-      box-shadow:0 0 14px rgba(34,197,94,.6);
+      padding:3px;
+      box-shadow:0 0 12px rgba(34,197,94,.7);
     }
-    nav .brand span{font-size:18px}
-    nav a{color:var(--text);text-decoration:none;font-weight:700}
-    nav a:hover{color:var(--green)}
+    .brand span{
+      font-weight:700;
+      letter-spacing:-0.03em;
+      font-size:20px;
+    }
+    .add-btn{
+      border:none;
+      outline:none;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      background:radial-gradient(circle at 30% 20%,#4ade80 0,#22c55e 35%,#16a34a 100%);
+      color:#022c16;
+      box-shadow:0 10px 22px rgba(34,197,94,.7);
+    }
+    .add-btn span{transform:translateY(-1px);}
 
     .nav-tools{
       display:flex;
-      gap:8px;
       align-items:center;
+      gap:8px;
       margin-left:auto;
     }
     .icon-btn{
-      border:1px solid var(--border);
-      background:rgba(0,0,0,.8);
+      border:1px solid rgba(15,23,42,.8);
+      background:rgba(15,23,42,.9);
       color:var(--text);
       border-radius:999px;
-      width:34px;height:34px;
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;
-      font-size:16px;
+      width:32px;
+      height:32px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:17px;
       text-decoration:none;
       position:relative;
+      cursor:pointer;
     }
     body.theme-light .icon-btn{
       background:#e5e7eb;
+      border-color:rgba(148,163,184,.6);
     }
     .icon-btn:hover{
       border-color:var(--green);
@@ -137,7 +179,7 @@
     .chat-dot{
       position:absolute;
       top:5px;
-      right:6px;
+      right:5px;
       width:8px;
       height:8px;
       border-radius:50%;
@@ -146,37 +188,42 @@
       opacity:0;
     }
 
-    /* Hero */
-    .page-mini-hero{position:relative;z-index:10;padding:16px 0 6px}
-    .page-mini-hero .container{max-width:1200px;margin:0 auto;padding:0 20px}
-    .page-mini-hero h1{margin:0 0 6px;font-size:clamp(26px,4vw,38px);font-weight:800}
-    .page-mini-hero p{margin:0;color:var(--dim);font-size:14px;max-width:720px}
-
-    /* Contenu */
-    main .container{
-      max-width:980px;
-      margin:0 auto 110px;
-      padding:0 20px 40px;
-      position:relative;
-      z-index:10;
+    /* Mini titre */
+    .mini-title{
+      padding:10px 10px 0;
+      font-size:13px;
+      font-weight:600;
+      color:var(--dim);
+    }
+    .page-intro{
+      font-size:13px;
+      color:var(--dim);
+      padding:2px 10px 8px;
+      line-height:1.4;
     }
 
+    main.main{
+      flex:1;
+      padding:0 10px 90px;
+    }
+
+    /* Card profil */
     .card{
-      background:rgba(0,0,0,.7);
+      background:var(--panel);
       border:1px solid var(--border);
-      border-radius:16px;
-      box-shadow:0 20px 60px rgba(0,0,0,.7);
-      padding:16px;
+      border-radius:var(--radius-xl);
+      box-shadow:0 22px 60px rgba(0,0,0,.85);
+      padding:14px;
+      margin-top:4px;
     }
     body.theme-light .card{
-      background:var(--panel);
       box-shadow:0 18px 45px rgba(15,23,42,.15);
     }
 
     .p-head{
       display:grid;
       grid-template-columns:84px 1fr auto;
-      gap:16px;
+      gap:12px;
       align-items:flex-start;
     }
     @media(max-width:720px){
@@ -195,7 +242,7 @@
       border-radius:18px;
       overflow:hidden;
       border:1px solid var(--border);
-      background:#0b1220;
+      background:#020617;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -210,19 +257,19 @@
       display:block;
     }
     .name{
-      font-size:22px;
+      font-size:21px;
       font-weight:800;
       margin:0;
       color:var(--text);
     }
     .meta-line{
-      font-size:13px;
+      font-size:12px;
       color:var(--dim);
       margin-top:4px;
       font-weight:600;
     }
     .loc-line{
-      font-size:13px;
+      font-size:12px;
       color:var(--dim);
       margin-top:2px;
     }
@@ -230,12 +277,12 @@
     .btn{
       appearance:none;
       border:1px solid var(--border);
-      background:rgba(255,255,255,.06);
+      background:var(--panel-soft);
       color:var(--text);
-      font-weight:800;
-      font-size:14px;
+      font-weight:700;
+      font-size:13px;
       border-radius:10px;
-      padding:10px 12px;
+      padding:8px 10px;
       cursor:pointer;
     }
     body.theme-light .btn{
@@ -244,26 +291,28 @@
     .btn.green{
       background:linear-gradient(180deg,var(--green),var(--green-dark));
       color:#062312;
-      border:0;
+      border:none;
       box-shadow:0 10px 24px rgba(0,0,0,.5);
     }
     .p-actions{
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:6px;
     }
 
+    /* Flashes (stories) */
     .flash-strip{
-      margin-top:14px;
+      margin-top:12px;
       display:flex;
       gap:12px;
       overflow:auto;
-      padding-bottom:6px;
+      padding-bottom:4px;
     }
     .flash{
       flex:0 0 auto;
       width:70px;
       position:relative;
+      cursor:pointer;
     }
     .flash .ring{
       width:70px;
@@ -288,9 +337,9 @@
       filter:brightness(.95);
     }
     .flash .cap{
-      font-size:11px;
+      font-size:10px;
       text-align:center;
-      margin-top:6px;
+      margin-top:4px;
       color:#cdd6ff;
     }
     .flash-actions{
@@ -314,28 +363,32 @@
       cursor:pointer;
     }
 
-    .edit{margin-top:14px;display:none}
-    .row{
+    /* Form edit */
+    .edit{
+      margin-top:14px;
+      display:none;
+    }
+    .row-grid{
       display:grid;
       grid-template-columns:repeat(2,minmax(0,1fr));
       gap:10px;
     }
-    .row .full{grid-column:1/-1}
+    .row-grid .full{grid-column:1/-1}
     label{
       display:block;
-      font-size:12px;
+      font-size:11px;
       font-weight:700;
       color:#e2e8f0;
-      margin:6px 0 6px;
+      margin:4px 0 4px;
     }
     .input,textarea.input,select.input{
       width:100%;
-      background:#0b1220;
+      background:#020617;
       border:1px solid var(--border);
       border-radius:10px;
       color:#fff;
-      padding:10px 12px;
-      font-size:14px;
+      padding:8px 10px;
+      font-size:13px;
     }
     body.theme-light .input,
     body.theme-light textarea.input,
@@ -345,14 +398,25 @@
       border-color:rgba(15,23,42,.15);
     }
 
+    /* Posts grid */
+    .posts-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:8px;
+    }
+    .posts-header h2{
+      margin:0;
+      font-size:15px;
+      font-weight:800;
+    }
     .post-grid{
-      margin-top:16px;
       display:grid;
       grid-template-columns:repeat(3,1fr);
       gap:8px;
     }
     @media (max-width:720px){
-      .post-grid{grid-template-columns:repeat(2,1fr)}
+      .post-grid{grid-template-columns:repeat(2,1fr);}
     }
     .thumb{
       position:relative;
@@ -360,6 +424,7 @@
       overflow:hidden;
       border:1px solid var(--border);
       background:#000;
+      display:block;
     }
     .thumb img,.thumb video{
       display:block;
@@ -372,12 +437,12 @@
       position:absolute;
       left:6px;
       top:6px;
-      font-size:11px;
+      font-size:10px;
       font-weight:800;
-      background:rgba(0,0,0,.55);
+      background:rgba(0,0,0,.6);
       border:1px solid var(--border);
       padding:3px 6px;
-      border-radius:8px;
+      border-radius:999px;
     }
     .thumb-del{
       position:absolute;
@@ -392,39 +457,52 @@
       font-size:12px;
       cursor:pointer;
     }
-    .empty{color:#9aa5b1;text-align:center;margin:18px 0 8px}
+    .empty{
+      color:var(--dim);
+      text-align:center;
+      margin:14px 0 4px;
+      font-size:13px;
+    }
 
     /* Tabbar */
     .tabbar{
       position:fixed;
       left:0;right:0;bottom:0;
-      z-index:2000;
+      z-index:30;
       display:flex;
       align-items:center;
       justify-content:space-around;
-      padding:14px 18px;
+      padding:6px 8px 10px;
       border-top:1px solid var(--border);
-      background:rgba(0,0,0,.78);
-      backdrop-filter:blur(10px);
+      background:rgba(2,6,23,.97);
+      backdrop-filter:blur(18px);
     }
     body.theme-light .tabbar{
-      background:rgba(243,244,246,.96);
+      background:rgba(244,244,245,.97);
     }
     .tab{
+      flex:1;
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:4px;
+      gap:2px;
       text-decoration:none;
+      color:var(--dim);
+      font-size:9px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:4px 0;
     }
-    .tab .ic{font-size:24px}
-    .tab span{font-size:13px;color:#e5e7eb;font-weight:700}
-    body.theme-light .tab span{color:#111827}
-    .tab.active span{color:#22c55e}
-    @media(min-width:900px){ .tab span{font-size:12px} }
+    .tab .ic{font-size:20px;line-height:1;}
+    .tab.active{color:var(--green);}
+    @media(min-width:900px){
+      nav.nav .row{padding-inline:20px;}
+      main.main{padding-inline:14px;}
+      .tabbar{border-radius:22px 22px 0 0;}
+    }
   </style>
 </head>
-<body>
+<body class="theme-dark">
 
 <!-- BG vidéo RIDLY -->
 <div class="rsl-bg-wrap" aria-hidden="true">
@@ -432,36 +510,39 @@
   <div class="rsl-bg-dim"></div>
 </div>
 
-<!-- Nav top -->
-<nav class="nav">
-  <div class="row">
-    <a class="brand" href="ou_rider.html">
-      <img src="image/1logo_ridly.png" alt="RIDLY"/>
-      <span>RIDLY</span>
-    </a>
-    <div class="nav-tools">
-      <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-      <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
-        <span class="chat-dot" id="chatDot"></span>
-        💬
-      </a>
+<div class="page-wrap">
+
+  <!-- Nav top -->
+  <nav class="nav">
+    <div class="row">
+      <div class="nav-left">
+        <a class="brand" href="ou_rider.html">
+          <img src="image/1logo_ridly.png" alt="RIDLY"/>
+          <span>RIDLY</span>
+        </a>
+        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouvelle publication">
+          <span>+</span>
+        </button>
+      </div>
+      <div class="nav-tools">
+        <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
+          <span class="chat-dot" id="chatDot"></span>
+          💬
+        </a>
+        <!-- Nouveau : petit bouton compte / connexion en haut à droite -->
+        <button type="button" class="icon-btn" id="btnAccount" title="Compte / connexion">👤</button>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<!-- Mini hero -->
-<section class="page-mini-hero">
-  <div class="container">
-    <h1>Profil rider</h1>
-    <p>
-      Gère ton profil RIDLY, tes stories (flashs) et tes posts dans le feed.
-    </p>
-  </div>
-</section>
+  <!-- Mini hero style feed -->
+  <div class="mini-title">Profil rider</div>
+  <p class="page-intro">
+    Gère ton profil RIDLY, tes stories (flashs) et tes posts dans le feed.
+  </p>
 
-<main>
-  <div class="container">
-    <!-- Profil -->
+  <main class="main">
     <section class="card">
       <div class="p-head">
         <div class="avatar">
@@ -478,7 +559,7 @@
       <div id="flashStrip" class="flash-strip"></div>
 
       <form id="editForm" class="edit">
-        <div class="row">
+        <div class="row-grid">
           <div>
             <label for="fPseudo">Pseudo</label>
             <input id="fPseudo" class="input" type="text" placeholder="rider_name"/>
@@ -534,49 +615,47 @@
     </section>
 
     <!-- Posts -->
-    <section class="card" style="margin-top:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <h2 style="margin:0;font-size:16px;font-weight:800">Posts</h2>
+    <section class="card" style="margin-top:14px">
+      <div class="posts-header">
+        <h2>Posts</h2>
         <button class="btn" id="btnNewPost" style="display:none">+ Nouveau post</button>
       </div>
       <div id="postGrid" class="post-grid"></div>
       <p id="postsEmpty" class="empty" style="display:none">Aucun post pour l’instant.</p>
     </section>
-  </div>
-</main>
+  </main>
+</div>
 
 <!-- Tabbar -->
 <nav class="tabbar" aria-label="Navigation">
-  <a class="tab" href="ou_rider.html" title="Carte / Spots">
-    <div class="ic">🏠</div><span>Spots</span>
-  </a>
-  <a class="tab" href="ajouter.html" title="Ajouter">
-    <div class="ic">➕</div><span>Ajouter</span>
+  <a class="tab" href="ou_rider.html" title="Spots">
+    <div class="ic">📍</div><span>Spots</span>
   </a>
   <a class="tab" href="feed.html" title="Feed">
     <div class="ic">🎬</div><span>Feed</span>
   </a>
   <a class="tab" href="recherche.html" title="Recherche">
-    <div class="ic">🔎</div><span>Recherche</span>
+    <div class="ic">🔎</div><span>Search</span>
   </a>
   <a class="tab" href="games.html" title="Games">
     <div class="ic">🎮</div><span>Game</span>
   </a>
   <a class="tab" href="classement.html" title="Classement">
-    <div class="ic">🏆</div><span>Classement</span>
+    <div class="ic">🏆</div><span>Rank</span>
   </a>
   <a class="tab active" href="profil_ou_rider.html" title="Profil">
     <div class="ic">👤</div><span>Profil</span>
   </a>
 </nav>
 
+<!-- Thème -->
 <script>
-/* Thème */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
-  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+  document.body.classList.toggle('theme-light', theme === 'light');
+  document.body.classList.toggle('theme-dark', theme !== 'light');
 
   const btnTheme = document.getElementById('btnTheme');
   const updateIcon = () => {
@@ -595,8 +674,8 @@
 })();
 </script>
 
+<!-- Supabase init + BG vidéo -->
 <script>
-/* Supabase init + BG vidéo */
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -614,8 +693,8 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 })();
 </script>
 
+<!-- Profil logic -->
 <script>
-/* Profil logic */
 const params = new URLSearchParams(location.search);
 const qId    = params.get('id');
 const qUser  = params.get('u');
@@ -632,6 +711,7 @@ const postGrid    = document.getElementById('postGrid');
 const postsEmpty  = document.getElementById('postsEmpty');
 const btnNewPost  = document.getElementById('btnNewPost');
 const chatDot     = document.getElementById('chatDot');
+const btnAccount  = document.getElementById('btnAccount');
 
 const avatarInput = document.getElementById('fAvatar');
 const fPseudo     = document.getElementById('fPseudo');
@@ -652,7 +732,7 @@ let countFlashes = 0;
 let accountAvg = null;
 
 function updateStatsLine(){
-  const followers = 0; // à implémenter plus tard
+  const followers = 0; // plus tard
   const avgTxt = (accountAvg != null)
     ? `Moyenne compte : ${accountAvg.toFixed(1)} / 5`
     : `Moyenne compte : —`;
@@ -663,6 +743,21 @@ function updateStatsLine(){
   const { data:{ user } } = await supa.auth.getUser();
   sessionUser = user || null;
   if(sessionUser && chatDot) chatDot.style.opacity = 1;
+
+  // bouton compte / connexion en haut à droite
+  if(btnAccount){
+    btnAccount.title = sessionUser ? "Se déconnecter" : "Connexion / inscription";
+    btnAccount.addEventListener('click', async ()=>{
+      if(sessionUser){
+        if(confirm("Se déconnecter de RIDLY ?")){
+          await supa.auth.signOut();
+          location.href = "index.html";
+        }
+      }else{
+        location.href = "compte.html";
+      }
+    });
+  }
 
   if(qId){
     profileUserId = qId;
@@ -734,15 +829,23 @@ async function loadProfile(){
 
 function buildActions(){
   actionsBox.innerHTML = "";
+
   if(isOwn){
+    // Seulement "Éditer" sur son propre profil
     actionsBox.append(
-      makeBtn("✏️ Éditer", toggleEdit),
-      (()=>{ const b = makeBtn("+ Flash", addFlash); b.classList.add('green'); return b; })(),
-      makeBtn("Déconnexion", async ()=>{ await supa.auth.signOut(); location.href="index.html"; })
+      makeBtn("✏️ Éditer", toggleEdit)
     );
     btnNewPost.style.display = "inline-block";
     btnNewPost.onclick = ()=>location.href="ajouter.html";
   }else{
+    // Profil d'un autre rider
+    if(sessionUser){
+      const chatBtn = makeBtn("💬 Chat 1v1", ()=>{
+        window.location.href = "chat1v1.html?to=" + encodeURIComponent(profileUserId);
+      });
+      chatBtn.classList.add("green");
+      actionsBox.append(chatBtn);
+    }
     actionsBox.append(makeBtn("Suivre (bientôt)", ()=>{}));
   }
 }
@@ -864,7 +967,7 @@ async function loadFlashes(){
   }
 }
 
-/* Ajout flash */
+/* Ajout flash (fonction gardée mais plus de bouton dans l’UI) */
 async function addFlash(){
   const inp = document.createElement('input');
   inp.type = "file";
@@ -939,7 +1042,7 @@ async function loadPosts(){
     });
   }
 
-  // moyenne de toutes les notes du rider
+  // moyenne de toutes les notes (roues) du rider
   try{
     const ids = list.map(p=>p.id);
     if(!ids.length){ accountAvg = null; updateStatsLine(); return; }
@@ -958,6 +1061,13 @@ async function loadPosts(){
     console.error(e);
   }
 }
+</script>
+
+<script>
+  // Service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  }
 </script>
 
 </body>

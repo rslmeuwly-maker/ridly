@@ -6,7 +6,7 @@
 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#22c55e">
-  <title>Chat Riders — RIDLY</title>
+  <title>Chat privé — RIDLY</title>
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -209,7 +209,6 @@
       color:var(--text-dim);
     }
 
-    /* ===== CARD / CHAT ===== */
     .card{
       background:var(--card);
       border-radius:var(--radius-xl);
@@ -234,6 +233,24 @@
       margin:0 0 8px;
     }
 
+    .chip-peer{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 9px;
+      border-radius:999px;
+      background:rgba(15,23,42,.9);
+      border:1px solid var(--border);
+      font-size:12px;
+      color:#e5e7eb;
+      margin-bottom:6px;
+    }
+    .chip-peer span{
+      font-weight:700;
+      color:var(--accent);
+    }
+
+    /* ===== Chat box ===== */
     .chat-box{
       display:flex;
       flex-direction:column;
@@ -251,6 +268,8 @@
       padding:8px;
       overflow-y:auto;
       font-size:13px;
+      display:flex;
+      flex-direction:column;
     }
     body.theme-light .chat-messages{
       background:#f9fafb;
@@ -260,10 +279,23 @@
       padding:6px 8px;
       border-radius:10px;
       margin-bottom:4px;
-      background:rgba(15,23,42,1);
+      max-width:80%;
+      word-wrap:break-word;
+      display:block;
     }
-    body.theme-light .msg{
+    .msg.me{
+      margin-left:auto;
+      background:linear-gradient(180deg,var(--accent),#16a34a);
+      color:#022c16;
+    }
+    .msg.other{
+      margin-right:auto;
+      background:rgba(15,23,42,1);
+      color:var(--text);
+    }
+    body.theme-light .msg.other{
       background:#e5e7eb;
+      color:#111827;
     }
 
     .msg-header{
@@ -275,13 +307,14 @@
     .msg-user{
       font-weight:700;
       font-size:13px;
-    }
-    .msg-user a{
-      color:inherit;
-      text-decoration:none;
-    }
-    .msg-user a:hover{
+      color:var(--accent);
       text-decoration:underline;
+      cursor:pointer;
+    }
+    .msg.me .msg-user{
+      color:#022c16;
+      text-decoration:none;
+      cursor:default;
     }
     .msg-time{
       font-size:11px;
@@ -348,7 +381,7 @@
       color:#fda4af;
     }
 
-    /* ===== BOTTOM NAV (comme FEED) ===== */
+    /* ===== BOTTOM NAV (comme FEED / CHAT) ===== */
     .tabbar{
       position:fixed;
       left:0;
@@ -404,7 +437,7 @@
 </head>
 <body class="theme-dark">
 
-<!-- BG vidéo depuis Supabase -->
+<!-- BG vidéo -->
 <div class="rsl-bg-wrap" aria-hidden="true">
   <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
   <div class="rsl-bg-dim"></div>
@@ -412,7 +445,7 @@
 
 <div class="page-wrap">
 
-  <!-- NAV TOP (identique feed, mais avec bouton 1v1) -->
+  <!-- NAV TOP -->
   <nav class="nav">
     <div class="row">
       <div class="nav-left">
@@ -426,32 +459,40 @@
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-        <!-- bouton 1v1 spécifique à la page chat -->
-        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Chat 1v1">🤝</a>
+        <!-- lien vers le chat global -->
+        <a href="chat.html" class="icon-btn" title="Chat global">💬</a>
       </div>
     </div>
   </nav>
 
   <!-- CONTENU PRINCIPAL -->
   <main class="main">
-    <div class="mini-title">Chat Riders</div>
+    <div class="mini-title">Chat privé</div>
 
     <section class="card">
-      <h1 class="main-title">Chat global RIDLY</h1>
+      <h1 class="main-title">Chat privé RIDLY</h1>
       <p class="muted">
-        Discute avec tous les riders connectés. Reste respectueux, pas d’insultes ni de contenu sensible.
+        Conversation 1v1 entre deux riders. Reste respectueux, pas d’insultes ni de contenu sensible.
       </p>
 
+      <div class="chip-peer" id="peerChip" style="display:none">
+        💬 Chat avec <span id="peerName"></span>
+      </div>
+
       <div id="chatLocked" class="muted" style="margin-bottom:6px;display:none">
-        Tu dois être connecté pour utiliser le chat.
+        Tu dois être connecté pour utiliser le chat privé.
         <a href="compte.html" style="color:#22c55e;font-weight:700">Se connecter</a>
+      </div>
+
+      <div id="chatNoPeer" class="muted" style="margin-bottom:6px;display:none">
+        Aucun rider sélectionné. Ouvre cette page avec un paramètre
+        <code>?to=&lt;id_du_rider&gt;</code> ou depuis un profil.
       </div>
 
       <div class="chat-box" id="chatBox" style="display:none">
         <div class="chat-messages" id="chatMessages">
-          <div class="muted">Chargement des messages…</div>
+          <div class="muted">Chargement de la conversation…</div>
         </div>
-
         <div class="chat-input-row">
           <textarea
             id="chatInput"
@@ -469,7 +510,7 @@
   </main>
 </div>
 
-<!-- NAVIGATION BAS (comme FEED, sans onglet Chat) -->
+<!-- TABBAR identique aux autres pages -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
     <div class="ic">📍</div><span>Spots</span>
@@ -492,7 +533,7 @@
 </nav>
 
 <script>
-/* ===== Thème clair/sombre (comme feed) ===== */
+/* ===== Thème clair/sombre (comme feed / chat) ===== */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -522,7 +563,7 @@ const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-/* BG vidéo depuis Supabase storage */
+/* BG vidéo RIDLY */
 (function(){
   const v = document.getElementById('rslBg');
   if(!v) return;
@@ -545,34 +586,32 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Chat global logic ===== */
+/* ===== Chat privé 1v1 ===== */
 
 const chatBox      = document.getElementById('chatBox');
 const chatLocked   = document.getElementById('chatLocked');
+const chatNoPeer   = document.getElementById('chatNoPeer');
 const chatMessages = document.getElementById('chatMessages');
 const chatInput    = document.getElementById('chatInput');
 const chatSend     = document.getElementById('chatSend');
 const chatError    = document.getElementById('chatError');
+const peerChip     = document.getElementById('peerChip');
+const peerNameSpan = document.getElementById('peerName');
 
-let me       = null;
-let profile  = null;
-const seenMessageIds = new Set();
+let me         = null;
+let myProfile  = null;
+let peerId     = null;
+let peerProfile= null;
 
-/* Mots interdits (à compléter si besoin) */
-const BANNED_WORDS = [
-  "con",
-  "connard",
-  "fdp",
-  "merde"
-];
+const urlParams = new URLSearchParams(window.location.search);
+peerId = urlParams.get('to') || null;
+
+/* Mots interdits */
+const BANNED_WORDS = ["con","connard","fdp","merde"];
 
 function escapeHTML(s){
   return (s||"").replace(/[&<>"']/g,m=>({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    "\"":"&quot;",
-    "'":"&#39;"
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
   }[m]));
 }
 function formatTime(iso){
@@ -580,141 +619,8 @@ function formatTime(iso){
   const d=new Date(iso);
   return d.toLocaleTimeString("fr-CH",{hour:"2-digit",minute:"2-digit"});
 }
-function containsBannedWords(text){
-  const clean = (text||"").toLowerCase();
-  for(const w of BANNED_WORDS){
-    if(!w) continue;
-    if(clean.includes(w)) return true;
-  }
-  return false;
-}
 
-/* Ajouter un message dans le DOM */
-function appendMessage(m, scroll=true){
-  if(!m || !m.id) return;
-  if(seenMessageIds.has(m.id)) return;
-  seenMessageIds.add(m.id);
-
-  const pseudo = m.profiles?.pseudo || m.profiles?.full_name || "Rider";
-  const safeName = escapeHTML(pseudo);
-  const timeTxt  = formatTime(m.created_at);
-
-  const div = document.createElement('div');
-  div.className = "msg";
-  div.innerHTML = `
-    <div class="msg-header">
-      <span class="msg-user">
-        <a href="profil_ou_rider.html?id=${encodeURIComponent(m.user_id || '')}">
-          ${safeName}
-        </a>
-      </span>
-      <span class="msg-time">${timeTxt}</span>
-    </div>
-    <div class="msg-body">${escapeHTML(m.content)}</div>
-  `;
-  chatMessages.appendChild(div);
-  if(scroll){
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-}
-
-/* Charger les 80 derniers messages */
-async function loadMessages(){
-  try{
-    const { data, error } = await supa
-      .from('ridly_chat_messages')
-      .select('id,user_id,content,created_at,profiles(pseudo,full_name)')
-      .order('created_at', { ascending:false })
-      .limit(80);
-
-    if(error){
-      console.error(error);
-      chatMessages.innerHTML='<div class="muted">Erreur de chargement du chat.</div>';
-      return;
-    }
-
-    const list = (data||[]).slice().reverse();
-    chatMessages.innerHTML = "";
-
-    if(!list.length){
-      chatMessages.innerHTML = '<div class="muted">Pas encore de messages. Lance la discussion 👇</div>';
-      return;
-    }
-
-    list.forEach(m => appendMessage(m,false));
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }catch(e){
-    console.error(e);
-    chatMessages.innerHTML = '<div class="muted">Erreur de chargement du chat.</div>';
-  }
-}
-
-/* Realtime : nouveaux messages */
-function subscribeNewMessages(){
-  supa.channel('ridly_chat')
-    .on('postgres_changes',{
-      event:'INSERT',
-      schema:'public',
-      table:'ridly_chat_messages'
-    }, payload => {
-      const m = payload.new;
-      const msg = {
-        ...m,
-        profiles: (m.user_id === me?.id && profile)
-          ? { pseudo: profile.pseudo, full_name: profile.full_name }
-          : null
-      };
-      appendMessage(msg,true);
-    })
-    .subscribe();
-}
-
-/* Envoyer un message */
-async function sendMessage(){
-  chatError.textContent = "";
-  const txt = (chatInput.value || "").trim();
-  if(!txt) return;
-  if(txt.length > 400){
-    chatError.textContent = "Message trop long (max 400 caractères).";
-    return;
-  }
-  if(containsBannedWords(txt)){
-    chatError.textContent = "Message bloqué (mot interdit).";
-    return;
-  }
-  if(!me){
-    chatError.textContent = "Tu dois être connecté pour envoyer un message.";
-    return;
-  }
-
-  chatSend.disabled = true;
-  try{
-    const { data, error } = await supa
-      .from('ridly_chat_messages')
-      .insert([{ user_id: me.id, content: txt }])
-      .select('id,user_id,content,created_at')
-      .single();
-
-    if(error){
-      console.error(error);
-      chatError.textContent = "Erreur lors de l’envoi du message.";
-    }else if(data){
-      const msg = {
-        ...data,
-        profiles: profile ? { pseudo: profile.pseudo, full_name: profile.full_name } : null
-      };
-      appendMessage(msg,true);
-      chatInput.value = "";
-    }
-  }catch(e){
-    console.error(e);
-    chatError.textContent = "Erreur réseau.";
-  }finally{
-    chatSend.disabled = false;
-  }
-}
-
-/* Init session + profil + chat */
+/* Init session + peer */
 (async function init(){
   try{
     const { data:{ user } } = await supa.auth.getUser();
@@ -725,25 +631,199 @@ async function sendMessage(){
     }
     me = user;
 
-    chatLocked.style.display = "none";
-    chatBox.style.display    = "flex";
+    if(!peerId){
+      chatLocked.style.display = "none";
+      chatNoPeer.style.display = "block";
+      chatBox.style.display    = "none";
+      return;
+    }
+    if(peerId === me.id){
+      chatLocked.style.display = "none";
+      chatNoPeer.style.display = "block";
+      chatNoPeer.innerHTML = "Tu ne peux pas ouvrir un chat privé avec toi-même.";
+      chatBox.style.display    = "none";
+      return;
+    }
 
-    const { data: prof } = await supa
+    // Profil de moi
+    const { data: profMe } = await supa
       .from('profiles')
-      .select('pseudo,full_name')
+      .select('pseudo,full_name,avatar_url')
       .eq('id', me.id)
       .maybeSingle();
+    myProfile = profMe || null;
 
-    profile = prof || null;
+    // Profil du rider cible
+    const { data: profPeer, error: peerErr } = await supa
+      .from('profiles')
+      .select('id,pseudo,full_name,avatar_url')
+      .eq('id', peerId)
+      .maybeSingle();
+
+    if(peerErr || !profPeer){
+      chatNoPeer.style.display = "block";
+      chatNoPeer.innerHTML = "Ce rider n’existe pas ou n’a pas de profil.";
+      chatBox.style.display = "none";
+      return;
+    }
+    peerProfile = profPeer;
+    const name = peerProfile.pseudo || peerProfile.full_name || "Rider";
+    peerNameSpan.textContent = name;
+    peerChip.style.display   = "inline-flex";
+
+    chatLocked.style.display = "none";
+    chatNoPeer.style.display = "none";
+    chatBox.style.display    = "flex";
 
     await loadMessages();
-    subscribeNewMessages();
+    subscribeMessages();
   }catch(e){
     console.error(e);
     chatLocked.style.display = "block";
     chatBox.style.display    = "none";
   }
 })();
+
+/* Charger les 80 derniers messages 1v1 */
+async function loadMessages(){
+  if(!me || !peerId) return;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_messages')
+      .select('id,from_id,to_id,content,created_at')
+      .or(`and(from_id.eq.${me.id},to_id.eq.${peerId}),and(from_id.eq.${peerId},to_id.eq.${me.id})`)
+      .order('created_at',{ascending:false})
+      .limit(80);
+
+    if(error){
+      console.error(error);
+      chatMessages.innerHTML='<div class="muted">Erreur de chargement du chat.</div>';
+      return;
+    }
+
+    const list = (data || []).slice().reverse();
+    chatMessages.innerHTML = "";
+
+    if(!list.length){
+      chatMessages.innerHTML = '<div class="muted">Pas encore de messages dans cette conversation 👇</div>';
+      return;
+    }
+
+    list.forEach(m => appendMessage(m,false));
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }catch(e){
+    console.error(e);
+    chatMessages.innerHTML='<div class="muted">Erreur de chargement du chat.</div>';
+  }
+}
+
+/* Afficher un message */
+function appendMessage(m, scroll=true){
+  if(!me || !peerProfile) return;
+  const isMe = (m.from_id === me.id);
+  const div  = document.createElement('div');
+  div.className = "msg " + (isMe ? "me" : "other");
+
+  const who = isMe
+    ? (myProfile?.pseudo || myProfile?.full_name || "Moi")
+    : (peerProfile?.pseudo || peerProfile?.full_name || "Rider");
+
+  let namePart = "";
+  if(isMe){
+    namePart = `<span class="msg-user">Moi</span>`;
+  }else{
+    namePart = `<span class="msg-user">${escapeHTML(who)}</span>`;
+  }
+
+  div.innerHTML = `
+    <div class="msg-header">
+      ${namePart}
+      <span class="msg-time">${formatTime(m.created_at)}</span>
+    </div>
+    <div class="msg-body">${escapeHTML(m.content)}</div>
+  `;
+
+  // clic sur le pseudo de l'autre => profil
+  if(!isMe && peerProfile?.id){
+    const userSpan = div.querySelector('.msg-user');
+    if(userSpan){
+      userSpan.addEventListener('click', ()=>{
+        window.location.href = 'profil_ou_rider.html?id=' + encodeURIComponent(peerProfile.id);
+      });
+    }
+  }
+
+  chatMessages.appendChild(div);
+  if(scroll){
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+}
+
+/* Realtime : nouveaux messages */
+function subscribeMessages(){
+  if(!me) return;
+  supa.channel('ridly_private_'+me.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'ridly_private_messages'
+    }, payload => {
+      const m = payload.new;
+      if(
+        (m.from_id === me.id   && m.to_id === peerId) ||
+        (m.from_id === peerId && m.to_id === me.id)
+      ){
+        appendMessage(m,true);
+      }
+    })
+    .subscribe();
+}
+
+/* Envoi d'un message */
+async function sendMessage(){
+  chatError.textContent = "";
+  const txt = (chatInput.value || "").trim();
+  if(!txt) return;
+  if(txt.length > 400){
+    chatError.textContent = "Message trop long (max 400 caractères).";
+    return;
+  }
+  const lower = txt.toLowerCase();
+  if(BANNED_WORDS.some(w => lower.includes(w))){
+    chatError.textContent = "Message bloqué (mot interdit).";
+    return;
+  }
+  if(!me || !peerId){
+    chatError.textContent = "Erreur : pas de rider cible.";
+    return;
+  }
+
+  chatSend.disabled = true;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_messages')
+      .insert([{
+        from_id: me.id,
+        to_id:   peerId,
+        content: txt
+      }])
+      .select('id,from_id,to_id,content,created_at')
+      .single();
+
+    if(error){
+      console.error(error);
+      chatError.textContent = "Erreur lors de l’envoi du message.";
+    }else if(data){
+      appendMessage(data,true);
+      chatInput.value = "";
+    }
+  }catch(e){
+    console.error(e);
+    chatError.textContent = "Erreur réseau.";
+  }finally{
+    chatSend.disabled = false;
+  }
+}
 
 /* Events */
 chatSend.addEventListener('click', sendMessage);
