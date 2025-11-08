@@ -530,8 +530,8 @@
           <span class="chat-dot" id="chatDot"></span>
           💬
         </a>
-        <!-- Nouveau : petit bouton compte / connexion en haut à droite -->
-        <button type="button" class="icon-btn" id="btnAccount" title="Compte / connexion">👤</button>
+        <!-- Déconnexion discrète en haut -->
+        <button type="button" class="icon-btn" id="btnLogout" title="Déconnexion" style="display:none">⏻</button>
       </div>
     </div>
   </nav>
@@ -648,19 +648,18 @@
   </a>
 </nav>
 
-<!-- Thème -->
+<!-- Thème (même logique que feed.html) -->
 <script>
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
-  document.body.classList.toggle('theme-light', theme === 'light');
-  document.body.classList.toggle('theme-dark', theme !== 'light');
+  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
 
   const btnTheme = document.getElementById('btnTheme');
   const updateIcon = () => {
     const isLight = document.body.classList.contains('theme-light');
-    btnTheme.textContent = isLight ? '☀️' : '🌙';
+    btnTheme.textContent = isLight ? ☀️' : '🌙';
   };
   updateIcon();
 
@@ -711,7 +710,7 @@ const postGrid    = document.getElementById('postGrid');
 const postsEmpty  = document.getElementById('postsEmpty');
 const btnNewPost  = document.getElementById('btnNewPost');
 const chatDot     = document.getElementById('chatDot');
-const btnAccount  = document.getElementById('btnAccount');
+const btnLogout   = document.getElementById('btnLogout');
 
 const avatarInput = document.getElementById('fAvatar');
 const fPseudo     = document.getElementById('fPseudo');
@@ -730,13 +729,14 @@ let isOwn         = false;
 let countPosts = 0;
 let countFlashes = 0;
 let accountAvg = null;
+let followersCount = 0;
+let isFollowing    = false;
 
 function updateStatsLine(){
-  const followers = 0; // plus tard
   const avgTxt = (accountAvg != null)
     ? `Moyenne compte : ${accountAvg.toFixed(1)} / 5`
     : `Moyenne compte : —`;
-  pStats.textContent = `${countPosts} posts • ${countFlashes} flashs • ${followers} abonnés • ${avgTxt}`;
+  pStats.textContent = `${countPosts} posts • ${countFlashes} flashs • ${followersCount} abonnés • ${avgTxt}`;
 }
 
 (async function init(){
@@ -744,19 +744,13 @@ function updateStatsLine(){
   sessionUser = user || null;
   if(sessionUser && chatDot) chatDot.style.opacity = 1;
 
-  // bouton compte / connexion en haut à droite
-  if(btnAccount){
-    btnAccount.title = sessionUser ? "Se déconnecter" : "Connexion / inscription";
-    btnAccount.addEventListener('click', async ()=>{
-      if(sessionUser){
-        if(confirm("Se déconnecter de RIDLY ?")){
-          await supa.auth.signOut();
-          location.href = "index.html";
-        }
-      }else{
-        location.href = "compte.html";
-      }
-    });
+  // bouton déconnexion top bar
+  if(sessionUser && btnLogout){
+    btnLogout.style.display = 'flex';
+    btnLogout.onclick = async ()=>{
+      await supa.auth.signOut();
+      location.href = "index.html";
+    };
   }
 
   if(qId){
@@ -782,6 +776,7 @@ function updateStatsLine(){
   await loadProfile();
   await loadFlashes();
   await loadPosts();
+  await loadFollowState();
   buildActions();
 })();
 
@@ -827,26 +822,63 @@ async function loadProfile(){
   }
 }
 
+/* Charge nb d'abonnés + si moi je suis abonné */
+async function loadFollowState(){
+  followersCount = 0;
+  isFollowing = false;
+  if(!profileUserId){
+    updateStatsLine();
+    return;
+  }
+  try{
+    const { count } = await supa
+      .from('rider_follows')
+      .select('*', { count:'exact', head:true })
+      .eq('followed_id', profileUserId);
+    followersCount = count || 0;
+
+    if(sessionUser){
+      const { data:rows } = await supa
+        .from('rider_follows')
+        .select('id')
+        .eq('follower_id', sessionUser.id)
+        .eq('followed_id', profileUserId)
+        .limit(1);
+      isFollowing = !!(rows && rows.length);
+    }else{
+      isFollowing = false;
+    }
+    updateStatsLine();
+  }catch(e){
+    console.error(e);
+    updateStatsLine();
+  }
+}
+
 function buildActions(){
   actionsBox.innerHTML = "";
-
   if(isOwn){
-    // Seulement "Éditer" sur son propre profil
+    // mon profil : juste Éditer (plus de bouton + Flash)
     actionsBox.append(
       makeBtn("✏️ Éditer", toggleEdit)
     );
     btnNewPost.style.display = "inline-block";
     btnNewPost.onclick = ()=>location.href="ajouter.html";
   }else{
-    // Profil d'un autre rider
+    // profil d’un autre rider
     if(sessionUser){
-      const chatBtn = makeBtn("💬 Chat 1v1", ()=>{
-        window.location.href = "chat1v1.html?to=" + encodeURIComponent(profileUserId);
+      const chatBtn = makeBtn("💬 Chat privé", () => {
+        window.location.href = 'chat1v1.html?to=' + encodeURIComponent(profileUserId);
       });
-      chatBtn.classList.add("green");
-      actionsBox.append(chatBtn);
+      const followBtn = makeBtn(isFollowing ? "Se désabonner" : "S’abonner", toggleFollow);
+      followBtn.id = "followBtn";
+      if(isFollowing) followBtn.classList.add('green');
+      actionsBox.append(chatBtn, followBtn);
+    }else{
+      actionsBox.append(
+        makeBtn("Se connecter pour suivre", ()=>{ window.location.href = "compte.html"; })
+      );
     }
-    actionsBox.append(makeBtn("Suivre (bientôt)", ()=>{}));
   }
 }
 
@@ -857,6 +889,51 @@ function makeBtn(txt, fn){
   b.textContent = txt;
   b.onclick = fn;
   return b;
+}
+
+/* Suivre / se désabonner */
+async function toggleFollow(){
+  if(!sessionUser){
+    window.location.href = "compte.html";
+    return;
+  }
+  const btn = document.getElementById('followBtn');
+  if(!btn) return;
+  btn.disabled = true;
+
+  try{
+    if(isFollowing){
+      const { error } = await supa
+        .from('rider_follows')
+        .delete()
+        .eq('follower_id', sessionUser.id)
+        .eq('followed_id', profileUserId);
+      if(!error){
+        isFollowing = false;
+        followersCount = Math.max(0, followersCount - 1);
+      }
+    }else{
+      const { error } = await supa
+        .from('rider_follows')
+        .insert([{ follower_id: sessionUser.id, followed_id: profileUserId }]);
+      if(!error){
+        isFollowing = true;
+        followersCount = followersCount + 1;
+      }
+    }
+  }catch(e){
+    console.error(e);
+  }finally{
+    btn.disabled = false;
+    updateStatsLine();
+    if(isFollowing){
+      btn.textContent = "Se désabonner";
+      btn.classList.add('green');
+    }else{
+      btn.textContent = "S’abonner";
+      btn.classList.remove('green');
+    }
+  }
 }
 
 function toggleEdit(){
@@ -967,33 +1044,6 @@ async function loadFlashes(){
   }
 }
 
-/* Ajout flash (fonction gardée mais plus de bouton dans l’UI) */
-async function addFlash(){
-  const inp = document.createElement('input');
-  inp.type = "file";
-  inp.accept = "image/*,video/*";
-  inp.onchange = async ()=>{
-    if(!inp.files?.length) return;
-    const f = inp.files[0];
-    const safeName = f.name.replace(/[^\w.\-]+/g,'_');
-    const path = `${profileUserId}/${Date.now()}-${safeName}`;
-
-    const { error:upErr } = await supa.storage.from('flashes').upload(path, f, { upsert:false });
-    if(upErr){
-      alert("Upload échoué");
-      return;
-    }
-    const { data:pub } = supa.storage.from('flashes').getPublicUrl(path);
-    const url = pub?.publicUrl;
-    if(url){
-      const expires = new Date(Date.now() + 48*60*60*1000).toISOString();
-      await supa.from('flashes').insert([{ user_id:profileUserId, media_url:url, caption:"", expires_at:expires }]);
-      loadFlashes();
-    }
-  };
-  inp.click();
-}
-
 /* Posts */
 async function loadPosts(){
   const { data:posts } = await supa
@@ -1042,7 +1092,6 @@ async function loadPosts(){
     });
   }
 
-  // moyenne de toutes les notes (roues) du rider
   try{
     const ids = list.map(p=>p.id);
     if(!ids.length){ accountAvg = null; updateStatsLine(); return; }

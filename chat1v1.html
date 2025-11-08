@@ -100,7 +100,7 @@
       z-index:1;
     }
 
-    /* ===== TOP NAV (comme FEED) ===== */
+    /* ===== TOP NAV ===== */
     nav.nav{
       position:sticky;
       top:0;
@@ -250,6 +250,90 @@
       color:var(--accent);
     }
 
+    /* ===== Liste de conversations ===== */
+    #convListWrap{
+      margin-bottom:10px;
+      display:none;
+    }
+    #convListTitle{
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:4px;
+      color:var(--text-dim);
+    }
+    .conv-item{
+      width:100%;
+      text-align:left;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,.95);
+      color:var(--text);
+      border-radius:14px;
+      padding:8px 10px;
+      margin-bottom:6px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+    }
+    .conv-avatar{
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      background:#0f172a;
+      flex-shrink:0;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:14px;
+      font-weight:700;
+      color:#e5e7eb;
+    }
+    .conv-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .conv-main{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .conv-top{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .conv-name{
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .conv-time{
+      font-size:11px;
+      color:var(--text-dim);
+      white-space:nowrap;
+    }
+    .conv-preview{
+      font-size:12px;
+      color:var(--text-dim);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    body.theme-light .conv-item{
+      background:#f3f4f6;
+      color:#111827;
+    }
+    body.theme-light .conv-avatar{
+      background:#e5e7eb;
+      color:#111827;
+    }
+
     /* ===== Chat box ===== */
     .chat-box{
       display:flex;
@@ -276,7 +360,7 @@
     }
 
     .msg{
-      padding:6px 8px;
+      padding:4px 6px;
       border-radius:10px;
       margin-bottom:4px;
       max-width:80%;
@@ -369,6 +453,28 @@
       box-shadow:none;
     }
 
+    /* bouton vocal + média */
+    .btn-voice,
+    .btn-media{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      border:0;
+      background:#0f172a;
+      color:#e5e7eb;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      box-shadow:0 4px 10px rgba(0,0,0,.45);
+      cursor:pointer;
+      flex-shrink:0;
+    }
+    .btn-voice.recording{
+      background:#ef4444;
+      color:#fee2e2;
+    }
+
     .chat-info{
       font-size:11px;
       color:var(--text-dim);
@@ -381,7 +487,132 @@
       color:#fda4af;
     }
 
-    /* ===== BOTTOM NAV (comme FEED / CHAT) ===== */
+    /* ===== BULLE VOCALE – PLUS ALLONGÉE & PLUS FINE ===== */
+
+    .voice-bubble{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      width:100%;
+      padding:4px 8px;
+      background:rgba(255,255,255,.08);
+      border-radius:12px;
+      min-height:38px; /* environ 1 cm */
+    }
+
+    .msg.me .voice-bubble,
+    .msg.other .voice-bubble{
+      background:rgba(0,0,0,.10);
+    }
+
+    .voice-play{
+      width:30px;
+      height:30px;
+      border-radius:50%;
+      border:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:14px;
+      background:#0f172a;
+      color:#e5e7eb;
+      flex-shrink:0;
+    }
+    .msg.me .voice-play{
+      background:#0b1120;
+    }
+    .voice-bubble.playing .voice-play{
+      background:#ef4444;
+      color:#fee2e2;
+    }
+
+    .voice-wave-wrap{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:20px;
+      overflow:hidden;
+    }
+
+    .voice-wave{
+      display:flex;
+      align-items:flex-end;
+      gap:2px;
+      height:18px;
+      width:100%;
+    }
+
+    .voice-wave span{
+      flex:1;
+      border-radius:999px;
+      background:rgba(15,23,42,.3);
+      transform-origin:bottom;
+    }
+
+    .voice-wave span:nth-child(1){height:25%}
+    .voice-wave span:nth-child(2){height:60%}
+    .voice-wave span:nth-child(3){height:35%}
+    .voice-wave span:nth-child(4){height:80%}
+    .voice-wave span:nth-child(5){height:45%}
+    .voice-wave span:nth-child(6){height:70%}
+    .voice-wave span:nth-child(7){height:30%}
+    .voice-wave span:nth-child(8){height:55%}
+    .voice-wave span:nth-child(9){height:75%}
+    .voice-wave span:nth-child(10){height:40%}
+    .voice-wave span:nth-child(11){height:65%}
+    .voice-wave span:nth-child(12){height:50%}
+
+    .msg.me .voice-wave span{
+      background:rgba(22,101,52,.65);
+    }
+
+    .voice-duration{
+      font-size:11px;
+      color:rgba(15,23,42,.6);
+      margin-left:8px;
+      flex-shrink:0;
+    }
+    .msg.me .voice-duration{
+      color:#022c16;
+    }
+
+    .voice-audio{
+      display:none;
+    }
+
+    /* ===== MÉDIA (PHOTO/VIDEO) ===== */
+
+    .media-thumb{
+      width:160px;
+      height:160px; /* carré 1:1 visuel */
+      border-radius:14px;
+      overflow:hidden;
+      position:relative;
+      background:#020617;
+    }
+    .media-thumb img,
+    .media-thumb video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .media-meta{
+      position:absolute;
+      right:6px;
+      bottom:6px;
+      padding:2px 6px;
+      border-radius:999px;
+      background:rgba(0,0,0,.65);
+      color:#f9fafb;
+      font-size:11px;
+      display:flex;
+      align-items:center;
+      gap:4px;
+    }
+
+    /* ===== BOTTOM NAV ===== */
     .tabbar{
       position:fixed;
       left:0;
@@ -459,7 +690,6 @@
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-        <!-- lien vers le chat global -->
         <a href="chat.html" class="icon-btn" title="Chat global">💬</a>
       </div>
     </div>
@@ -474,6 +704,12 @@
       <p class="muted">
         Conversation 1v1 entre deux riders. Reste respectueux, pas d’insultes ni de contenu sensible.
       </p>
+
+      <!-- Liste de conversations -->
+      <div id="convListWrap">
+        <div id="convListTitle">Mes conversations</div>
+        <div id="convList"></div>
+      </div>
 
       <div class="chip-peer" id="peerChip" style="display:none">
         💬 Chat avec <span id="peerName"></span>
@@ -499,10 +735,13 @@
             class="chat-input"
             maxlength="400"
             placeholder="Écris ton message… (max 400 caractères)"></textarea>
-          <button id="chatSend" class="btn">Envoyer</button>
+          <button id="mediaBtn" type="button" class="btn-media" title="Photo / vidéo">📷</button>
+          <button id="voiceBtn" type="button" class="btn-voice" title="Message vocal">🎙️</button>
+          <button id="chatSend" class="btn" type="button">Envoyer</button>
         </div>
+        <input id="mediaInput" type="file" accept="image/*,video/*" style="display:none"/>
         <div class="chat-info">
-          Messages récents uniquement. Certains mots sont bloqués automatiquement.
+          Messages récents uniquement. Certains mots sont bloqués automatiquement. Vidéos max 20s.
         </div>
         <div id="chatError"></div>
       </div>
@@ -510,7 +749,7 @@
   </main>
 </div>
 
-<!-- TABBAR identique aux autres pages -->
+<!-- TABBAR -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
     <div class="ic">📍</div><span>Spots</span>
@@ -533,7 +772,7 @@
 </nav>
 
 <script>
-/* ===== Thème clair/sombre (comme feed / chat) ===== */
+/* ===== Thème clair/sombre ===== */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -586,7 +825,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Chat privé 1v1 ===== */
+/* ===== Chat privé 1v1 + vocaux + médias + liste de conversations ===== */
 
 const chatBox      = document.getElementById('chatBox');
 const chatLocked   = document.getElementById('chatLocked');
@@ -597,11 +836,21 @@ const chatSend     = document.getElementById('chatSend');
 const chatError    = document.getElementById('chatError');
 const peerChip     = document.getElementById('peerChip');
 const peerNameSpan = document.getElementById('peerName');
+const voiceBtn     = document.getElementById('voiceBtn');
+const mediaBtn     = document.getElementById('mediaBtn');
+const mediaInput   = document.getElementById('mediaInput');
+
+const convListWrap = document.getElementById('convListWrap');
+const convList     = document.getElementById('convList');
 
 let me         = null;
 let myProfile  = null;
 let peerId     = null;
 let peerProfile= null;
+
+let mediaRecorder = null;
+let recordChunks  = [];
+let isRecording   = false;
 
 const urlParams = new URLSearchParams(window.location.search);
 peerId = urlParams.get('to') || null;
@@ -620,32 +869,39 @@ function formatTime(iso){
   return d.toLocaleTimeString("fr-CH",{hour:"2-digit",minute:"2-digit"});
 }
 
-/* Init session + peer */
+/* helper upload vocal / media (même bucket 'voice') */
+async function uploadToVoiceBucket(file, subfolder){
+  const safeName = (file.name || 'file').replace(/[^\w.\-]+/g,'_');
+  const path = `${subfolder}/${me.id}/${Date.now()}_${safeName}`;
+  let { error } = await supa.storage.from('voice').upload(path,file,{
+    upsert:false,
+    contentType:file.type || 'application/octet-stream'
+  });
+  if(error){
+    const res2 = await supa.storage.from('voice').upload(path,file,{
+      upsert:true,
+      contentType:file.type || 'application/octet-stream'
+    });
+    if(res2.error) throw res2.error;
+  }
+  const { data:pub } = supa.storage.from('voice').getPublicUrl(path);
+  const url = pub?.publicUrl;
+  if(!url) throw new Error("URL de fichier indisponible");
+  return url;
+}
+
+/* ===== Init session + peer ===== */
 (async function init(){
   try{
     const { data:{ user } } = await supa.auth.getUser();
     if(!user){
       chatLocked.style.display = "block";
       chatBox.style.display    = "none";
+      convListWrap.style.display = "none";
       return;
     }
     me = user;
 
-    if(!peerId){
-      chatLocked.style.display = "none";
-      chatNoPeer.style.display = "block";
-      chatBox.style.display    = "none";
-      return;
-    }
-    if(peerId === me.id){
-      chatLocked.style.display = "none";
-      chatNoPeer.style.display = "block";
-      chatNoPeer.innerHTML = "Tu ne peux pas ouvrir un chat privé avec toi-même.";
-      chatBox.style.display    = "none";
-      return;
-    }
-
-    // Profil de moi
     const { data: profMe } = await supa
       .from('profiles')
       .select('pseudo,full_name,avatar_url')
@@ -653,7 +909,24 @@ function formatTime(iso){
       .maybeSingle();
     myProfile = profMe || null;
 
-    // Profil du rider cible
+    if(!peerId){
+      chatLocked.style.display = "none";
+      chatBox.style.display    = "none";
+      chatNoPeer.style.display = "none";
+      convListWrap.style.display = "block";
+      await loadConversations();
+      return;
+    }
+
+    if(peerId === me.id){
+      chatLocked.style.display = "none";
+      chatNoPeer.style.display = "block";
+      chatNoPeer.innerHTML = "Tu ne peux pas ouvrir un chat privé avec toi-même.";
+      chatBox.style.display    = "none";
+      convListWrap.style.display = "none";
+      return;
+    }
+
     const { data: profPeer, error: peerErr } = await supa
       .from('profiles')
       .select('id,pseudo,full_name,avatar_url')
@@ -664,6 +937,7 @@ function formatTime(iso){
       chatNoPeer.style.display = "block";
       chatNoPeer.innerHTML = "Ce rider n’existe pas ou n’a pas de profil.";
       chatBox.style.display = "none";
+      convListWrap.style.display = "none";
       return;
     }
     peerProfile = profPeer;
@@ -673,6 +947,7 @@ function formatTime(iso){
 
     chatLocked.style.display = "none";
     chatNoPeer.style.display = "none";
+    convListWrap.style.display = "none";
     chatBox.style.display    = "flex";
 
     await loadMessages();
@@ -681,10 +956,98 @@ function formatTime(iso){
     console.error(e);
     chatLocked.style.display = "block";
     chatBox.style.display    = "none";
+    convListWrap.style.display = "none";
   }
 })();
 
-/* Charger les 80 derniers messages 1v1 */
+/* ===== Liste des conversations ===== */
+async function loadConversations(){
+  if(!me) return;
+  convList.innerHTML = '<div class="muted">Chargement…</div>';
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_messages')
+      .select('id,from_id,to_id,content,created_at')
+      .or(`from_id.eq.${me.id},to_id.eq.${me.id}`)
+      .order('created_at',{ascending:false})
+      .limit(200);
+
+    if(error){
+      console.error(error);
+      convList.innerHTML = '<div class="muted">Erreur de chargement.</div>';
+      return;
+    }
+    if(!data || !data.length){
+      convList.innerHTML = '<div class="muted">Aucune conversation pour l’instant.</div>';
+      return;
+    }
+
+    const byPeer = new Map();
+    (data||[]).forEach(m=>{
+      const otherId = (m.from_id === me.id) ? m.to_id : m.from_id;
+      if(!otherId) return;
+      if(!byPeer.has(otherId)){
+        byPeer.set(otherId,m); // premier rencontré = plus récent
+      }
+    });
+
+    const peerIds = Array.from(byPeer.keys());
+    if(!peerIds.length){
+      convList.innerHTML = '<div class="muted">Aucune conversation pour l’instant.</div>';
+      return;
+    }
+
+    const { data: profiles, error:peErr } = await supa
+      .from('profiles')
+      .select('id,pseudo,full_name,avatar_url')
+      .in('id', peerIds);
+
+    if(peErr){
+      console.error(peErr);
+    }
+    const profMap = new Map();
+    (profiles||[]).forEach(p=>profMap.set(p.id,p));
+
+    convList.innerHTML = "";
+    peerIds.forEach(pid=>{
+      const m = byPeer.get(pid);
+      const p = profMap.get(pid);
+      const name = p?.pseudo || p?.full_name || "Rider";
+      const avatar = p?.avatar_url || '';
+      let preview = (m.content || "[message]").replace(/\s+/g,' ').trim();
+      if(preview.startsWith('VOICE:')) preview = '[vocal]';
+      else if(preview.startsWith('IMG:')) preview = '[photo]';
+      else if(preview.startsWith('VID:')) preview = '[vidéo]';
+
+      const btn = document.createElement('button');
+      btn.className = 'conv-item';
+      btn.dataset.peer = pid;
+      btn.innerHTML = `
+        <div class="conv-avatar">
+          ${avatar ? `<img src="${escapeHTML(avatar)}" alt="">` : escapeHTML(name[0]||'R')}
+        </div>
+        <div class="conv-main">
+          <div class="conv-top">
+            <span class="conv-name">${escapeHTML(name)}</span>
+            <span class="conv-time">${formatTime(m.created_at)}</span>
+          </div>
+          <div class="conv-preview">${escapeHTML(preview)}</div>
+        </div>
+      `;
+      btn.addEventListener('click',()=>{
+        const url = new URL(window.location.href);
+        url.searchParams.set('to', pid);
+        window.location.href = url.toString();
+      });
+      convList.appendChild(btn);
+    });
+  }catch(e){
+    console.error(e);
+    convList.innerHTML = '<div class="muted">Erreur de chargement.</div>';
+  }
+}
+
+/* ===== Messages d’une conversation ===== */
 async function loadMessages(){
   if(!me || !peerId) return;
   try{
@@ -717,7 +1080,7 @@ async function loadMessages(){
   }
 }
 
-/* Afficher un message */
+/* ===== Afficher un message ===== */
 function appendMessage(m, scroll=true){
   if(!me || !peerProfile) return;
   const isMe = (m.from_id === me.id);
@@ -735,15 +1098,62 @@ function appendMessage(m, scroll=true){
     namePart = `<span class="msg-user">${escapeHTML(who)}</span>`;
   }
 
-  div.innerHTML = `
+  const c = m.content || "";
+  const header = `
     <div class="msg-header">
       ${namePart}
       <span class="msg-time">${formatTime(m.created_at)}</span>
     </div>
-    <div class="msg-body">${escapeHTML(m.content)}</div>
   `;
 
-  // clic sur le pseudo de l'autre => profil
+  const body = document.createElement('div');
+  body.className = 'msg-body';
+
+  if(c.startsWith('VOICE:')){
+    const url = c.slice(6);
+    body.innerHTML = `
+      <div class="voice-bubble">
+        <button type="button" class="voice-play">▶</button>
+        <div class="voice-wave-wrap">
+          <div class="voice-wave">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <span class="voice-duration">Vocal</span>
+        <audio class="voice-audio">
+          <source src="${escapeHTML(url)}" type="audio/webm">
+        </audio>
+      </div>
+    `;
+  }else if(c.startsWith('IMG:')){
+    const url = c.slice(4);
+    body.innerHTML = `
+      <div class="media-thumb">
+        <img src="${escapeHTML(url)}" alt="photo">
+      </div>
+    `;
+  }else if(c.startsWith('VID:')){
+    const rest = c.slice(4);
+    const parts = rest.split('|');
+    const url = parts[0];
+    const dur = parts[1] ? parseInt(parts[1],10) : null;
+    const dLabel = dur ? `${dur}s` : '';
+    body.innerHTML = `
+      <div class="media-thumb">
+        <video src="${escapeHTML(url)}" playsinline muted></video>
+        <div class="media-meta">
+          <span>▶</span><span>${dLabel}</span>
+        </div>
+      </div>
+    `;
+  }else{
+    body.textContent = c;
+  }
+
+  div.innerHTML = header;
+  div.appendChild(body);
+
   if(!isMe && peerProfile?.id){
     const userSpan = div.querySelector('.msg-user');
     if(userSpan){
@@ -753,13 +1163,50 @@ function appendMessage(m, scroll=true){
     }
   }
 
+  // player vocal
+  const voiceBubble = body.querySelector('.voice-bubble');
+  if(voiceBubble){
+    const audio = voiceBubble.querySelector('.voice-audio');
+    const btn   = voiceBubble.querySelector('.voice-play');
+
+    const stopAll = () => {
+      document.querySelectorAll('.voice-bubble.playing').forEach(b=>{
+        b.classList.remove('playing');
+        const a = b.querySelector('.voice-audio');
+        if(a){ a.pause(); a.currentTime = 0; }
+        const bp = b.querySelector('.voice-play');
+        if(bp){ bp.textContent = '▶'; }
+      });
+    };
+
+    voiceBubble.addEventListener('click', ()=>{
+      if(!audio) return;
+      if(voiceBubble.classList.contains('playing')){
+        audio.pause();
+        audio.currentTime = 0;
+        voiceBubble.classList.remove('playing');
+        if(btn) btn.textContent = '▶';
+      }else{
+        stopAll();
+        audio.play().catch(()=>{});
+        voiceBubble.classList.add('playing');
+        if(btn) btn.textContent = '⏸';
+      }
+    });
+
+    audio.addEventListener('ended', ()=>{
+      voiceBubble.classList.remove('playing');
+      if(btn) btn.textContent = '▶';
+    });
+  }
+
   chatMessages.appendChild(div);
   if(scroll){
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 }
 
-/* Realtime : nouveaux messages */
+/* ===== Realtime : nouveaux messages ===== */
 function subscribeMessages(){
   if(!me) return;
   supa.channel('ridly_private_'+me.id)
@@ -779,7 +1226,7 @@ function subscribeMessages(){
     .subscribe();
 }
 
-/* Envoi d'un message */
+/* ===== Envoi texte ===== */
 async function sendMessage(){
   chatError.textContent = "";
   const txt = (chatInput.value || "").trim();
@@ -825,7 +1272,157 @@ async function sendMessage(){
   }
 }
 
-/* Events */
+/* ===== Enregistrement vocal ===== */
+async function toggleRecord(){
+  chatError.textContent = "";
+  if(isRecording){
+    isRecording = false;
+    voiceBtn.classList.remove('recording');
+    voiceBtn.textContent = '🎙️';
+    if(mediaRecorder){
+      mediaRecorder.stop();
+    }
+    return;
+  }
+
+  if(!me || !peerId){
+    chatError.textContent = "Erreur : pas de rider cible.";
+    return;
+  }
+
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    recordChunks = [];
+    mediaRecorder = new MediaRecorder(stream,{mimeType:'audio/webm'});
+    mediaRecorder.ondataavailable = e=>{
+      if(e.data && e.data.size>0) recordChunks.push(e.data);
+    };
+    mediaRecorder.onstop = async ()=>{
+      try{
+        const blob = new Blob(recordChunks,{type:'audio/webm'});
+        const file = new File([blob],'voice.webm',{type:'audio/webm'});
+        const url  = await uploadToVoiceBucket(file,'voice');
+        const payload = {
+          from_id: me.id,
+          to_id:   peerId,
+          content: 'VOICE:'+url
+        };
+        const { data, error } = await supa
+          .from('ridly_private_messages')
+          .insert([payload])
+          .select('id,from_id,to_id,content,created_at')
+          .single();
+        if(error){
+          console.error(error);
+          chatError.textContent = "Erreur lors de l’envoi du vocal.";
+        }else if(data){
+          appendMessage(data,true);
+        }
+      }catch(err){
+        console.error(err);
+        chatError.textContent = "Erreur vocal.";
+      }finally{
+        stream.getTracks().forEach(t=>t.stop());
+      }
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    voiceBtn.classList.add('recording');
+    voiceBtn.textContent = '■';
+  }catch(e){
+    console.error(e);
+    chatError.textContent = "Impossible d’accéder au micro.";
+  }
+}
+
+/* ===== Envoi photo / vidéo ===== */
+
+mediaBtn.addEventListener('click', ()=>{
+  mediaInput.value = "";
+  mediaInput.click();
+});
+
+mediaInput.addEventListener('change', async ()=>{
+  chatError.textContent = "";
+  const file = mediaInput.files && mediaInput.files[0];
+  if(!file) return;
+  if(!me || !peerId){
+    chatError.textContent = "Erreur : pas de rider cible.";
+    return;
+  }
+
+  const type = file.type || "";
+  try{
+    if(type.startsWith('image/')){
+      // Photo
+      const url = await uploadToVoiceBucket(file,'media');
+      const payload = {
+        from_id: me.id,
+        to_id:   peerId,
+        content: 'IMG:'+url
+      };
+      const { data, error } = await supa
+        .from('ridly_private_messages')
+        .insert([payload])
+        .select('id,from_id,to_id,content,created_at')
+        .single();
+      if(error){
+        console.error(error);
+        chatError.textContent = "Erreur lors de l’envoi de la photo.";
+      }else if(data){
+        appendMessage(data,true);
+      }
+    }else if(type.startsWith('video/')){
+      // Vidéo : vérifier durée <= 20s
+      const blobUrl = URL.createObjectURL(file);
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.src = blobUrl;
+
+      const duration = await new Promise((resolve,reject)=>{
+        video.onloadedmetadata = ()=>{
+          const d = video.duration || 0;
+          URL.revokeObjectURL(blobUrl);
+          resolve(d);
+        };
+        video.onerror = ()=>{
+          URL.revokeObjectURL(blobUrl);
+          reject(new Error("Erreur lecture vidéo"));
+        };
+      });
+
+      if(duration > 20){
+        chatError.textContent = "Vidéo trop longue (max 20 secondes).";
+        return;
+      }
+
+      const url = await uploadToVoiceBucket(file,'media');
+      const payload = {
+        from_id: me.id,
+        to_id:   peerId,
+        content: 'VID:'+url+'|'+Math.round(duration)
+      };
+      const { data, error } = await supa
+        .from('ridly_private_messages')
+        .insert([payload])
+        .select('id,from_id,to_id,content,created_at')
+        .single();
+      if(error){
+        console.error(error);
+        chatError.textContent = "Erreur lors de l’envoi de la vidéo.";
+      }else if(data){
+        appendMessage(data,true);
+      }
+    }else{
+      chatError.textContent = "Format non supporté (photo ou vidéo uniquement).";
+    }
+  }catch(e){
+    console.error(e);
+    chatError.textContent = "Erreur lors de l’envoi du média.";
+  }
+});
+
+/* Events généraux */
 chatSend.addEventListener('click', sendMessage);
 chatInput.addEventListener('keydown', e=>{
   if(e.key === 'Enter' && !e.shiftKey){
@@ -833,6 +1430,7 @@ chatInput.addEventListener('keydown', e=>{
     sendMessage();
   }
 });
+voiceBtn.addEventListener('click', toggleRecord);
 </script>
 
 <script>
