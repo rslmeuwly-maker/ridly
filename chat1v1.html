@@ -244,6 +244,7 @@
       font-size:12px;
       color:#e5e7eb;
       margin-bottom:6px;
+      cursor:pointer;
     }
     .chip-peer span{
       font-weight:700;
@@ -261,6 +262,22 @@
       margin-bottom:4px;
       color:var(--text-dim);
     }
+
+    .conv-search{
+      width:100%;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--bg-soft);
+      color:var(--text);
+      font-size:13px;
+      margin-bottom:6px;
+      outline:none;
+    }
+    body.theme-light .conv-search{
+      background:#f3f4f6;
+    }
+
     .conv-item{
       width:100%;
       text-align:left;
@@ -361,8 +378,8 @@
 
     .msg{
       padding:4px 6px;
-      border-radius:10px;
-      margin-bottom:4px;
+      border-radius:16px;
+      margin-bottom:6px;
       max-width:80%;
       word-wrap:break-word;
       display:block;
@@ -371,11 +388,13 @@
       margin-left:auto;
       background:linear-gradient(180deg,var(--accent),#16a34a);
       color:#022c16;
+      border-bottom-right-radius:4px;
     }
     .msg.other{
       margin-right:auto;
       background:rgba(15,23,42,1);
       color:var(--text);
+      border-bottom-left-radius:4px;
     }
     body.theme-light .msg.other{
       background:#e5e7eb;
@@ -387,10 +406,11 @@
       justify-content:space-between;
       gap:8px;
       margin-bottom:2px;
+      font-size:11px;
     }
     .msg-user{
       font-weight:700;
-      font-size:13px;
+      font-size:12px;
       color:var(--accent);
       text-decoration:underline;
       cursor:pointer;
@@ -405,10 +425,33 @@
       color:var(--text-dim);
       white-space:nowrap;
     }
+
     .msg-body{
       font-size:13px;
       white-space:pre-wrap;
       word-wrap:break-word;
+      display:flex;
+      align-items:flex-end;
+      gap:4px;
+    }
+
+    .msg-text{
+      flex:1;
+    }
+
+    .msg-like-btn{
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-size:14px;
+      opacity:.35;
+      padding:0 2px;
+      flex-shrink:0;
+      line-height:1;
+    }
+    .msg-like-btn.liked{
+      opacity:1;
+      transform:scale(1.05);
     }
 
     .chat-input-row{
@@ -487,7 +530,7 @@
       color:#fda4af;
     }
 
-    /* ===== BULLE VOCALE – PLUS ALLONGÉE & PLUS FINE ===== */
+    /* ===== BULLE VOCALE ===== */
 
     .voice-bubble{
       display:flex;
@@ -495,9 +538,9 @@
       gap:10px;
       width:100%;
       padding:4px 8px;
-      background:rgba(255,255,255,.08);
-      border-radius:12px;
-      min-height:38px; /* environ 1 cm */
+      background:rgba(255,255,255,.06);
+      border-radius:999px;
+      min-height:34px;
     }
 
     .msg.me .voice-bubble,
@@ -506,8 +549,8 @@
     }
 
     .voice-play{
-      width:30px;
-      height:30px;
+      width:28px;
+      height:28px;
       border-radius:50%;
       border:none;
       display:flex;
@@ -531,7 +574,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      height:20px;
+      height:18px;
       overflow:hidden;
     }
 
@@ -539,14 +582,14 @@
       display:flex;
       align-items:flex-end;
       gap:2px;
-      height:18px;
+      height:16px;
       width:100%;
     }
 
     .voice-wave span{
       flex:1;
       border-radius:999px;
-      background:rgba(15,23,42,.3);
+      background:rgba(15,23,42,.35);
       transform-origin:bottom;
     }
 
@@ -564,12 +607,12 @@
     .voice-wave span:nth-child(12){height:50%}
 
     .msg.me .voice-wave span{
-      background:rgba(22,101,52,.65);
+      background:rgba(22,101,52,.7);
     }
 
     .voice-duration{
       font-size:11px;
-      color:rgba(15,23,42,.6);
+      color:rgba(15,23,42,.7);
       margin-left:8px;
       flex-shrink:0;
     }
@@ -590,6 +633,8 @@
       overflow:hidden;
       position:relative;
       background:#020617;
+      cursor:pointer;
+      flex-shrink:0;
     }
     .media-thumb img,
     .media-thumb video{
@@ -610,6 +655,46 @@
       display:flex;
       align-items:center;
       gap:4px;
+    }
+
+    /* ===== TOAST NOTIF ===== */
+
+    .toast{
+      position:fixed;
+      top:10px;
+      left:50%;
+      transform:translateX(-50%) translateY(-20px);
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(15,23,42,.96);
+      color:#f9fafb;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      box-shadow:0 10px 30px rgba(0,0,0,.5);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease, transform .25s ease;
+      z-index:60;
+    }
+    body.theme-light .toast{
+      background:rgba(17,24,39,.96);
+      color:#f9fafb;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+      pointer-events:auto;
+    }
+    .toast-icon{
+      font-size:16px;
+    }
+    .toast-text{
+      white-space:nowrap;
+      max-width:220px;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
     /* ===== BOTTOM NAV ===== */
@@ -708,6 +793,7 @@
       <!-- Liste de conversations -->
       <div id="convListWrap">
         <div id="convListTitle">Mes conversations</div>
+        <input id="convSearch" class="conv-search" type="search" placeholder="Rechercher un rider (pseudo)…" />
         <div id="convList"></div>
       </div>
 
@@ -739,7 +825,9 @@
           <button id="voiceBtn" type="button" class="btn-voice" title="Message vocal">🎙️</button>
           <button id="chatSend" class="btn" type="button">Envoyer</button>
         </div>
+        <!-- 2 inputs : galerie + caméra -->
         <input id="mediaInput" type="file" accept="image/*,video/*" style="display:none"/>
+        <input id="mediaInputCamera" type="file" accept="image/*,video/*" capture="environment" style="display:none"/>
         <div class="chat-info">
           Messages récents uniquement. Certains mots sont bloqués automatiquement. Vidéos max 20s.
         </div>
@@ -748,6 +836,14 @@
     </section>
   </main>
 </div>
+
+<!-- TOAST + SON (chemin inchangé) -->
+<div id="toast" class="toast">
+  <div class="toast-icon">💬</div>
+  <div id="toastText" class="toast-text"></div>
+</div>
+
+<audio id="notifAudio" src="sons/sonsnotif.mp3" preload="auto"></audio>
 
 <!-- TABBAR -->
 <nav class="tabbar" aria-label="Navigation">
@@ -825,7 +921,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Chat privé 1v1 + vocaux + médias + liste de conversations ===== */
+/* ===== Chat privé 1v1 + vocaux + médias + liste de conversations + likes ===== */
 
 const chatBox      = document.getElementById('chatBox');
 const chatLocked   = document.getElementById('chatLocked');
@@ -839,9 +935,17 @@ const peerNameSpan = document.getElementById('peerName');
 const voiceBtn     = document.getElementById('voiceBtn');
 const mediaBtn     = document.getElementById('mediaBtn');
 const mediaInput   = document.getElementById('mediaInput');
+const mediaInputCamera = document.getElementById('mediaInputCamera');
 
 const convListWrap = document.getElementById('convListWrap');
 const convList     = document.getElementById('convList');
+const convSearch   = document.getElementById('convSearch');
+
+const notifAudio   = document.getElementById('notifAudio');
+const toastEl      = document.getElementById('toast');
+const toastText    = document.getElementById('toastText');
+
+let toastTimeout   = null;
 
 let me         = null;
 let myProfile  = null;
@@ -851,6 +955,8 @@ let peerProfile= null;
 let mediaRecorder = null;
 let recordChunks  = [];
 let isRecording   = false;
+
+const likedMessages = new Set(); // ids des messages likés (🛞)
 
 const urlParams = new URLSearchParams(window.location.search);
 peerId = urlParams.get('to') || null;
@@ -867,6 +973,54 @@ function formatTime(iso){
   if(!iso) return "";
   const d=new Date(iso);
   return d.toLocaleTimeString("fr-CH",{hour:"2-digit",minute:"2-digit"});
+}
+
+/* ===== Notif son + toast (inchangé) ===== */
+
+function playNotifSound(){
+  if(!notifAudio) return;
+  try{
+    notifAudio.currentTime = 0;
+    notifAudio.play().catch(()=>{});
+  }catch(e){}
+}
+
+function hideToast(){
+  if(!toastEl) return;
+  toastEl.classList.remove('show');
+}
+
+function showToast(text, onClick){
+  if(!toastEl || !toastText) return;
+  toastText.textContent = text;
+  toastEl.classList.add('show');
+  toastEl.onclick = null;
+  if(typeof onClick === 'function'){
+    toastEl.onclick = (e)=>{
+      e.preventDefault();
+      hideToast();
+      onClick();
+    };
+  }
+  if(toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(hideToast, 4000);
+}
+
+async function showToastForMessage(m){
+  let name = "Rider";
+  try{
+    const { data:p } = await supa
+      .from('profiles')
+      .select('pseudo,full_name')
+      .eq('id', m.from_id)
+      .maybeSingle();
+    if(p){
+      name = p.pseudo || p.full_name || "Rider";
+    }
+  }catch(e){}
+  showToast(`Nouveau message de ${name}`, ()=>{
+    window.location.href = 'chat1v1.html?to=' + encodeURIComponent(m.from_id);
+  });
 }
 
 /* helper upload vocal / media (même bucket 'voice') */
@@ -915,6 +1069,7 @@ async function uploadToVoiceBucket(file, subfolder){
       chatNoPeer.style.display = "none";
       convListWrap.style.display = "block";
       await loadConversations();
+      subscribeMessages();
       return;
     }
 
@@ -944,6 +1099,13 @@ async function uploadToVoiceBucket(file, subfolder){
     const name = peerProfile.pseudo || peerProfile.full_name || "Rider";
     peerNameSpan.textContent = name;
     peerChip.style.display   = "inline-flex";
+
+    // chip -> profil du rider
+    peerChip.addEventListener('click', ()=>{
+      if(peerProfile?.id){
+        window.location.href = 'profil_ou_rider.html?id=' + encodeURIComponent(peerProfile.id);
+      }
+    });
 
     chatLocked.style.display = "none";
     chatNoPeer.style.display = "none";
@@ -984,6 +1146,7 @@ async function loadConversations(){
 
     const byPeer = new Map();
     (data||[]).forEach(m=>{
+      if((m.content||"").startsWith('LIKE:')) return; // on ignore les messages de like pour l’aperçu
       const otherId = (m.from_id === me.id) ? m.to_id : m.from_id;
       if(!otherId) return;
       if(!byPeer.has(otherId)){
@@ -1022,6 +1185,7 @@ async function loadConversations(){
       const btn = document.createElement('button');
       btn.className = 'conv-item';
       btn.dataset.peer = pid;
+      btn.dataset.name = (name || '').toLowerCase();
       btn.innerHTML = `
         <div class="conv-avatar">
           ${avatar ? `<img src="${escapeHTML(avatar)}" alt="">` : escapeHTML(name[0]||'R')}
@@ -1047,6 +1211,18 @@ async function loadConversations(){
   }
 }
 
+/* ===== Recherche dans les conversations (par pseudo) ===== */
+if(convSearch){
+  convSearch.addEventListener('input', ()=>{
+    const q = convSearch.value.trim().toLowerCase();
+    const items = convList.querySelectorAll('.conv-item');
+    items.forEach(item=>{
+      const n = (item.dataset.name || '').toLowerCase();
+      item.style.display = (!q || n.includes(q)) ? '' : 'none';
+    });
+  });
+}
+
 /* ===== Messages d’une conversation ===== */
 async function loadMessages(){
   if(!me || !peerId) return;
@@ -1064,19 +1240,57 @@ async function loadMessages(){
       return;
     }
 
-    const list = (data || []).slice().reverse();
+    const all = (data || []).slice().reverse();
+    likedMessages.clear();
+
+    const normalMessages = [];
+    all.forEach(m=>{
+      const c = m.content || "";
+      if(c.startsWith('LIKE:')){
+        const targetId = c.slice(5);
+        if(targetId) likedMessages.add(String(targetId));
+      }else{
+        normalMessages.push(m);
+      }
+    });
+
     chatMessages.innerHTML = "";
 
-    if(!list.length){
+    if(!normalMessages.length){
       chatMessages.innerHTML = '<div class="muted">Pas encore de messages dans cette conversation 👇</div>';
       return;
     }
 
-    list.forEach(m => appendMessage(m,false));
+    normalMessages.forEach(m => appendMessage(m,false));
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }catch(e){
     console.error(e);
     chatMessages.innerHTML='<div class="muted">Erreur de chargement du chat.</div>';
+  }
+}
+
+/* ===== Gestion du like (🛞) ===== */
+
+async function sendLike(msgId){
+  if(!me || !peerId) return;
+  if(!msgId) return;
+  if(likedMessages.has(String(msgId))) return; // déjà liké
+
+  try{
+    const { error } = await supa
+      .from('ridly_private_messages')
+      .insert([{
+        from_id: me.id,
+        to_id:   peerId,
+        content: 'LIKE:'+msgId
+      }]);
+    if(error){
+      console.error(error);
+    }else{
+      likedMessages.add(String(msgId));
+    }
+  }catch(e){
+    console.error(e);
   }
 }
 
@@ -1086,6 +1300,7 @@ function appendMessage(m, scroll=true){
   const isMe = (m.from_id === me.id);
   const div  = document.createElement('div');
   div.className = "msg " + (isMe ? "me" : "other");
+  div.dataset.id = m.id;
 
   const who = isMe
     ? (myProfile?.pseudo || myProfile?.full_name || "Moi")
@@ -1109,6 +1324,7 @@ function appendMessage(m, scroll=true){
   const body = document.createElement('div');
   body.className = 'msg-body';
 
+  // Contenu
   if(c.startsWith('VOICE:')){
     const url = c.slice(6);
     body.innerHTML = `
@@ -1148,8 +1364,31 @@ function appendMessage(m, scroll=true){
       </div>
     `;
   }else{
-    body.textContent = c;
+    // texte pur
+    body.innerHTML = `<div class="msg-text">${escapeHTML(c)}</div>`;
   }
+
+  // Bouton like 🛞
+  const likeBtn = document.createElement('button');
+  likeBtn.type = 'button';
+  likeBtn.className = 'msg-like-btn';
+  likeBtn.textContent = '🛞';
+  const msgIdStr = String(m.id);
+  if(likedMessages.has(msgIdStr)){
+    likeBtn.classList.add('liked');
+  }
+  likeBtn.addEventListener('click', async (e)=>{
+    e.stopPropagation();
+    if(likedMessages.has(msgIdStr)){
+      // déjà liké, on ne fait rien (pas d’unlike pour l’instant)
+      return;
+    }
+    likeBtn.classList.add('liked');
+    likedMessages.add(msgIdStr);
+    await sendLike(msgIdStr);
+  });
+
+  body.appendChild(likeBtn);
 
   div.innerHTML = header;
   div.appendChild(body);
@@ -1214,13 +1453,62 @@ function subscribeMessages(){
       event:'INSERT',
       schema:'public',
       table:'ridly_private_messages'
-    }, payload => {
+    }, async payload => {
       const m = payload.new;
-      if(
-        (m.from_id === me.id   && m.to_id === peerId) ||
-        (m.from_id === peerId && m.to_id === me.id)
-      ){
-        appendMessage(m,true);
+      if(!m) return;
+
+      const c = m.content || "";
+
+      // LIKE: message -> juste activer la roue
+      if(c.startsWith('LIKE:')){
+        const targetId = c.slice(5);
+        if(targetId){
+          likedMessages.add(String(targetId));
+          const bubble = chatMessages.querySelector('.msg[data-id="'+targetId+'"]');
+          if(bubble){
+            const btn = bubble.querySelector('.msg-like-btn');
+            if(btn){
+              btn.classList.add('liked');
+            }
+          }
+        }
+        return;
+      }
+
+      const iAmSender   = (m.from_id === me.id);
+      const iAmReceiver = (m.to_id   === me.id);
+
+      if(!iAmSender && !iAmReceiver) return;
+
+      // Page liste de conversations (accueil 1v1)
+      if(!peerId){
+        await loadConversations();
+        if(iAmReceiver){
+          try{
+            await showToastForMessage(m);
+          }catch(e){}
+          playNotifSound();
+        }
+        return;
+      }
+
+      const otherId = iAmSender ? m.to_id : m.from_id;
+
+      // Si c'est la conversation ouverte
+      if(otherId === peerId){
+        if(iAmReceiver){
+          appendMessage(m,true);
+          playNotifSound();
+        }
+        return;
+      }
+
+      // Message pour une autre conversation pendant qu'on est dans ce chat
+      if(iAmReceiver){
+        try{
+          await showToastForMessage(m);
+        }catch(e){}
+        playNotifSound();
       }
     })
     .subscribe();
@@ -1335,91 +1623,108 @@ async function toggleRecord(){
   }
 }
 
-/* ===== Envoi photo / vidéo ===== */
+/* ===== Envoi photo / vidéo (caméra OU galerie) ===== */
+
+function handleMediaFile(file){
+  (async ()=>{
+    chatError.textContent = "";
+    if(!file) return;
+    if(!me || !peerId){
+      chatError.textContent = "Erreur : pas de rider cible.";
+      return;
+    }
+
+    const type = file.type || "";
+    try{
+      if(type.startsWith('image/')){
+        // Photo
+        const url = await uploadToVoiceBucket(file,'media');
+        const payload = {
+          from_id: me.id,
+          to_id:   peerId,
+          content: 'IMG:'+url
+        };
+        const { data, error } = await supa
+          .from('ridly_private_messages')
+          .insert([payload])
+          .select('id,from_id,to_id,content,created_at')
+          .single();
+        if(error){
+          console.error(error);
+          chatError.textContent = "Erreur lors de l’envoi de la photo.";
+        }else if(data){
+          appendMessage(data,true);
+        }
+      }else if(type.startsWith('video/')){
+        // Vidéo : vérifier durée <= 20s
+        const blobUrl = URL.createObjectURL(file);
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.src = blobUrl;
+
+        const duration = await new Promise((resolve,reject)=>{
+          video.onloadedmetadata = ()=>{
+            const d = video.duration || 0;
+            URL.revokeObjectURL(blobUrl);
+            resolve(d);
+          };
+          video.onerror = ()=>{
+            URL.revokeObjectURL(blobUrl);
+            reject(new Error("Erreur lecture vidéo"));
+          };
+        });
+
+        if(duration > 20){
+          chatError.textContent = "Vidéo trop longue (max 20 secondes).";
+          return;
+        }
+
+        const url = await uploadToVoiceBucket(file,'media');
+        const payload = {
+          from_id: me.id,
+          to_id:   peerId,
+          content: 'VID:'+url+'|'+Math.round(duration)
+        };
+        const { data, error } = await supa
+          .from('ridly_private_messages')
+          .insert([payload])
+          .select('id,from_id,to_id,content,created_at')
+          .single();
+        if(error){
+          console.error(error);
+          chatError.textContent = "Erreur lors de l’envoi de la vidéo.";
+        }else if(data){
+          appendMessage(data,true);
+        }
+      }else{
+        chatError.textContent = "Format non supporté (photo ou vidéo uniquement).";
+      }
+    }catch(e){
+      console.error(e);
+      chatError.textContent = "Erreur lors de l’envoi du média.";
+    }
+  })();
+}
 
 mediaBtn.addEventListener('click', ()=>{
-  mediaInput.value = "";
-  mediaInput.click();
+  // petit choix simple : OK = caméra, Annuler = galerie
+  const useCamera = confirm("Prendre une photo/vidéo maintenant ?\nOK = Caméra, Annuler = Galerie");
+  if(useCamera){
+    mediaInputCamera.value = "";
+    mediaInputCamera.click();
+  }else{
+    mediaInput.value = "";
+    mediaInput.click();
+  }
 });
 
-mediaInput.addEventListener('change', async ()=>{
-  chatError.textContent = "";
+mediaInput.addEventListener('change', ()=>{
   const file = mediaInput.files && mediaInput.files[0];
-  if(!file) return;
-  if(!me || !peerId){
-    chatError.textContent = "Erreur : pas de rider cible.";
-    return;
-  }
-
-  const type = file.type || "";
-  try{
-    if(type.startsWith('image/')){
-      // Photo
-      const url = await uploadToVoiceBucket(file,'media');
-      const payload = {
-        from_id: me.id,
-        to_id:   peerId,
-        content: 'IMG:'+url
-      };
-      const { data, error } = await supa
-        .from('ridly_private_messages')
-        .insert([payload])
-        .select('id,from_id,to_id,content,created_at')
-        .single();
-      if(error){
-        console.error(error);
-        chatError.textContent = "Erreur lors de l’envoi de la photo.";
-      }else if(data){
-        appendMessage(data,true);
-      }
-    }else if(type.startsWith('video/')){
-      // Vidéo : vérifier durée <= 20s
-      const blobUrl = URL.createObjectURL(file);
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      video.src = blobUrl;
-
-      const duration = await new Promise((resolve,reject)=>{
-        video.onloadedmetadata = ()=>{
-          const d = video.duration || 0;
-          URL.revokeObjectURL(blobUrl);
-          resolve(d);
-        };
-        video.onerror = ()=>{
-          URL.revokeObjectURL(blobUrl);
-          reject(new Error("Erreur lecture vidéo"));
-        };
-      });
-
-      if(duration > 20){
-        chatError.textContent = "Vidéo trop longue (max 20 secondes).";
-        return;
-      }
-
-      const url = await uploadToVoiceBucket(file,'media');
-      const payload = {
-        from_id: me.id,
-        to_id:   peerId,
-        content: 'VID:'+url+'|'+Math.round(duration)
-      };
-      const { data, error } = await supa
-        .from('ridly_private_messages')
-        .insert([payload])
-        .select('id,from_id,to_id,content,created_at')
-        .single();
-      if(error){
-        console.error(error);
-        chatError.textContent = "Erreur lors de l’envoi de la vidéo.";
-      }else if(data){
-        appendMessage(data,true);
-      }
-    }else{
-      chatError.textContent = "Format non supporté (photo ou vidéo uniquement).";
-    }
-  }catch(e){
-    console.error(e);
-    chatError.textContent = "Erreur lors de l’envoi du média.";
-  }
+  handleMediaFile(file);
+});
+mediaInputCamera.addEventListener('change', ()=>{
+  const file = mediaInputCamera.files && mediaInputCamera.files[0];
+  handleMediaFile(file);
 });
 
 /* Events généraux */
