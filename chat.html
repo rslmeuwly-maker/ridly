@@ -256,11 +256,44 @@
       background:#f9fafb;
     }
 
+    /* ligne message + avatar */
+    .msg-row{
+      display:flex;
+      gap:8px;
+      align-items:flex-start;
+      margin-bottom:6px;
+    }
+    .msg-avatar{
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      overflow:hidden;
+      background:#0f172a;
+      flex-shrink:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:14px;
+      font-weight:700;
+      color:#e5e7eb;
+    }
+    .msg-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    body.theme-light .msg-avatar{
+      background:#e5e7eb;
+      color:#111827;
+    }
+
     .msg{
       padding:6px 8px;
       border-radius:10px;
-      margin-bottom:4px;
+      margin-bottom:0; /* géré par .msg-row */
       background:rgba(15,23,42,1);
+      flex:1;
     }
     body.theme-light .msg{
       background:#e5e7eb;
@@ -589,19 +622,31 @@ function containsBannedWords(text){
   return false;
 }
 
-/* Ajouter un message dans le DOM */
+/* Ajouter un message dans le DOM (avec avatar) */
 function appendMessage(m, scroll=true){
   if(!m || !m.id) return;
   if(seenMessageIds.has(m.id)) return;
   seenMessageIds.add(m.id);
 
-  const pseudo = m.profiles?.pseudo || m.profiles?.full_name || "Rider";
-  const safeName = escapeHTML(pseudo);
-  const timeTxt  = formatTime(m.created_at);
+  const pseudo    = m.profiles?.pseudo || m.profiles?.full_name || "Rider";
+  const avatarUrl = m.profiles?.avatar_url || null;
+  const safeName  = escapeHTML(pseudo);
+  const timeTxt   = formatTime(m.created_at);
 
-  const div = document.createElement('div');
-  div.className = "msg";
-  div.innerHTML = `
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  if(avatarUrl){
+    avatar.innerHTML = `<img src="${escapeHTML(avatarUrl)}" alt="${safeName}">`;
+  }else{
+    avatar.textContent = safeName.charAt(0).toUpperCase();
+  }
+
+  const msgDiv = document.createElement('div');
+  msgDiv.className = "msg";
+  msgDiv.innerHTML = `
     <div class="msg-header">
       <span class="msg-user">
         <a href="profil_ou_rider.html?id=${encodeURIComponent(m.user_id || '')}">
@@ -612,7 +657,11 @@ function appendMessage(m, scroll=true){
     </div>
     <div class="msg-body">${escapeHTML(m.content)}</div>
   `;
-  chatMessages.appendChild(div);
+
+  row.appendChild(avatar);
+  row.appendChild(msgDiv);
+  chatMessages.appendChild(row);
+
   if(scroll){
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
@@ -623,7 +672,7 @@ async function loadMessages(){
   try{
     const { data, error } = await supa
       .from('ridly_chat_messages')
-      .select('id,user_id,content,created_at,profiles(pseudo,full_name)')
+      .select('id,user_id,content,created_at,profiles(pseudo,full_name,avatar_url)')
       .order('created_at', { ascending:false })
       .limit(80);
 
@@ -661,7 +710,7 @@ function subscribeNewMessages(){
       const msg = {
         ...m,
         profiles: (m.user_id === me?.id && profile)
-          ? { pseudo: profile.pseudo, full_name: profile.full_name }
+          ? { pseudo: profile.pseudo, full_name: profile.full_name, avatar_url: profile.avatar_url }
           : null
       };
       appendMessage(msg,true);
@@ -701,7 +750,7 @@ async function sendMessage(){
     }else if(data){
       const msg = {
         ...data,
-        profiles: profile ? { pseudo: profile.pseudo, full_name: profile.full_name } : null
+        profiles: profile ? { pseudo: profile.pseudo, full_name: profile.full_name, avatar_url: profile.avatar_url } : null
       };
       appendMessage(msg,true);
       chatInput.value = "";
@@ -730,7 +779,7 @@ async function sendMessage(){
 
     const { data: prof } = await supa
       .from('profiles')
-      .select('pseudo,full_name')
+      .select('pseudo,full_name,avatar_url')
       .eq('id', me.id)
       .maybeSingle();
 

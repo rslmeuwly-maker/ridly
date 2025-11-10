@@ -6,7 +6,7 @@
 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#22c55e">
-  <title>Game of Scoot — RIDLY</title>
+  <title>Games Riders — RIDLY</title>
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -100,7 +100,7 @@
       z-index:1;
     }
 
-    /* ===== TOP NAV (copiée de feed) ===== */
+    /* ===== TOP NAV ===== */
     nav.nav{
       position:sticky;
       top:0;
@@ -195,19 +195,8 @@
       border-color:var(--accent);
       color:var(--accent);
     }
-    .chat-dot{
-      position:absolute;
-      top:5px;
-      right:5px;
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:#22c55e;
-      box-shadow:0 0 8px rgba(34,197,94,.8);
-      opacity:0;
-    }
 
-    /* ===== MAIN (comme feed) ===== */
+    /* ===== MAIN ===== */
     .main{
       flex:1;
       padding:4px 10px 80px;
@@ -220,147 +209,203 @@
       color:var(--text-dim);
     }
 
-    /* ===== PANELS GAME OF SCOOT ===== */
-    .status-main{
-      font-size:13px;
-      color:var(--text-dim);
-      margin:0 0 8px;
-      padding:0 2px;
-    }
-
-    .panel{
+    .card{
       background:var(--card);
       border-radius:var(--radius-xl);
       border:1px solid rgba(15,23,42,.9);
       box-shadow:0 18px 45px rgba(0,0,0,.6);
-      padding:12px 10px 12px;
-      margin-bottom:14px;
+      padding:14px 12px 16px;
+      margin-top:4px;
     }
-    body.theme-light .panel{
+    body.theme-light .card{
       border-color:rgba(209,213,219,.9);
       box-shadow:0 14px 30px rgba(15,23,42,.15);
     }
 
-    h2,h3{
-      margin:0 0 8px;
-      font-size:15px;
+    h1.main-title{
+      margin:0 0 6px;
+      font-size:20px;
+      font-weight:800;
+    }
+    .muted{
+      font-size:13px;
+      color:var(--text-dim);
+      margin:0 0 10px;
     }
 
-    .row{
+    /* ===== HUB MODES ===== */
+    .mode-list{
       display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:8px;
+      margin-bottom:14px;
+    }
+    .mode-card{
+      border-radius:16px;
+      border:1px solid rgba(31,41,55,.9);
+      background:rgba(15,23,42,.96);
+      padding:12px 10px 12px;
+      box-shadow:0 10px 26px rgba(0,0,0,.55);
+    }
+    body.theme-light .mode-card{
+      background:#f9fafb;
+      border-color:rgba(209,213,219,.9);
+    }
+
+    .mode-title{
+      font-size:15px;
+      font-weight:700;
+      margin:0 0 4px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .mode-desc{
+      font-size:12px;
+      color:var(--text-dim);
+      margin:0 0 10px;
+    }
+
+    .mode-meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
       gap:8px;
       flex-wrap:wrap;
+      font-size:11px;
+      color:var(--text-dim);
+    }
+
+    .pill{
+      display:inline-flex;
       align-items:center;
+      gap:4px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(15,23,42,.9);
+      border:1px solid rgba(148,163,184,.5);
+      font-size:11px;
+    }
+    body.theme-light .pill{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.7);
     }
 
     .btn{
-      appearance:none;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.6);
-      background:rgba(15,23,42,.95);
-      color:var(--text);
-      padding:7px 14px;
-      font:600 14px "Outfit",system-ui;
-      cursor:pointer;
-    }
-    .btn.green{
-      background:linear-gradient(180deg,#22c55e,#16a34a);
-      color:#022c16;
-      border-color:#22c55e;
-      box-shadow:0 10px 22px rgba(34,197,94,.55);
-    }
-
-    input{
-      background:#020617;
-      border-radius:10px;
-      border:1px solid rgba(148,163,184,.6);
-      padding:7px 10px;
-      color:var(--text);
-      font:500 14px "Outfit",system-ui;
-      min-width:0;
-      flex:1;
-    }
-    body.theme-light input{
-      background:#f4f4f5;
-      border-color:rgba(148,163,184,.7);
-      color:#111827;
-    }
-
-    .players{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-      flex-wrap:wrap;
-    }
-    .player-card{
-      flex:1;
-      min-width:140px;
-      padding:10px;
-      border-radius:14px;
-      background:#020617;
-      border:1px solid rgba(30,64,175,.7);
-    }
-    body.theme-light .player-card{
-      background:#f9fafb;
-      border-color:rgba(148,163,184,.9);
-    }
-    .player-card > div:first-child{
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .letters{
-      display:flex;
-      gap:4px;
-      margin-top:6px;
-    }
-    .letter{
-      width:24px;
-      height:24px;
-      border-radius:6px;
-      border:1px solid rgba(148,163,184,.8);
-      display:flex;
+      display:inline-flex;
       align-items:center;
       justify-content:center;
-      font-weight:700;
+      padding:8px 12px;
+      border-radius:10px;
+      border:none;
+      background:linear-gradient(180deg,var(--accent),#16a34a);
+      color:#022c16;
+      font-weight:800;
       font-size:13px;
+      text-decoration:none;
+      box-shadow:0 10px 24px rgba(0,0,0,.5);
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn span.ic{
+      margin-right:4px;
+    }
+
+    /* ===== MES PARTIES ===== */
+    .sub-title{
+      font-size:13px;
+      font-weight:600;
+      margin:6px 0 4px;
+      color:var(--text-dim);
+    }
+
+    #myGames{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:4px;
+    }
+
+    .game-item{
+      border-radius:12px;
+      border:1px solid rgba(31,41,55,.9);
+      background:rgba(15,23,42,.96);
+      padding:8px 9px;
+      font-size:12px;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+    body.theme-light .game-item{
+      background:#f9fafb;
+      border-color:rgba(209,213,219,.9);
+    }
+
+    .game-top{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .game-vs{
+      font-weight:600;
+    }
+    .game-status{
+      font-size:11px;
+      color:var(--text-dim);
+    }
+    .game-bottom{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:2px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:3px 7px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      font-size:10px;
       color:var(--text-dim);
       background:rgba(15,23,42,.9);
     }
-    body.theme-light .letter{
+    body.theme-light .badge{
       background:#e5e7eb;
-      border-color:rgba(148,163,184,.9);
     }
-    .letter.on{
-      background:var(--accent-soft);
-      color:#bbf7d0;
-      border-color:var(--accent);
-      box-shadow:0 0 10px rgba(34,197,94,.6);
+    .badge-dot{
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background:#22c55e;
     }
-
-    .status{
-      font-size:12px;
-      color:var(--text-dim);
-      margin-bottom:6px;
-      padding:0 2px;
+    .badge-dot.finished{
+      background:#f97316;
+    }
+    .badge-dot.invited{
+      background:#38bdf8;
     }
 
-    .round-log{
-      max-height:220px;
-      overflow:auto;
-      font-size:12px;
-      color:var(--text-dim);
-      padding-top:4px;
-      border-top:1px solid rgba(15,23,42,.95);
-      margin-top:4px;
+    .btn-sm-link{
+      font-size:11px;
+      padding:5px 9px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.7);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      text-decoration:none;
+      white-space:nowrap;
     }
-    .round-log div{
-      padding:3px 0;
-      border-bottom:1px solid rgba(15,23,42,.85);
+    body.theme-light .btn-sm-link{
+      background:#e5e7eb;
     }
 
-    /* ===== BOTTOM NAV (comme feed) ===== */
+    /* ===== BOTTOM NAV ===== */
     .tabbar{
       position:fixed;
       left:0;
@@ -416,7 +461,7 @@
 </head>
 <body class="theme-dark">
 
-<!-- BG vidéo -->
+<!-- BG vidéo depuis Supabase -->
 <div class="rsl-bg-wrap" aria-hidden="true">
   <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
   <div class="rsl-bg-dim"></div>
@@ -424,7 +469,7 @@
 
 <div class="page-wrap">
 
-  <!-- NAV TOP (identique à feed) -->
+  <!-- NAV TOP -->
   <nav class="nav">
     <div class="row">
       <div class="nav-left">
@@ -432,74 +477,66 @@
           <img src="image/1logo_ridly.png" alt="RIDLY"/>
           <span>RIDLY</span>
         </a>
-        <!-- Bouton + comme sur le feed -->
         <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post">
           <span>+</span>
         </button>
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
-          <span class="chat-dot" id="chatDot"></span>
-          💬
-        </a>
       </div>
     </div>
   </nav>
 
   <!-- CONTENU PRINCIPAL -->
   <main class="main">
-    <div class="mini-title">Game of Scoot</div>
+    <div class="mini-title">Games</div>
 
-    <p class="status-main" id="statusText">
-      Connexion en cours…
-    </p>
+    <section class="card">
+      <h1 class="main-title">Game Hub 🎮</h1>
+      <p class="muted" id="connectedAs">
+        Chargement de ton profil rider…
+      </p>
 
-    <!-- Panel création / rejoindre -->
-    <section class="panel">
-      <h2>Lancer une partie</h2>
-      <div class="row" style="margin-bottom:10px;">
-        <button class="btn green" id="btnCreateGame">Créer une partie</button>
-        <span id="createdCode" style="font-size:12px;color:var(--text-dim);"></span>
+      <!-- Choix des modes -->
+      <div class="mode-list">
+        <article class="mode-card">
+          <h2 class="mode-title">🎮 Game of Scoot — Classique</h2>
+          <p class="mode-desc">
+            Un duel simple entre deux riders : lettres “SCOOT”, code de partie à partager, aucune vidéo obligatoire.
+          </p>
+          <div class="mode-meta">
+            <div class="pill">Pas de cam • Super rapide</div>
+            <a href="game_scoot_classic.html" class="btn">
+              <span class="ic">▶️</span> Mode Classique
+            </a>
+          </div>
+        </article>
+
+        <article class="mode-card">
+          <h2 class="mode-title">🎥 Game of Scoot — Vidéo</h2>
+          <p class="mode-desc">
+            Chaque trick est filmé. Crée une partie, upload les clips et garde un souvenir complet de la battle.
+          </p>
+          <div class="mode-meta">
+            <div class="pill">Clips enregistrés • Plus complet</div>
+            <a href="game_scoot_video.html" class="btn">
+              <span class="ic">🎬</span> Mode Vidéo
+            </a>
+          </div>
+        </article>
       </div>
 
-      <h3 style="margin-top:6px;">Rejoindre une partie</h3>
-      <div class="row">
-        <input id="joinCode" placeholder="Code de partie (ex: ABC123)" style="max-width:220px"/>
-        <button class="btn" id="btnJoinGame">Rejoindre</button>
+      <!-- Mes parties -->
+      <div class="sub-title">Mes dernières parties</div>
+      <div id="myGames">
+        <div class="muted">Chargement de tes games…</div>
       </div>
-    </section>
-
-    <!-- Panel jeu -->
-    <section class="panel" id="gamePanel" style="display:none;">
-      <div class="players">
-        <div class="player-card">
-          <div id="p1Name">Player 1</div>
-          <div class="letters" id="p1Letters"></div>
-        </div>
-        <div class="player-card">
-          <div id="p2Name">Player 2</div>
-          <div class="letters" id="p2Letters"></div>
-        </div>
-      </div>
-
-      <div class="status" id="gameStatus"></div>
-
-      <div class="row" style="margin-bottom:6px;">
-        <input id="trickName" placeholder="Nom du trick (optionnel)"/>
-      </div>
-      <div class="row" style="margin-bottom:6px;">
-        <button class="btn" id="btnP1Miss">P1 prend une lettre</button>
-        <button class="btn" id="btnP2Miss">P2 prend une lettre</button>
-      </div>
-
-      <div class="round-log" id="roundLog"></div>
     </section>
   </main>
 
 </div>
 
-<!-- TABBAR (copiée de feed, Game actif) -->
+<!-- NAVIGATION BAS -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
     <div class="ic">📍</div><span>Spots</span>
@@ -521,14 +558,13 @@
   </a>
 </nav>
 
-<!-- THEME clair / sombre (même logique que feed) -->
 <script>
+/* ===== Thème clair/sombre (comme feed) ===== */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
-  document.body.classList.toggle('theme-light', theme === 'light');
-  document.body.classList.toggle('theme-dark', theme !== 'light');
+  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
 
   const btnTheme = document.getElementById('btnTheme');
   const updateIcon = () => {
@@ -548,232 +584,203 @@
 </script>
 
 <script>
-  /* Supabase init */
-  const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
-  const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
-  const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+/* ===== Supabase init ===== */
+const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
+const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  /* BG vidéo depuis Supabase storage (comme feed) */
-  (function(){
-    const v = document.getElementById('rslBg');
-    if(!v) return;
-    const s = document.createElement('source');
-    s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
-    s.type = "video/mp4";
-    v.appendChild(s);
-    const play = () => {
-      try{
-        v.playbackRate = 0.6;
-        const p = v.play();
-        if(p && p.catch) p.catch(()=>{});
-      }catch(e){}
-    };
-    play();
-    document.addEventListener('visibilitychange',()=>{
-      document.hidden ? v.pause() : play();
-    });
-  })();
-
-  let currentUser = null;
-  let currentGame = null;
-  let channel = null;
-  const letters = ['S','C','O','O','T'];
-
-  const statusText   = document.getElementById('statusText');
-  const gamePanel    = document.getElementById('gamePanel');
-  const p1NameEl     = document.getElementById('p1Name');
-  const p2NameEl     = document.getElementById('p2Name');
-  const p1LettersEl  = document.getElementById('p1Letters');
-  const p2LettersEl  = document.getElementById('p2Letters');
-  const gameStatusEl = document.getElementById('gameStatus');
-  const roundLog     = document.getElementById('roundLog');
-  const chatDot      = document.getElementById('chatDot');
-
-  async function initGame(){
+/* BG vidéo depuis Supabase storage */
+(function(){
+  const v = document.getElementById('rslBg');
+  if(!v) return;
+  const s = document.createElement('source');
+  s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
+  s.type = "video/mp4";
+  v.appendChild(s);
+  const play = () => {
     try{
-      const { data:{ user } } = await supa.auth.getUser();
-      if(!user){
-        window.location.href = 'index.html';
-        return;
-      }
-      currentUser = user;
-      const name = user.user_metadata?.full_name || user.email || user.id;
-      statusText.textContent = "Tu es connecté en tant que " + name;
-      if(chatDot) chatDot.style.opacity = 1;
-    }catch(e){
-      console.error(e);
-      window.location.href = 'index.html';
-    }
-  }
-
-  function renderLetters(container, count){
-    container.innerHTML = '';
-    for(let i=0;i<letters.length;i++){
-      const div = document.createElement('div');
-      div.className = 'letter' + (i < count ? ' on':'');
-      div.textContent = letters[i];
-      container.appendChild(div);
-    }
-  }
-
-  function renderGame(){
-    if(!currentGame) return;
-    gamePanel.style.display = 'block';
-    p1NameEl.textContent = currentGame.player1_name || 'Rider 1';
-    p2NameEl.textContent = currentGame.player2_name || 'Rider 2';
-    renderLetters(p1LettersEl, currentGame.letters_p1 || 0);
-    renderLetters(p2LettersEl, currentGame.letters_p2 || 0);
-
-    if(currentGame.status === 'finished'){
-      const winner = currentGame.winner_name || 'un rider';
-      gameStatusEl.textContent = "Partie terminée — " + winner + " a gagné.";
-    }else{
-      gameStatusEl.textContent = "Partie en cours — code: " + currentGame.code;
-    }
-  }
-
-  async function loadRounds(gameId){
-    const { data, error } = await supa
-      .from('scoot_rounds')
-      .select('*')
-      .eq('game_id', gameId)
-      .order('round_number', { ascending:true });
-    if(error){ console.error(error); return; }
-    roundLog.innerHTML = '';
-    (data||[]).forEach(r => {
-      const div = document.createElement('div');
-      const t = r.trick_name ? r.trick_name + " — " : "";
-      div.textContent = "#" + r.round_number + " " + t +
-        "P1 lettres: " + (r.letters_p1_after ?? '?') +
-        " / P2 lettres: " + (r.letters_p2_after ?? '?');
-      roundLog.appendChild(div);
-    });
-  }
-
-  function subscribeGame(gameId){
-    if(channel){
-      supa.removeChannel(channel);
-    }
-    channel = supa
-      .channel('scoot_game_' + gameId)
-      .on('postgres_changes',{
-        event:'UPDATE', schema:'public', table:'scoot_games',
-        filter:'id=eq.'+gameId
-      }, payload => {
-        Object.assign(currentGame, payload.new);
-        renderGame();
-      })
-      .on('postgres_changes',{
-        event:'INSERT', schema:'public', table:'scoot_rounds',
-        filter:'game_id=eq.'+gameId
-      }, payload => {
-        loadRounds(gameId);
-      })
-      .subscribe();
-  }
-
-  document.getElementById('btnCreateGame').addEventListener('click', async () => {
-    if(!currentUser) return;
-    const code = Math.random().toString(36).slice(2,8).toUpperCase();
-    const displayName = currentUser.user_metadata?.full_name || currentUser.email || 'Rider 1';
-
-    const { data, error } = await supa
-      .from('scoot_games')
-      .insert({
-        code,
-        player1_id: currentUser.id,
-        player1_name: displayName,
-        status: 'waiting'
-      })
-      .select('*')
-      .single();
-    if(error){ console.error(error); alert("Erreur création partie"); return; }
-
-    document.getElementById('createdCode').textContent =
-      "Partage ce code à ton adversaire : " + code;
-    currentGame = data;
-    renderGame();
-    subscribeGame(currentGame.id);
-    loadRounds(currentGame.id);
+      v.playbackRate = 0.6;
+      const p = v.play();
+      if(p && p.catch) p.catch(()=>{});
+    }catch(e){}
+  };
+  play();
+  document.addEventListener('visibilitychange',()=>{
+    document.hidden ? v.pause() : play();
   });
-
-  document.getElementById('btnJoinGame').addEventListener('click', async () => {
-    if(!currentUser) return;
-    const code = document.getElementById('joinCode').value.trim().toUpperCase();
-    if(!code) return;
-    const displayName = currentUser.user_metadata?.full_name || currentUser.email || 'Rider 2';
-
-    const { data, error } = await supa
-      .from('scoot_games')
-      .update({ player2_id: currentUser.id, player2_name: displayName, status:'in_progress' })
-      .eq('code', code)
-      .is('player2_id', null)
-      .select('*')
-      .single();
-    if(error || !data){ alert("Code invalide ou partie déjà pleine."); return; }
-    currentGame = data;
-    renderGame();
-    subscribeGame(currentGame.id);
-    loadRounds(currentGame.id);
-  });
-
-  document.getElementById('btnP1Miss').addEventListener('click', async () => {
-    if(!currentGame) return;
-    const nextLetters = Math.min((currentGame.letters_p1 || 0) + 1, 5);
-    const roundNum = (currentGame.round_count || 0) + 1;
-
-    const { error: e1 } = await supa.from('scoot_games')
-      .update({
-        letters_p1: nextLetters,
-        status: nextLetters >= 5 ? 'finished' : 'in_progress',
-        winner_id: nextLetters >= 5 ? currentGame.player2_id : null
-      })
-      .eq('id', currentGame.id);
-
-    const { error: e2 } = await supa.from('scoot_rounds')
-      .insert({
-        game_id: currentGame.id,
-        round_number: roundNum,
-        trick_name: document.getElementById('trickName').value || null,
-        letters_p1_after: nextLetters,
-        letters_p2_after: currentGame.letters_p2 || 0
-      });
-
-    if(e1 || e2){ console.error(e1||e2); }
-    loadRounds(currentGame.id);
-  });
-
-  document.getElementById('btnP2Miss').addEventListener('click', async () => {
-    if(!currentGame) return;
-    const nextLetters = Math.min((currentGame.letters_p2 || 0) + 1, 5);
-    const roundNum = (currentGame.round_count || 0) + 1;
-
-    const { error: e1 } = await supa.from('scoot_games')
-      .update({
-        letters_p2: nextLetters,
-        status: nextLetters >= 5 ? 'finished' : 'in_progress',
-        winner_id: nextLetters >= 5 ? currentGame.player1_id : null
-      })
-      .eq('id', currentGame.id);
-
-    const { error: e2 } = await supa.from('scoot_rounds')
-      .insert({
-        game_id: currentGame.id,
-        round_number: roundNum,
-        trick_name: document.getElementById('trickName').value || null,
-        letters_p1_after: currentGame.letters_p1 || 0,
-        letters_p2_after: nextLetters
-      });
-
-    if(e1 || e2){ console.error(e1||e2); }
-    loadRounds(currentGame.id);
-  });
-
-  initGame();
+})();
 </script>
 
 <script>
-  // Service worker
+/* ===== HUB LOGIC : auth + mes games (PSEUDOS UNIQUEMENT) ===== */
+let me = null;
+let mePseudo = 'Rider';
+
+const connectedAsEl = document.getElementById('connectedAs');
+const myGamesEl     = document.getElementById('myGames');
+
+function escapeHTML(s){
+  return (s||'').replace(/[&<>"']/g,m=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":"&#39;"
+  }[m]));
+}
+
+function formatDateShort(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('fr-CH',{ day:'2-digit', month:'2-digit' });
+}
+
+function statusLabel(status){
+  if(!status) return 'en cours';
+  switch(status){
+    case 'waiting': return 'en attente';
+    case 'playing': return 'en cours';
+    case 'finished': return 'terminée';
+    case 'invited': return 'invitation';
+    default: return status;
+  }
+}
+function statusDotClass(status){
+  if(status === 'finished') return 'badge-dot finished';
+  if(status === 'invited' || status === 'waiting') return 'badge-dot invited';
+  return 'badge-dot';
+}
+function modeLabel(mode){
+  if(mode === 'video') return 'Mode vidéo';
+  return 'Mode classique';
+}
+function modeLink(mode){
+  return mode === 'video' ? 'game_scoot_video.html' : 'game_scoot_classic.html';
+}
+
+/* retourne toujours un pseudo ou "Rider", jamais un email */
+function profileDisplayName(profile){
+  let name = profile?.pseudo || profile?.full_name || 'Rider';
+  if(name && name.includes('@')) name = 'Rider';
+  return name;
+}
+
+(async function initHub(){
+  try{
+    const { data:{ user } } = await supa.auth.getUser();
+    if(!user){
+      connectedAsEl.textContent = "Tu n’es pas connecté. Connecte-toi pour lancer un Game of Scoot.";
+      myGamesEl.innerHTML = '<div class="muted">Connecte-toi pour voir tes parties.</div>';
+      return;
+    }
+    me = user;
+
+    const { data: prof } = await supa
+      .from('profiles')
+      .select('pseudo,full_name')
+      .eq('id', me.id)
+      .maybeSingle();
+
+    mePseudo = profileDisplayName(prof);
+    connectedAsEl.textContent = "Tu es connecté en tant que " + mePseudo;
+
+    await loadMyGames();
+  }catch(e){
+    console.error(e);
+    connectedAsEl.textContent = "Erreur de chargement du profil.";
+    myGamesEl.innerHTML = '<div class="muted">Impossible de charger tes games.</div>';
+  }
+})();
+
+async function loadMyGames(){
+  myGamesEl.innerHTML = '<div class="muted">Chargement…</div>';
+  if(!me) return;
+
+  try{
+    const { data, error } = await supa
+      .from('scoot_games')
+      .select('*')
+      .or(`player1_id.eq.${me.id},player2_id.eq.${me.id}`)
+      .order('created_at',{ ascending:false })
+      .limit(10);
+
+    if(error){
+      console.error(error);
+      myGamesEl.innerHTML = '<div class="muted">Erreur de chargement des games.</div>';
+      return;
+    }
+    const list = data || [];
+    if(!list.length){
+      myGamesEl.innerHTML = '<div class="muted">Tu n’as pas encore de Game of Scoot. Lance ta première partie !</div>';
+      return;
+    }
+
+    /* récupérer les profils de tous les joueurs de ces parties */
+    const userIds = [];
+    list.forEach(g=>{
+      if(g.player1_id) userIds.push(g.player1_id);
+      if(g.player2_id) userIds.push(g.player2_id);
+    });
+    const uniqIds = [...new Set(userIds)];
+    let profilesById = {};
+    if(uniqIds.length){
+      const { data: profs } = await supa
+        .from('profiles')
+        .select('id,pseudo,full_name')
+        .in('id', uniqIds);
+      (profs || []).forEach(p => { profilesById[p.id] = p; });
+    }
+
+    let html = '';
+    for(const g of list){
+      const profP1 = profilesById[g.player1_id] || null;
+      const profP2 = profilesById[g.player2_id] || null;
+
+      const p1Name = profileDisplayName(profP1);
+      const p2Name = profileDisplayName(profP2);
+
+      const iAmP1 = g.player1_id === me.id;
+      const opponent = iAmP1 ? p2Name : p1Name;
+      const meLabel = mePseudo;
+
+      const code = g.code || '—';
+      const status = g.status || 'playing';
+      const lettersMe   = iAmP1 ? (g.letters_p1 || '') : (g.letters_p2 || '');
+      const lettersOpp  = iAmP1 ? (g.letters_p2 || '') : (g.letters_p1 || '');
+      const mode = g.mode || 'classic';
+      const createdShort = formatDateShort(g.created_at);
+
+      html += `
+      <div class="game-item">
+        <div class="game-top">
+          <div>
+            <div class="game-vs">${escapeHTML(meLabel)} vs ${escapeHTML(opponent)}</div>
+            <div class="game-status">Code ${escapeHTML(code)} • ${statusLabel(status)}</div>
+          </div>
+          <span class="badge">
+            <span class="${statusDotClass(status)}"></span>
+            ${escapeHTML(modeLabel(mode))}
+          </span>
+        </div>
+        <div class="game-bottom">
+          <div style="font-size:11px;color:var(--text-dim);">
+            Tes lettres: ${lettersMe || '—'} • Adversaire: ${lettersOpp || '—'}<br>
+            <span style="opacity:.7;">Créée le ${createdShort}</span>
+          </div>
+          <a href="${modeLink(mode)}" class="btn-sm-link">Ouvrir</a>
+        </div>
+      </div>`;
+    }
+    myGamesEl.innerHTML = html;
+  }catch(e){
+    console.error(e);
+    myGamesEl.innerHTML = '<div class="muted">Erreur de chargement des games.</div>';
+  }
+}
+</script>
+
+<script>
+  // Service worker (normal qu'il râle en file://, pas grave en local)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
   }

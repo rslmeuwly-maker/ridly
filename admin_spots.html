@@ -1,179 +1,791 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Admin Spots — RSL</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{ --green:#22c55e; --red:#ef4444; --amber:#f59e0b; }
-  body{margin:0;background:#0b0e14;color:#fff;font-family:Outfit,system-ui}
-  header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
-  header b{font-weight:800}
-  .wrap{max-width:1100px;margin:20px auto;padding:0 18px}
-  .tabs{display:flex;gap:8px;margin-bottom:12px}
-  .tabs button{border:1px solid rgba(255,255,255,.18);background:#121826;color:#fff;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
-  .tabs button.active{background:linear-gradient(180deg,#22c55e,#16a34a);color:#062312;border:0}
-  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-  .input,select{background:#0b1220;border:1px solid rgba(255,255,255,.18);border-radius:10px;color:#fff;padding:8px 10px;font:600 14px Outfit}
-  table{width:100%;border-collapse:collapse}
-  th,td{border-bottom:1px solid rgba(255,255,255,.1);padding:10px 8px;text-align:left;font-size:14px}
-  .tag{font-weight:800;font-size:12px;padding:4px 8px;border-radius:999px;display:inline-block}
-  .tag.pending{background:#1f2937;color:#fff;border:1px solid rgba(255,255,255,.18)}
-  .tag.approved{background:#064e3b;color:#a7f3d0;border:1px solid #059669}
-  .tag.rejected{background:#3f1d1d;color:#fecaca;border:1px solid #ef4444}
-  .btn{cursor:pointer;border-radius:8px;padding:8px 10px;font-weight:800;border:1px solid rgba(255,255,255,.18);background:#111827;color:#fff}
-  .btn.green{background:linear-gradient(180deg,#22c55e,#16a34a);color:#062312;border:0}
-  .btn.red{background:#7f1d1d;border-color:#ef4444}
-  .row{display:flex;gap:8px;flex-wrap:wrap}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin Spots + Posts IG — RIDLY</title>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <!-- Optionnel : tes variables d'env (même fichier que les autres pages RIDLY) -->
+  <script src="js/env.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --green:#22c55e;
+      --green-dark:#16a34a;
+      --red:#ef4444;
+      --amber:#f59e0b;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{
+      margin:0;
+      background:#020617;
+      color:#f9fafb;
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    }
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 18px;
+      border-bottom:1px solid rgba(148,163,184,.4);
+      background:#020617;
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    header b{font-weight:800;font-size:18px}
+    #adminWho{font-size:13px;opacity:.8}
+
+    .wrap{max-width:1200px;margin:14px auto 28px;padding:0 18px}
+
+    /* Tabs haut : Spots / Posts IG */
+    .top-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+    .top-tabs button{
+      border-radius:999px;
+      padding:8px 16px;
+      font-weight:700;
+      border:1px solid rgba(148,163,184,.6);
+      background:#020617;
+      color:#e5e7eb;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .top-tabs button.active{
+      background:linear-gradient(180deg,#22c55e,#16a34a);
+      color:#022c16;
+      border:none;
+      box-shadow:0 10px 24px rgba(34,197,94,.55);
+    }
+
+    .section-card{
+      background:#020617;
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.45);
+      box-shadow:0 18px 45px rgba(0,0,0,.8);
+      padding:12px 12px 16px;
+      margin-bottom:22px;
+    }
+    .section-card.hidden{display:none;}
+    .sec-title{
+      font-size:16px;
+      font-weight:800;
+      margin:0 0 6px;
+    }
+    .sec-sub{
+      font-size:12px;
+      color:#9ca3af;
+      margin:0 0 10px;
+    }
+
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .input,select{
+      background:#020617;
+      border:1px solid rgba(148,163,184,.5);
+      border-radius:10px;
+      color:#e5e7eb;
+      padding:8px 10px;
+      font:600 13px Outfit;
+      min-width:170px;
+    }
+    .input::placeholder{color:rgba(148,163,184,.9)}
+    .btn{
+      cursor:pointer;
+      border-radius:9px;
+      padding:8px 12px;
+      font-weight:800;
+      border:1px solid rgba(148,163,184,.6);
+      background:#020617;
+      color:#e5e7eb;
+      font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .btn.green{
+      background:linear-gradient(180deg,#22c55e,#16a34a);
+      color:#022c16;
+      border:none;
+      box-shadow:0 12px 26px rgba(34,197,94,.55);
+    }
+    .btn.red{
+      background:#7f1d1d;
+      border-color:#ef4444;
+    }
+
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .tabs button{
+      border-radius:999px;
+      padding:7px 14px;
+      font-weight:700;
+      border:1px solid rgba(148,163,184,.6);
+      background:#020617;
+      color:#e5e7eb;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .tabs button.active{
+      background:linear-gradient(180deg,#22c55e,#16a34a);
+      color:#022c16;
+      border:none;
+    }
+
+    table{width:100%;border-collapse:collapse;margin-top:6px}
+    th,td{
+      border-bottom:1px solid rgba(30,64,175,.35);
+      padding:10px 8px;
+      text-align:left;
+      font-size:13px;
+      vertical-align:top;
+    }
+    th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af}
+    tr:hover td{background:rgba(15,23,42,.75)}
+
+    .tag{
+      font-weight:800;
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      display:inline-block;
+    }
+    .tag.pending{
+      background:#111827;
+      border:1px solid rgba(148,163,184,.7);
+      color:#e5e7eb;
+    }
+    .tag.approved{
+      background:#064e3b;
+      border:1px solid #059669;
+      color:#a7f3d0;
+    }
+    .tag.rejected{
+      background:#3f1d1d;
+      border:1px solid #ef4444;
+      color:#fecaca;
+    }
+
+    .row-flex{display:flex;gap:6px;flex-wrap:wrap}
+
+    .media-thumb{
+      max-width:120px;
+      max-height:90px;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,.6);
+      object-fit:cover;
+      display:block;
+    }
+    .small{font-size:11px;color:#9ca3af}
+
+    .status-pill{
+      font-size:12px;
+      border-radius:999px;
+      padding:6px 10px;
+      background:#111827;
+      border:1px solid rgba(148,163,184,.6);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .status-pill span.dot{
+      width:10px;height:10px;border-radius:999px;background:#f97316;
+    }
+    .status-pill.ok span.dot{background:#22c55e}
+    .status-pill.err span.dot{background:#ef4444}
+
+    .msg-global{
+      font-size:12px;
+      margin-top:6px;
+      min-height:16px;
+    }
+
+    @media(max-width:720px){
+      th:nth-child(6),td:nth-child(6){display:none;}
+    }
+  </style>
 </head>
 <body>
+
 <header>
-  <b>RSL — Admin Spots</b>
-  <div id="adminWho" style="opacity:.8"></div>
+  <b>RIDLY — Admin Spots + Posts IG</b>
+  <div id="adminWho"></div>
 </header>
 
 <div class="wrap">
-  <div class="tabs">
-    <button id="tabP" class="active">Parks (spots)</button>
-    <button id="tabS">Street (bunny)</button>
-    <label style="margin-left:auto;display:flex;align-items:center;gap:6px">
-      <input type="checkbox" id="showApproved"> Voir aussi “approved”
-    </label>
+
+  <!-- TABS HAUT : Spots / Posts IG -->
+  <div class="top-tabs">
+    <button id="tabMainSpots" class="active">Spots</button>
+    <button id="tabMainPosts">Posts → Instagram</button>
   </div>
 
-  <div class="filters">
-    <input id="q" class="input" placeholder="Filtre texte (nom, ville, canton, description)…"/>
-    <select id="cantonSel" class="input">
-      <option value="">Canton (tous)</option>
-      <option>VD</option><option>VS</option><option>FR</option><option>GE</option><option>NE</option><option>JU</option><option>BE</option><option>TI</option><option>ZG</option><option>ZH</option>
-    </select>
-    <select id="statusSel" class="input">
-      <option value="">Statut: pending/rejected (+approved si coché)</option>
-      <option>pending</option><option>rejected</option><option>approved</option>
-    </select>
-    <button id="refresh" class="btn">Rafraîchir</button>
-  </div>
+  <!-- SECTION SPOTS -->
+  <section class="section-card" id="spotsSection">
+    <h2 class="sec-title">Spots (parks & street)</h2>
+    <p class="sec-sub">Modère les spots proposés par la communauté (tables <b>spots</b> et <b>bunny</b>).</p>
 
-  <div id="tableWrap"></div>
+    <div class="tabs">
+      <button id="tabP" class="active">Parks (spots)</button>
+      <button id="tabS">Street (bunny)</button>
+      <label style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;">
+        <input type="checkbox" id="spotsShowApproved"> Voir aussi “approved”
+      </label>
+    </div>
+
+    <div class="filters">
+      <input id="spotsQ" class="input" placeholder="Filtre texte (nom, ville, canton, description)…"/>
+      <select id="spotsCantonSel" class="input">
+        <option value="">Canton (tous)</option>
+        <option>VD</option><option>VS</option><option>FR</option><option>GE</option>
+        <option>NE</option><option>JU</option><option>BE</option><option>TI</option>
+        <option>ZG</option><option>ZH</option>
+      </select>
+      <select id="spotsStatusSel" class="input">
+        <option value="">Statut: pending/rejected (+approved si coché)</option>
+        <option>pending</option><option>rejected</option><option>approved</option>
+      </select>
+      <button id="spotsRefresh" class="btn">Rafraîchir</button>
+    </div>
+
+    <div id="spotsTableWrap"></div>
+  </section>
+
+  <!-- SECTION POSTS IG -->
+  <section class="section-card hidden" id="postsSection">
+    <h2 class="sec-title">Posts → Instagram</h2>
+    <p class="sec-sub">
+      Gère les posts de la table <b>spot_posts</b>, envoi manuel sur Instagram
+      ou simple marquage “déjà posté”.
+    </p>
+
+    <div class="filters">
+      <input id="postsQ" class="input" placeholder="Filtre texte (caption, spot, rider)…"/>
+      <select id="postsStatusSel" class="input">
+        <option value="">Filtre DB (tous)</option>
+        <option value="false">Non postés sur IG</option>
+        <option value="true">Déjà postés sur IG</option>
+      </select>
+      <button id="postsRefresh" class="btn">Rafraîchir</button>
+      <span class="small">Source : table <b>spot_posts</b> (Supabase)</span>
+    </div>
+
+    <div class="status-pill" id="igStatus">
+      <span class="dot"></span>
+      <span>Token IG : inconnu</span>
+    </div>
+
+    <div id="postsTableWrap"></div>
+    <div id="globalMsg" class="msg-global"></div>
+  </section>
+
 </div>
 
 <script>
+/* ========= CONFIG INSTAGRAM (À MODIFIER) ========= */
+const IG_USER_ID = "17841474838120799";                   // ton id business Instagram
+const IG_TOKEN   = "EAA7vmjD9TLQBPwxZCfAExwBvRPNP5qKNl1ZCbIBxZAm3siMHbsLI9m7f1ArEe1wR1wRCoxCmTZCC4ik2IZCHpRtPZBWLbBsX2GiJkXbLuCC1XiHt8KnJKaYIHJENZCiWHojZB6l6rS1lOLq3f0ZBzYFzvHtguZAJgGyochLKZAMB4grLrNpBuHzZAuHs1tZAM7SxcoGZC8ZByvAUhRuOikfpcq5jrQOjjZCYZByiZCNSvpwybhQ91ZCVVflNDcYa0eTZAZCjZBH4Yjofa6wmBa9kRnHUGnlp0ZABC9PGAZDZD";          // <-- remplace par ton token EAA… (entre guillemets)
+
+/* ========= Supabase init ========= */
 const SUPABASE_URL  = window.env?.SUPABASE_URL  || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-const adminWho = document.getElementById('adminWho');
-const tabP = document.getElementById('tabP');
-const tabS = document.getElementById('tabS');
-const showApproved = document.getElementById('showApproved');
-const q = document.getElementById('q');
-const cantonSel = document.getElementById('cantonSel');
-const statusSel = document.getElementById('statusSel');
-const tableWrap = document.getElementById('tableWrap');
-const refreshBtn = document.getElementById('refresh');
+/* ========= Elements communs ========= */
+const adminWho      = document.getElementById('adminWho');
+const igStatus      = document.getElementById('igStatus');
+const globalMsg     = document.getElementById('globalMsg');
+const tabMainSpots  = document.getElementById('tabMainSpots');
+const tabMainPosts  = document.getElementById('tabMainPosts');
+const spotsSection  = document.getElementById('spotsSection');
+const postsSection  = document.getElementById('postsSection');
 
-let currentTable = 'spots'; // or 'bunny'
+let me = null;
 
-async function mustBeAdmin(){
-  const { data: { user } } = await supa.auth.getUser();
-  if(!user){ alert("Connecte-toi (admin requis)."); window.location.href = "compte.html"; return; }
-  const { data: prof } = await supa.from('profiles').select('full_name,is_admin,email').eq('id', user.id).maybeSingle();
-  if(!prof || !prof.is_admin){ alert("Accès refusé (admin)."); window.location.href = "index.html"; return; }
-  adminWho.textContent = (prof.full_name || prof.email) + " (admin)";
+/* ========= Helpers ========= */
+function isVideoUrl(url){
+  return /\.(mp4|mov|m4v|avi|webm)$/i.test(url || '');
 }
-mustBeAdmin();
 
-tabP.onclick = ()=>{ tabP.classList.add('active'); tabS.classList.remove('active'); currentTable='spots'; loadData(); };
-tabS.onclick = ()=>{ tabS.classList.add('active'); tabP.classList.remove('active'); currentTable='bunny'; loadData(); };
-[showApproved, q, cantonSel, statusSel].forEach(el=> el.addEventListener('change', loadData));
-refreshBtn.onclick = loadData;
+/* ========= Switch onglets haut : Spots / Posts ========= */
+tabMainSpots.addEventListener('click', ()=>{
+  tabMainSpots.classList.add('active');
+  tabMainPosts.classList.remove('active');
+  spotsSection.classList.remove('hidden');
+  postsSection.classList.add('hidden');
+});
 
-function rowHtml(r){
-  const tagClass = r.status==='approved'?'approved':(r.status==='rejected'?'rejected':'pending');
+tabMainPosts.addEventListener('click', ()=>{
+  tabMainPosts.classList.add('active');
+  tabMainSpots.classList.remove('active');
+  postsSection.classList.remove('hidden');
+  spotsSection.classList.add('hidden');
+});
+
+/* ========= AUTH ADMIN ========= */
+async function mustBeAdmin(){
+  // Mode fichier local : on laisse passer pour que tu puisses tester
+  if(location.protocol === 'file:'){
+    adminWho.textContent = "Mode local (admin auto)";
+    me = { id:"local-admin" };
+    await loadSpots();
+    await loadPosts();
+    await checkIGToken();
+    return;
+  }
+
+  // Mode en ligne : check is_admin
+  const { data:{ user } } = await supa.auth.getUser();
+  if(!user){
+    alert("Connecte-toi (admin requis).");
+    window.location.href = "compte.html";
+    return;
+  }
+  const { data:prof } = await supa
+    .from('profiles')
+    .select('full_name,is_admin,email')
+    .eq('id',user.id)
+    .maybeSingle();
+  if(!prof || !prof.is_admin){
+    alert("Accès refusé (admin seulement).");
+    window.location.href = "index.html";
+    return;
+  }
+  me = user;
+  adminWho.textContent = (prof.full_name || prof.email) + " (admin)";
+
+  await loadSpots();
+  await loadPosts();
+  await checkIGToken();
+}
+
+/* ========= Vérifier le token IG ========= */
+async function checkIGToken(){
+  if(!IG_TOKEN || IG_TOKEN === "EAA7vmjD9TLQBPwxZCfAExwBvRPNP5qKNl1ZCbIBxZAm3siMHbsLI9m7f1ArEe1wR1wRCoxCmTZCC4ik2IZCHpRtPZBWLbBsX2GiJkXbLuCC1XiHt8KnJKaYIHJENZCiWHojZB6l6rS1lOLq3f0ZBzYFzvHtguZAJgGyochLKZAMB4grLrNpBuHzZAuHs1tZAM7SxcoGZC8ZByvAUhRuOikfpcq5jrQOjjZCYZByiZCNSvpwybhQ91ZCVVflNDcYa0eTZAZCjZBH4Yjofa6wmBa9kRnHUGnlp0ZABC9PGAZDZD"){
+    igStatus.classList.remove('ok','err');
+    igStatus.querySelector('.dot').style.background = '#f97316';
+    igStatus.querySelector('span:nth-child(2)').textContent =
+      "Token IG manquant : colle ton token dans IG_TOKEN puis recharge.";
+    return;
+  }
+  try{
+    const url = `https://graph.facebook.com/v19.0/${IG_USER_ID}?fields=id,username&access_token=${encodeURIComponent(IG_TOKEN)}`;
+    const r = await fetch(url);
+    const j = await r.json();
+    if(j.error){
+      igStatus.classList.add('err');
+      igStatus.querySelector('.dot').style.background = '#ef4444';
+      igStatus.querySelector('span:nth-child(2)').textContent =
+        "Token IG erreur : " + (j.error.message || 'inconnu');
+    }else{
+      igStatus.classList.add('ok');
+      igStatus.querySelector('.dot').style.background = '#22c55e';
+      igStatus.querySelector('span:nth-child(2)').textContent =
+        `Token IG OK pour @${j.username || 'compte'}`;
+    }
+  }catch(e){
+    igStatus.classList.add('err');
+    igStatus.querySelector('.dot').style.background = '#ef4444';
+    igStatus.querySelector('span:nth-child(2)').textContent =
+      "Impossible de vérifier le token (réseau).";
+  }
+}
+
+/* ===========================================================
+   PARTIE 1 : SPOTS (tables spots & bunny)
+   =========================================================== */
+
+const tabP            = document.getElementById('tabP');
+const tabS            = document.getElementById('tabS');
+const spotsShowApproved = document.getElementById('spotsShowApproved');
+const spotsQ          = document.getElementById('spotsQ');
+const spotsCantonSel  = document.getElementById('spotsCantonSel');
+const spotsStatusSel  = document.getElementById('spotsStatusSel');
+const spotsTableWrap  = document.getElementById('spotsTableWrap');
+const spotsRefreshBtn = document.getElementById('spotsRefresh');
+
+let currentSpotsTable = 'spots'; // 'spots' ou 'bunny'
+
+tabP.onclick = ()=>{
+  tabP.classList.add('active');
+  tabS.classList.remove('active');
+  currentSpotsTable = 'spots';
+  loadSpots();
+};
+tabS.onclick = ()=>{
+  tabS.classList.add('active');
+  tabP.classList.remove('active');
+  currentSpotsTable = 'bunny';
+  loadSpots();
+};
+[spotsShowApproved, spotsCantonSel, spotsStatusSel].forEach(el=>{
+  el.addEventListener('change', loadSpots);
+});
+spotsQ.addEventListener('input', ()=>{
+  clearTimeout(window._spotsTimer);
+  window._spotsTimer = setTimeout(loadSpots,250);
+});
+spotsRefreshBtn.onclick = loadSpots;
+
+function spotsRowHtml(r){
+  const tagClass =
+    r.status === 'approved' ? 'approved' :
+    r.status === 'rejected' ? 'rejected' : 'pending';
+
   return `
     <tr data-id="${r.id}">
-      <td><span class="tag ${tagClass}">${r.status||'pending'}</span></td>
-      <td><input class="input in-nom" value="${r.nom||''}"/></td>
-      <td><input class="input in-ville" value="${r.ville||''}" style="width:120px"/></td>
-      <td><input class="input in-canton" value="${r.canton||''}" style="width:70px"/></td>
-      <td style="width:35%"><input class="input in-desc" value="${(r.description||r.type||'').replace(/"/g,'&quot;')}"/></td>
-      <td>${r.lat?.toFixed ? r.lat.toFixed(5): r.lat}, ${r.lng?.toFixed ? r.lng.toFixed(5): r.lng}</td>
-      <td class="row">
-        <button class="btn green act-approve">Approuver</button>
-        <button class="btn act-reject">Rejeter</button>
-        <button class="btn red act-delete">Supprimer</button>
-        <button class="btn act-save">Sauver</button>
+      <td><span class="tag ${tagClass}">${r.status || 'pending'}</span></td>
+      <td><input class="input in-nom" value="${r.nom || ''}"/></td>
+      <td><input class="input in-ville" value="${r.ville || ''}" style="width:130px"/></td>
+      <td><input class="input in-canton" value="${r.canton || ''}" style="width:70px"/></td>
+      <td style="width:35%">
+        <input class="input in-desc"
+          value="${(r.description || r.type || '').replace(/"/g,'&quot;')}"/>
+      </td>
+      <td>${r.lat?.toFixed ? r.lat.toFixed(5) : r.lat},
+          ${r.lng?.toFixed ? r.lng.toFixed(5) : r.lng}</td>
+      <td>
+        <div class="row-flex">
+          <button class="btn green act-approve">Approuver</button>
+          <button class="btn act-reject">Rejeter</button>
+          <button class="btn red act-delete">Supprimer</button>
+          <button class="btn act-save">Sauver</button>
+        </div>
       </td>
     </tr>`;
 }
 
-async function loadData(){
-  let qy = supa.from(currentTable).select('*').order('created_at',{ascending:false});
-  if(!showApproved.checked){
+async function loadSpots(){
+  let qy = supa.from(currentSpotsTable).select('*').order('created_at',{ascending:false});
+
+  if(!spotsShowApproved.checked){
     qy = qy.in('status',['pending','rejected']);
   }
-  if(statusSel.value) qy = qy.eq('status', statusSel.value);
+  if(spotsStatusSel.value){
+    qy = qy.eq('status', spotsStatusSel.value);
+  }
+
   const { data, error } = await qy;
-  if(error){ tableWrap.innerHTML = `<p style="color:#fca5a5">Erreur: ${error.message}</p>`; return; }
+  if(error){
+    spotsTableWrap.innerHTML = `<p style="color:#fca5a5">Erreur Supabase : ${error.message}</p>`;
+    return;
+  }
 
   let rows = data || [];
-  const t = (q.value||'').trim().toLowerCase();
-  const cant = (cantonSel.value||'').trim();
+  const t    = (spotsQ.value || '').trim().toLowerCase();
+  const cant = (spotsCantonSel.value || '').trim();
+
   if(t){
-    rows = rows.filter(r => (`${r.nom||''} ${r.ville||''} ${r.canton||''} ${r.description||r.type||''}`).toLowerCase().includes(t));
+    rows = rows.filter(r =>
+      (`${r.nom||''} ${r.ville||''} ${r.canton||''} ${r.description||r.type||''}`)
+        .toLowerCase()
+        .includes(t)
+    );
   }
   if(cant){
-    rows = rows.filter(r => (r.canton||'') === cant);
+    rows = rows.filter(r => (r.canton || '') === cant);
   }
 
-  const head = `
+  if(!rows.length){
+    spotsTableWrap.innerHTML = `<p class="small">Aucun spot trouvé.</p>`;
+    return;
+  }
+
+  spotsTableWrap.innerHTML = `
     <table>
       <thead>
         <tr>
-          <th>Statut</th><th>Nom</th><th>Ville</th><th>CH</th><th>Description/Type</th><th>Lat/Lng</th><th>Actions</th>
+          <th>Statut</th>
+          <th>Nom</th>
+          <th>Ville</th>
+          <th>CH</th>
+          <th>Description/Type</th>
+          <th>Lat/Lng</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        ${rows.map(rowHtml).join('')}
+        ${rows.map(spotsRowHtml).join('')}
       </tbody>
-    </table>`;
-  tableWrap.innerHTML = head;
+    </table>
+  `;
 
-  tableWrap.querySelectorAll('.act-approve').forEach(btn=> btn.onclick = ()=> changeStatus(btn,'approved'));
-  tableWrap.querySelectorAll('.act-reject').forEach(btn=> btn.onclick = ()=> changeStatus(btn,'rejected'));
-  tableWrap.querySelectorAll('.act-delete').forEach(btn=> btn.onclick = ()=> removeRow(btn));
-  tableWrap.querySelectorAll('.act-save').forEach(btn=> btn.onclick = ()=> saveRow(btn));
+  spotsTableWrap.querySelectorAll('.act-approve').forEach(btn=>{
+    btn.onclick = ()=> changeSpotStatus(btn,'approved');
+  });
+  spotsTableWrap.querySelectorAll('.act-reject').forEach(btn=>{
+    btn.onclick = ()=> changeSpotStatus(btn,'rejected');
+  });
+  spotsTableWrap.querySelectorAll('.act-delete').forEach(btn=>{
+    btn.onclick = ()=> deleteSpot(btn);
+  });
+  spotsTableWrap.querySelectorAll('.act-save').forEach(btn=>{
+    btn.onclick = ()=> saveSpot(btn);
+  });
 }
 
-async function changeStatus(btn, status){
-  const tr = btn.closest('tr'); const id = tr.dataset.id;
-  const { error } = await supa.from(currentTable).update({ status }).eq('id', id);
+async function changeSpotStatus(btn, status){
+  const tr = btn.closest('tr');
+  const id = tr.dataset.id;
+  const { error } = await supa.from(currentSpotsTable).update({ status }).eq('id',id);
   if(error){ alert(error.message); return; }
-  await loadData();
+  loadSpots();
 }
-async function removeRow(btn){
-  if(!confirm("Supprimer définitivement ?")) return;
-  const tr = btn.closest('tr'); const id = tr.dataset.id;
-  const { error } = await supa.from(currentTable).delete().eq('id', id);
+async function deleteSpot(btn){
+  if(!confirm("Supprimer définitivement ce spot ?")) return;
+  const tr = btn.closest('tr');
+  const id = tr.dataset.id;
+  const { error } = await supa.from(currentSpotsTable).delete().eq('id',id);
   if(error){ alert(error.message); return; }
   tr.remove();
 }
-async function saveRow(btn){
-  const tr = btn.closest('tr'); const id = tr.dataset.id;
-  const nom=tr.querySelector('.in-nom').value.trim();
-  const ville=tr.querySelector('.in-ville').value.trim();
-  const canton=tr.querySelector('.in-canton').value.trim().toUpperCase();
-  const description=tr.querySelector('.in-desc').value.trim();
-  const { error } = await supa.from(currentTable).update({ nom, ville, canton, description }).eq('id', id);
+async function saveSpot(btn){
+  const tr = btn.closest('tr');
+  const id = tr.dataset.id;
+  const nom   = tr.querySelector('.in-nom').value.trim();
+  const ville = tr.querySelector('.in-ville').value.trim();
+  const canton= tr.querySelector('.in-canton').value.trim().toUpperCase();
+  const description = tr.querySelector('.in-desc').value.trim();
+  const { error } = await supa.from(currentSpotsTable)
+    .update({ nom, ville, canton, description })
+    .eq('id',id);
   if(error){ alert(error.message); return; }
-  btn.textContent='Sauvé ✓'; setTimeout(()=>btn.textContent='Sauver',800);
+  btn.textContent = 'Sauvé ✓';
+  setTimeout(()=> btn.textContent='Sauver', 900);
 }
 
-loadData();
+/* ===========================================================
+   PARTIE 2 : POSTS → INSTAGRAM
+   =========================================================== */
+
+const postsQ          = document.getElementById('postsQ');
+const postsStatusSel  = document.getElementById('postsStatusSel');
+const postsTableWrap  = document.getElementById('postsTableWrap');
+const postsRefreshBtn = document.getElementById('postsRefresh');
+
+postsRefreshBtn.addEventListener('click', loadPosts);
+postsQ.addEventListener('input', ()=>{
+  clearTimeout(window._postsTimer);
+  window._postsTimer = setTimeout(loadPosts, 250);
+});
+postsStatusSel.addEventListener('change', loadPosts);
+
+function postRowHtml(r){
+  const posted   = !!r.posted_to_ig;
+  const tagClass = posted ? 'approved' : 'pending';
+  const tagLabel = posted ? 'Déjà sur IG' : 'En attente';
+  const spotTxt  = (r.spot_type || '') + (r.spot_id ? ` — ${r.spot_id}` : '');
+  const created  = r.created_at ? new Date(r.created_at).toLocaleString('fr-CH') : '';
+  const isVid    = isVideoUrl(r.media_url);
+
+  let mediaHtml = '';
+  if(r.media_url){
+    if(isVid){
+      mediaHtml =
+        `<video src="${r.media_url}" class="media-thumb" muted playsinline onerror="this.style.display='none'"></video>`;
+    }else{
+      mediaHtml =
+        `<img src="${r.media_url}" class="media-thumb" onerror="this.style.display='none'">`;
+    }
+  }
+
+  return `
+    <tr data-id="${r.id}">
+      <td><span class="tag ${tagClass}">${tagLabel}</span></td>
+      <td>
+        ${mediaHtml}
+        <div class="small">${created}</div>
+      </td>
+      <td>
+        <div style="font-weight:700;font-size:13px">${r.caption || '(sans légende)'}</div>
+        <div class="small">${spotTxt}</div>
+        <div class="small">${r.user_display || ''}</div>
+      </td>
+      <td>
+        <div class="row-flex">
+          ${posted
+            ? `<button class="btn" data-act="repost">Reposter IG</button>`
+            : `<button class="btn green" data-act="post">Poster sur IG</button>`
+          }
+          <button class="btn red" data-act="mark">Marquer comme posté (sans IG)</button>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+async function loadPosts(){
+  globalMsg.textContent = "";
+  let qy = supa.from('spot_posts').select('*').order('created_at',{ascending:false}).limit(200);
+
+  if(postsStatusSel.value === "false"){
+    qy = qy.eq('posted_to_ig', false);
+  }else if(postsStatusSel.value === "true"){
+    qy = qy.eq('posted_to_ig', true);
+  }
+
+  const { data, error } = await qy;
+  if(error){
+    postsTableWrap.innerHTML = `<p style="color:#fca5a5">Erreur Supabase : ${error.message}</p>`;
+    return;
+  }
+
+  let rows = data || [];
+  const t = (postsQ.value || '').trim().toLowerCase();
+  if(t){
+    rows = rows.filter(r =>
+      (`${r.caption||''} ${r.user_display||''} ${r.spot_type||''}`)
+        .toLowerCase()
+        .includes(t)
+    );
+  }
+
+  if(!rows.length){
+    postsTableWrap.innerHTML = `<p class="small">Aucun post trouvé.</p>`;
+    return;
+  }
+
+  postsTableWrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Statut IG</th>
+          <th>Média</th>
+          <th>Légende / Spot / Rider</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(postRowHtml).join('')}
+      </tbody>
+    </table>
+  `;
+
+  postsTableWrap.querySelectorAll('button[data-act]').forEach(btn=>{
+    btn.addEventListener('click', ()=> handlePostAction(btn));
+  });
+}
+
+async function handlePostAction(btn){
+  const act = btn.dataset.act;
+  const tr  = btn.closest('tr');
+  const id  = tr.dataset.id;
+  if(!id) return;
+
+  if(act === 'mark'){
+    if(!confirm("Marquer ce post comme déjà posté sur Instagram ? (ne fait aucun appel API IG)")){
+      return;
+    }
+    const { error } = await supa.from('spot_posts').update({ posted_to_ig:true }).eq('id',id);
+    if(error){
+      alert("Erreur Supabase : " + error.message);
+      return;
+    }
+    await loadPosts();
+    return;
+  }
+
+  if(act === 'post' || act === 'repost'){
+    await publishPostToIG(id, btn);
+  }
+}
+
+async function publishPostToIG(id, btn){
+  if(!IG_TOKEN || IG_TOKEN === "EAA7vmjD9TLQBPwxZCfAExwBvRPNP5qKNl1ZCbIBxZAm3siMHbsLI9m7f1ArEe1wR1wRCoxCmTZCC4ik2IZCHpRtPZBWLbBsX2GiJkXbLuCC1XiHt8KnJKaYIHJENZCiWHojZB6l6rS1lOLq3f0ZBzYFzvHtguZAJgGyochLKZAMB4grLrNpBuHzZAuHs1tZAM7SxcoGZC8ZByvAUhRuOikfpcq5jrQOjjZCYZByiZCNSvpwybhQ91ZCVVflNDcYa0eTZAZCjZBH4Yjofa6wmBa9kRnHUGnlp0ZABC9PGAZDZD"){
+    alert("Token IG manquant : colle-le dans IG_TOKEN puis recharge la page.");
+    return;
+  }
+
+  btn.disabled = true;
+  const oldLabel = btn.textContent;
+  btn.textContent = "Envoi IG…";
+
+  try{
+    const { data:post, error } = await supa
+      .from('spot_posts')
+      .select('*')
+      .eq('id',id)
+      .maybeSingle();
+    if(error) throw error;
+    if(!post) throw new Error("Post introuvable.");
+    if(!post.media_url) throw new Error("Aucune media_url pour ce post.");
+
+    const caption = post.caption || "";
+    const mediaUrl = post.media_url;
+    const video    = isVideoUrl(mediaUrl);
+
+    // 1) création du media
+    const form1 = new URLSearchParams();
+    form1.append('access_token', IG_TOKEN);
+    form1.append('caption', caption);
+
+    if(video){
+      form1.append('media_type','VIDEO');
+      form1.append('video_url', mediaUrl);
+    }else{
+      form1.append('image_url', mediaUrl);
+    }
+
+    const createRes = await fetch(`https://graph.facebook.com/v19.0/${IG_USER_ID}/media`,{
+      method:'POST',
+      body: form1
+    });
+    const createJson = await createRes.json();
+    if(!createRes.ok || createJson.error){
+      console.error(createJson);
+      throw new Error("Erreur /media : " + (createJson.error?.message || createRes.statusText));
+    }
+    const creationId = createJson.id;
+    if(!creationId) throw new Error("Pas de creation_id renvoyé par IG.");
+
+    // 2) publication
+    const form2 = new URLSearchParams();
+    form2.append('access_token', IG_TOKEN);
+    form2.append('creation_id', creationId);
+
+    const pubRes = await fetch(`https://graph.facebook.com/v19.0/${IG_USER_ID}/media_publish`,{
+      method:'POST',
+      body: form2
+    });
+    const pubJson = await pubRes.json();
+    if(!pubRes.ok || pubJson.error){
+      console.error(pubJson);
+      throw new Error("Erreur /media_publish : " + (pubJson.error?.message || pubRes.statusText));
+    }
+
+    // 3) maj Supabase
+    const { error:updErr } = await supa
+      .from('spot_posts')
+      .update({ posted_to_ig:true })
+      .eq('id',id);
+    if(updErr) throw updErr;
+
+    globalMsg.style.color = "#22c55e";
+    globalMsg.textContent = "Post publié sur Instagram ✅";
+    await loadPosts();
+
+  }catch(err){
+    console.error(err);
+    globalMsg.style.color = "#f97373";
+    globalMsg.textContent = "Erreur publication IG : " + (err.message || err);
+    alert(globalMsg.textContent);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = oldLabel;
+  }
+}
+
+/* Lancement */
+mustBeAdmin();
 </script>
+
 </body>
 </html>

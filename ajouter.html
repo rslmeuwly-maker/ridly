@@ -224,7 +224,7 @@
       color:var(--text-dim);
     }
 
-    /* ===== CARD & FORM STYLES (spécifique Ajouter) ===== */
+    /* ===== CARD & FORM STYLES ===== */
     .card{
       background:var(--card);
       border-radius:var(--radius-xl);
@@ -369,14 +369,13 @@
       min-height:16px;
     }
 
-    /* Petit texte astuce */
     .hint-bottom{
       font-size:11px;
       color:var(--text-dim);
       margin:6px 2px 0;
     }
 
-    /* ===== Modale générique (pour choix de spot) ===== */
+    /* ===== Modales ===== */
     .modal{
       position:fixed;
       inset:0;
@@ -413,7 +412,7 @@
       font-weight:800;
     }
 
-    /* ===== BOTTOM NAV (même que feed) ===== */
+    /* ===== BOTTOM NAV ===== */
     .tabbar{
       position:fixed;
       left:0;
@@ -477,7 +476,7 @@
 
 <div class="page-wrap">
 
-  <!-- NAV TOP (identique feed) -->
+  <!-- NAV TOP -->
   <nav class="nav">
     <div class="row">
       <div class="nav-left">
@@ -485,7 +484,6 @@
           <img src="image/1logo_ridly.png" alt="RIDLY"/>
           <span>RIDLY</span>
         </a>
-        <!-- Bouton + comme sur Insta -->
         <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post">
           <span>+</span>
         </button>
@@ -500,7 +498,6 @@
     </div>
   </nav>
 
-  <!-- Info auth (invisible) -->
   <div id="authState" style="display:none"></div>
 
   <!-- CONTENU PRINCIPAL -->
@@ -526,7 +523,6 @@
             <option value="other">Autre spot</option>
           </select>
 
-          <!-- Nouveau bloc de sélection de spot via carte -->
           <div style="flex:1 1 220px;min-width:220px;">
             <button type="button" class="btn" id="btnPickSpot" style="width:100%;margin-bottom:4px;">
               📍 Lier un spot (optionnel)
@@ -592,6 +588,15 @@
             <option value="Contest">Contest</option>
             <option value="Lifestyle">Lifestyle</option>
           </select>
+
+          <div style="flex:1 1 220px;min-width:220px;">
+            <button type="button" class="btn" id="btnPickSpotReel" style="width:100%;margin-bottom:4px;">
+              📍 Lier un spot (optionnel)
+            </button>
+            <div class="muted" id="chosenSpotLabelReel">Pas de spot sélectionné</div>
+            <input type="hidden" id="rSpotId">
+            <input type="hidden" id="rSpotType">
+          </div>
         </div>
 
         <div class="row">
@@ -622,7 +627,7 @@
   </main>
 </div>
 
-<!-- Modale : petite carte pour choisir le spot -->
+<!-- Modale carte choix spot -->
 <div class="modal" id="chooseSpotModal">
   <div class="modal-bg"></div>
   <div class="modal-card">
@@ -635,6 +640,7 @@
     <div class="row" style="margin-bottom:10px">
       <button type="button" class="btn" id="spotPickerLocate">📍 Ma position</button>
       <button type="button" class="btn" id="spotPickerClear">Sans spot</button>
+      <button type="button" class="btn" id="spotPickerAdd">➕ Nouveau spot</button>
       <button type="button" class="btn" id="spotPickerClose" style="margin-left:auto">Fermer</button>
     </div>
 
@@ -645,7 +651,89 @@
   </div>
 </div>
 
-<!-- NAVIGATION BAS (même style que feed) -->
+<!-- Modale AJOUTER UN NOUVEAU SPOT (depuis Ajouter) -->
+<div class="modal" id="addSpotModal">
+  <div class="modal-bg"></div>
+  <div class="modal-card">
+    <h3>Ajouter un nouveau spot</h3>
+
+    <div class="row">
+      <div style="flex:1">
+        <label style="font-size:12px;font-weight:700;">Type</label>
+        <select id="asType" class="select">
+          <option value="park">Skatepark / Pumptrack</option>
+          <option value="street">Street spot</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:12px;font-weight:700;">Pays</label>
+        <select id="asCountry" class="select">
+          <option value="">Choisir un pays</option>
+          <option value="CH">Suisse</option>
+          <option value="FR">France</option>
+          <option value="DE">Allemagne</option>
+          <option value="IT">Italie</option>
+          <option value="ES">Espagne</option>
+          <option value="PT">Portugal</option>
+          <option value="BE">Belgique</option>
+          <option value="NL">Pays-Bas</option>
+          <option value="LU">Luxembourg</option>
+          <option value="UK">Royaume-Uni</option>
+          <option value="IE">Irlande</option>
+          <option value="AT">Autriche</option>
+          <option value="DK">Danemark</option>
+          <option value="SE">Suède</option>
+          <option value="NO">Norvège</option>
+          <option value="FI">Finlande</option>
+          <option value="IS">Islande</option>
+          <option value="US">États-Unis</option>
+          <option value="CA">Canada</option>
+          <option value="WORLD">Monde</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div style="flex:1">
+        <label style="font-size:12px;font-weight:700;">Ville</label>
+        <input id="asVille" class="input" placeholder="Ville"/>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:12px;font-weight:700;">Nom du spot</label>
+        <input id="asNom" class="input" placeholder="Nom du spot"/>
+      </div>
+    </div>
+
+    <div class="row">
+      <textarea id="asDesc" class="input" style="min-height:70px" placeholder="Description rapide (bowl, rails, niveau…)"></textarea>
+    </div>
+
+    <div class="row">
+      <div style="flex:1">
+        <label style="font-size:12px;font-weight:700;">Latitude</label>
+        <input id="asLat" class="input" placeholder="Clique la carte au-dessus"/>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:12px;font-weight:700;">Longitude</label>
+        <input id="asLng" class="input" placeholder="Clique la carte au-dessus"/>
+      </div>
+    </div>
+
+    <p style="font-size:11px;color:#9ca3af;margin:4px 0 8px">
+      Astuce : laisse la modale ouverte et tape sur la <b>carte des spots</b> pour remplir lat / lng automatiquement.
+    </p>
+
+    <div class="row" style="align-items:center;justify-content:space-between;margin-top:6px">
+      <span id="asMsg" class="muted">Nom et position obligatoires.</span>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="btn" id="asCancel">Annuler</button>
+        <button type="button" class="btn" id="asSave">Enregistrer le spot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAVIGATION BAS -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
     <div class="ic">📍</div><span>Spots</span>
@@ -668,7 +756,7 @@
 </nav>
 
 <script>
-/* ===== Thème clair/sombre (même que feed) ===== */
+/* ===== Thème clair/sombre ===== */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -748,7 +836,7 @@ const authState = document.getElementById('authState');
 </script>
 
 <script>
-/* ===== Toggle mode Post / Story / Reel (+ hash) ===== */
+/* ===== Toggle mode (feed / story / reel) ===== */
 const btnModeFeed  = document.getElementById('btnModeFeed');
 const btnModeStory = document.getElementById('btnModeStory');
 const btnModeReel  = document.getElementById('btnModeReel');
@@ -810,6 +898,11 @@ const rCaption   = document.getElementById('rCaption');
 const rCategory  = document.getElementById('rCategory');
 const reelMsg    = document.getElementById('reelMsg');
 
+const rSpotId    = document.getElementById('rSpotId');
+const rSpotType  = document.getElementById('rSpotType');
+const btnPickSpotReel = document.getElementById('btnPickSpotReel');
+const chosenSpotLabelReel = document.getElementById('chosenSpotLabelReel');
+
 /* Labels fichiers */
 fFile.addEventListener('change',()=>{fFileLabel.textContent=fFile.files?.[0]?.name || "Ajouter une photo / vidéo";});
 sFile.addEventListener('change',()=>{sFileLabel.textContent=sFile.files?.[0]?.name || "Ajouter une story";});
@@ -837,17 +930,39 @@ async function uploadToBucket(bucket, path, file){
 </script>
 
 <script>
-/* ===== Choix du spot via petite carte (spots + bunny) ===== */
+/* ===== Choix + création de spot via carte (feed + reel) ===== */
 const spotModal        = document.getElementById('chooseSpotModal');
 const spotModalBg      = document.querySelector('#chooseSpotModal .modal-bg');
 const spotPickerClose  = document.getElementById('spotPickerClose');
 const spotPickerLocate = document.getElementById('spotPickerLocate');
 const spotPickerClear  = document.getElementById('spotPickerClear');
+const spotPickerAdd    = document.getElementById('spotPickerAdd');
+
+const addSpotModal     = document.getElementById('addSpotModal');
+const addSpotBg        = document.querySelector('#addSpotModal .modal-bg');
+const asType           = document.getElementById('asType');
+const asCountry        = document.getElementById('asCountry');
+const asVille          = document.getElementById('asVille');
+const asNom            = document.getElementById('asNom');
+const asDesc           = document.getElementById('asDesc');
+const asLat            = document.getElementById('asLat');
+const asLng            = document.getElementById('asLng');
+const asMsg            = document.getElementById('asMsg');
+const asSaveBtn        = document.getElementById('asSave');
+const asCancelBtn      = document.getElementById('asCancel');
 
 let spotMap = null;
 let spotMarkers = [];
+let currentSpotTarget = 'feed'; // "feed" ou "reel"
 
 btnPickSpot.addEventListener('click', ()=>{
+  currentSpotTarget = 'feed';
+  spotModal.classList.add('show');
+  setTimeout(initSpotMap, 60);
+});
+
+btnPickSpotReel.addEventListener('click', ()=>{
+  currentSpotTarget = 'reel';
   spotModal.classList.add('show');
   setTimeout(initSpotMap, 60);
 });
@@ -856,16 +971,28 @@ spotModalBg.addEventListener('click', ()=> spotModal.classList.remove('show'));
 spotPickerClose.addEventListener('click', ()=> spotModal.classList.remove('show'));
 
 spotPickerClear.addEventListener('click', ()=>{
-  fSpotId.value = '';
-  fSpotType.value = '';
-  chosenSpotLabel.textContent = 'Pas de spot sélectionné';
+  if(currentSpotTarget === 'reel'){
+    rSpotId.value = '';
+    rSpotType.value = '';
+    chosenSpotLabelReel.textContent = 'Pas de spot sélectionné';
+  }else{
+    fSpotId.value = '';
+    fSpotType.value = '';
+    chosenSpotLabel.textContent = 'Pas de spot sélectionné';
+  }
   spotModal.classList.remove('show');
 });
 
 function setChosenSpot(spot){
-  fSpotId.value = spot.id;
-  fSpotType.value = spot.type;
-  chosenSpotLabel.textContent = `${spot.nom} — ${spot.ville || ''}`;
+  if(currentSpotTarget === 'reel'){
+    rSpotId.value = spot.id;
+    rSpotType.value = spot.type;
+    chosenSpotLabelReel.textContent = `${spot.nom} — ${spot.ville || ''}`;
+  }else{
+    fSpotId.value = spot.id;
+    fSpotType.value = spot.type;
+    chosenSpotLabel.textContent = `${spot.nom} — ${spot.ville || ''}`;
+  }
   spotModal.classList.remove('show');
 }
 
@@ -876,6 +1003,16 @@ async function initSpotMap(){
       maxZoom:19,
       attribution:'© OpenStreetMap'
     }).addTo(spotMap);
+
+    // clic sur la carte pour remplir lat/lng quand la modale "ajout spot" est ouverte
+    spotMap.on('click', e=>{
+      if(!addSpotModal.classList.contains('show')) return;
+      const { lat, lng } = e.latlng;
+      asLat.value = lat.toFixed(6);
+      asLng.value = lng.toFixed(6);
+      asMsg.textContent = "Position mise à jour, tu peux enregistrer.";
+    });
+
     await loadSpotMarkers();
   }else{
     spotMap.invalidateSize();
@@ -950,6 +1087,70 @@ spotPickerLocate.addEventListener('click', ()=>{
     alert("Impossible d'obtenir ta position.");
   });
 });
+
+/* ===== Ouverture / fermeture modale AJOUT SPOT ===== */
+spotPickerAdd.addEventListener('click', ()=>{
+  addSpotModal.classList.add('show');
+  asMsg.style.color = '#9ca3af';
+  asMsg.textContent = 'Clique la carte ou remplis les champs puis Enregistrer.';
+});
+
+addSpotBg.addEventListener('click', ()=> addSpotModal.classList.remove('show'));
+asCancelBtn.addEventListener('click', ()=> addSpotModal.classList.remove('show'));
+
+/* ===== Enregistrer le nouveau spot ===== */
+asSaveBtn.addEventListener('click', async ()=>{
+  asMsg.style.color = '#e5e7eb';
+  asMsg.textContent = 'Envoi…';
+
+  const nom = (asNom.value||'').trim();
+  const ville = (asVille.value||'').trim();
+  const country = (asCountry.value||'').trim() || 'WORLD';
+  const description = (asDesc.value||'').trim();
+  const lat = parseFloat(asLat.value);
+  const lng = parseFloat(asLng.value);
+
+  if(!nom || !lat || !lng){
+    asMsg.style.color = '#f97373';
+    asMsg.textContent = 'Nom + position obligatoires.';
+    return;
+  }
+
+  const row = {
+    nom,
+    ville,
+    canton:'',
+    country,
+    description,
+    lat,
+    lng
+  };
+
+  try{
+    const target = (asType.value === 'street') ? 'bunny' : 'spots';
+    const { data, error } = await supa.from(target).insert(row).select().single();
+    if(error) throw error;
+
+    asMsg.style.color = '#22c55e';
+    asMsg.textContent = 'Spot ajouté ✅';
+
+    // recharger les markers et auto-sélectionner le nouveau spot
+    await loadSpotMarkers();
+
+    addSpotModal.classList.remove('show');
+    setChosenSpot({
+      id: data.id,
+      type: (asType.value === 'street') ? 'street' : 'park',
+      nom: nom,
+      ville: ville
+    });
+
+  }catch(err){
+    console.error(err);
+    asMsg.style.color = '#f97373';
+    asMsg.textContent = 'Erreur: '+(err?.message||'');
+  }
+});
 </script>
 
 <script>
@@ -969,8 +1170,11 @@ formFeed.addEventListener('submit',async e=>{
     return;
   }
 
-  const spotIdStr = fSpotId.value;
-  const spotType  = fSpotType.value || null;
+  const baseType   = fType.value;             // park / street / other (select)
+  const spotIdStr  = fSpotId.value;
+  const mapType    = fSpotType.value || null; // park / street si carte
+  const finalType  = mapType || baseType || null;
+
   const caption   = (fCaption.value||'').trim();
 
   try{
@@ -981,8 +1185,8 @@ formFeed.addEventListener('submit',async e=>{
     const mediaUrl = await uploadToBucket('feed', path, file);
 
     const row={
-      spot_id:   spotIdStr ? Number(spotIdStr) : null,
-      spot_type: spotType,
+      spot_id:   spotIdStr || null,          // UUID ou null
+      spot_type: finalType,
       user_id:   me.id,
       user_display: displayName||'Rider',
       media_url: mediaUrl,
@@ -1071,6 +1275,9 @@ formReel.addEventListener('submit',async e=>{
   const category    = (rCategory.value||'').trim();
   const caption = category ? `[${category}] ${captionRaw}` : captionRaw;
 
+  const rSpotIdStr = rSpotId.value;
+  const rTypeVal   = rSpotType.value || null;
+
   try{
     reelMsg.style.color = '#e5e7eb';
     reelMsg.textContent = 'Upload du reel en cours…';
@@ -1081,8 +1288,8 @@ formReel.addEventListener('submit',async e=>{
     const mediaUrl = await uploadToBucket('feed', path, file);
 
     const row = {
-      spot_id:   null,
-      spot_type: null,
+      spot_id:   rSpotIdStr || null,
+      spot_type: rTypeVal,
       user_id:   me.id,
       user_display: displayName || 'Rider',
       media_url: mediaUrl,
@@ -1098,6 +1305,9 @@ formReel.addEventListener('submit',async e=>{
     rFileLabel.textContent= 'Ajouter un reel (vidéo)';
     rCaption.value        = '';
     rCategory.value       = '';
+    rSpotId.value         = '';
+    rSpotType.value       = '';
+    chosenSpotLabelReel.textContent = 'Pas de spot sélectionné';
   }catch(err){
     reelMsg.style.color = '#f97373';
     reelMsg.textContent = 'Erreur: ' + (err?.message || '');
@@ -1106,7 +1316,6 @@ formReel.addEventListener('submit',async e=>{
 </script>
 
 <script>
-  // Service worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
   }

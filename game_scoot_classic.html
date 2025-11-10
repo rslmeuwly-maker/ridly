@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22c55e">
+  <title>Game of Scoot — RIDLY</title>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --card:#020617;
+      --accent:#22c55e;
+      --accent-soft:rgba(34,197,94,.08);
+      --accent-strong:rgba(34,197,94,.25);
+      --text:#f9fafb;
+      --text-dim:#9ca3af;
+      --border:rgba(148,163,184,.35);
+      --radius-xl:18px;
+    }
+
+    body.theme-dark{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --card:#020617;
+      --text:#f9fafb;
+      --text-dim:#9ca3af;
+      --border:rgba(148,163,184,.35);
+    }
+    body.theme-light{
+      --bg:#f4f4f5;
+      --bg-soft:#e5e7eb;
+      --card:#ffffff;
+      --text:#020617;
+      --text-dim:#6b7280;
+      --border:rgba(148,163,184,.25);
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+    }
+    body{
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      background:#000;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== BG VIDÉO ===== */
+    .rsl-bg-wrap{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+    }
+    .rsl-bg-video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#000;
+      filter:brightness(.55) saturate(1.05);
+    }
+    .rsl-bg-dim{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7));
+    }
+    body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
+    }
+
+    .page-wrap{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      max-width:640px;
+      margin:0 auto;
+      width:100%;
+      position:relative;
+      z-index:1;
+    }
+
+    /* ===== TOP NAV ===== */
+    nav.nav{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(2,6,23,.9);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+    }
+    body.theme-light nav.nav{
+      background:rgba(244,244,245,.95);
+    }
+    nav.nav .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 14px;
+    }
+
+    .nav-left{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:var(--text);
+    }
+    .brand img{
+      width:32px;
+      height:32px;
+      border-radius:12px;
+      background:#000;
+      padding:3px;
+      box-shadow:0 0 12px rgba(34,197,94,.7);
+    }
+    .brand span{
+      font-weight:700;
+      letter-spacing:-0.03em;
+      font-size:20px;
+    }
+
+    .add-btn{
+      border:none;
+      outline:none;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      background:radial-gradient(circle at 30% 20%,#4ade80 0,#22c55e 35%,#16a34a 100%);
+      color:#022c16;
+      box-shadow:0 10px 22px rgba(34,197,94,.7);
+    }
+    .add-btn span{
+      transform:translateY(-1px);
+    }
+
+    .nav-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-left:auto;
+    }
+    .icon-btn{
+      border:1px solid rgba(15,23,42,.8);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      border-radius:999px;
+      width:32px;
+      height:32px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:17px;
+      text-decoration:none;
+      cursor:pointer;
+    }
+    body.theme-light .icon-btn{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.6);
+    }
+    .icon-btn:hover{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+
+    /* ===== MAIN ===== */
+    .main{
+      flex:1;
+      padding:4px 10px 80px;
+    }
+
+    .mini-title{
+      padding:8px 4px 4px;
+      font-size:13px;
+      font-weight:600;
+      color:var(--text-dim);
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius-xl);
+      border:1px solid rgba(15,23,42,.9);
+      box-shadow:0 18px 45px rgba(0,0,0,.6);
+      padding:12px 12px 14px;
+      margin-top:4px;
+    }
+    body.theme-light .card{
+      border-color:rgba(209,213,219,.9);
+      box-shadow:0 14px 30px rgba(15,23,42,.15);
+    }
+
+    h1.main-title{
+      margin:0 0 4px;
+      font-size:18px;
+      font-weight:800;
+    }
+    .muted{
+      font-size:13px;
+      color:var(--text-dim);
+      margin:0 0 8px;
+    }
+
+    .games-box{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .game-section{
+      padding:8px 0 4px;
+      border-top:1px solid rgba(15,23,42,.6);
+    }
+    .game-section:first-of-type{
+      border-top:none;
+      padding-top:2px;
+    }
+    .section-title{
+      font-size:14px;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+    .section-help{
+      font-size:12px;
+      color:var(--text-dim);
+      margin-bottom:6px;
+    }
+
+    .field-label{
+      font-size:12px;
+      font-weight:600;
+      margin-bottom:3px;
+      color:var(--text-dim);
+    }
+    .text-input{
+      width:100%;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--bg-soft);
+      color:var(--text);
+      font-size:14px;
+      outline:none;
+    }
+    body.theme-light .text-input{
+      background:#f3f4f6;
+    }
+    .text-input::placeholder{
+      color:rgba(148,163,184,.9);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,var(--accent),#16a34a);
+      color:#022c16;
+      border:0;
+      border-radius:10px;
+      font-weight:800;
+      font-size:14px;
+      padding:9px 14px;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.5);
+      white-space:nowrap;
+    }
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+    .btn:active{
+      transform:scale(.97);
+    }
+
+    .inline-row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top:6px;
+      flex-wrap:wrap;
+    }
+
+    .small-info{
+      font-size:11px;
+      color:var(--text-dim);
+      margin-top:4px;
+    }
+    .small-info.error{
+      color:#fda4af;
+      font-weight:600;
+    }
+    .small-info.success{
+      color:#bbf7d0;
+    }
+
+    /* ===== SCOREBOARD ===== */
+    .current-game{
+      margin-top:4px;
+      padding:8px 10px;
+      border-radius:16px;
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(15,23,42,.9);
+    }
+    body.theme-light .current-game{
+      background:#f9fafb;
+      border-color:rgba(209,213,219,.9);
+    }
+
+    .players-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:6px;
+      flex-wrap:wrap;
+    }
+    .player-block{
+      flex:1;
+      min-width:0;
+    }
+    .player-name{
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:3px;
+    }
+    .letters{
+      display:flex;
+      gap:4px;
+      flex-wrap:nowrap;
+    }
+    .letter{
+      width:24px;
+      height:24px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.4);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      color:var(--text-dim);
+      background:rgba(15,23,42,.9);
+    }
+    body.theme-light .letter{
+      background:#e5e7eb;
+    }
+    .letter.active{
+      border-color:rgba(34,197,94,.9);
+      background:rgba(22,163,74,.25);
+      color:#bbf7d0;
+    }
+
+    .game-meta{
+      font-size:11px;
+      color:var(--text-dim);
+      display:flex;
+      justify-content:space-between;
+      margin-top:6px;
+      flex-wrap:wrap;
+      gap:4px;
+    }
+
+    .btn-sm{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--bg-soft);
+      color:var(--text);
+      font-size:11px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn-sm.primary{
+      border-color:rgba(34,197,94,.8);
+      background:rgba(22,163,74,.25);
+      color:#bbf7d0;
+    }
+    .btn-sm:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+    .btn-sm:active{
+      transform:scale(.97);
+    }
+
+    /* ===== BOTTOM NAV ===== */
+    .tabbar{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:30;
+      border-top:1px solid var(--border);
+      background:rgba(2,6,23,.97);
+      backdrop-filter:blur(18px);
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      padding:6px 8px 10px;
+    }
+    body.theme-light .tabbar{
+      background:rgba(244,244,245,.97);
+    }
+    .tab{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      text-decoration:none;
+      color:var(--text-dim);
+      font-size:9px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:4px 0;
+    }
+    .tab .ic{
+      font-size:20px;
+      line-height:1;
+    }
+    .tab.active{
+      color:var(--accent);
+    }
+
+    @media(min-width:700px){
+      nav.nav .row{
+        padding-inline:20px;
+      }
+      .main{
+        padding-inline:14px;
+      }
+      .tabbar{
+        border-radius:22px 22px 0 0;
+      }
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+<!-- BG vidéo -->
+<div class="rsl-bg-wrap" aria-hidden="true">
+  <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
+  <div class="rsl-bg-dim"></div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- NAV TOP -->
+  <nav class="nav">
+    <div class="row">
+      <div class="nav-left">
+        <a class="brand" href="ou_rider.html">
+          <img src="image/1logo_ridly.png" alt="RIDLY"/>
+          <span>RIDLY</span>
+        </a>
+        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post">
+          <span>+</span>
+        </button>
+      </div>
+      <div class="nav-tools">
+        <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="mini-title">Games</div>
+
+    <section class="card">
+      <h1 class="main-title">Game of Scoot</h1>
+      <p class="muted" id="connectedAs">Tu n’es pas connecté.</p>
+
+      <div id="gameLocked" class="muted" style="margin-bottom:6px;display:none">
+        Tu dois être connecté pour jouer.
+        <a href="compte.html" style="color:#22c55e;font-weight:700">Se connecter</a>
+      </div>
+
+      <div id="gameBox" class="games-box" style="display:none">
+
+        <!-- Lancer une partie -->
+        <div class="game-section">
+          <div class="section-title">Lancer une partie</div>
+          <div class="section-help">
+            Crée un Game of Scoot contre un autre rider. Un code sera généré et l’autre pourra te rejoindre.
+          </div>
+
+          <button id="btnCreateGame" class="btn">Créer une partie</button>
+          <div id="createMsg" class="small-info"></div>
+        </div>
+
+        <!-- Rejoindre une partie -->
+        <div class="game-section">
+          <div class="section-title">Rejoindre une partie</div>
+          <div class="section-help">
+            Entre le code que ton pote t’a donné pour rejoindre sa partie.
+          </div>
+
+          <div class="field-label">Code de partie</div>
+          <input id="joinCodeInput" type="text" class="text-input" placeholder="ex: ABC123" autocomplete="off"/>
+
+          <div class="inline-row">
+            <button id="btnJoinGame" class="btn">Rejoindre</button>
+          </div>
+          <div id="joinMsg" class="small-info"></div>
+        </div>
+
+        <!-- Partie en cours -->
+        <div class="game-section">
+          <div class="section-title">Partie en cours</div>
+
+          <div id="noGame" class="small-info">
+            Aucune partie en cours. Crée une partie ou rejoins ton pote pour commencer.
+          </div>
+
+          <div id="currentGameBox" class="current-game" style="display:none">
+            <div class="players-row">
+              <div class="player-block">
+                <div class="player-name" id="p1Name">Rider</div>
+                <div class="letters" id="p1Letters"></div>
+              </div>
+              <div class="player-block">
+                <div class="player-name" id="p2Name">Adversaire en attente</div>
+                <div class="letters" id="p2Letters"></div>
+              </div>
+            </div>
+
+            <div class="field-label" style="margin-top:4px;">Nom du trick (optionnel)</div>
+            <input id="trickInput" class="text-input" type="text" placeholder="ex: whip to bar" />
+
+            <div class="inline-row" style="margin-top:8px;">
+              <button id="btnP1Letter" class="btn-sm primary">P1 prend une lettre</button>
+              <button id="btnP2Letter" class="btn-sm primary">P2 prend une lettre</button>
+            </div>
+
+            <div class="game-meta">
+              <span id="gameCodeLabel">Code : –</span>
+              <span id="gameStatusLabel">Statut : –</span>
+            </div>
+
+            <div id="gameMsg" class="small-info"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- NAV BAS -->
+<nav class="tabbar" aria-label="Navigation">
+  <a class="tab" href="ou_rider.html" title="Spots">
+    <div class="ic">📍</div><span>Spots</span>
+  </a>
+  <a class="tab" href="feed.html" title="Feed">
+    <div class="ic">🎬</div><span>Feed</span>
+  </a>
+  <a class="tab" href="recherche.html" title="Recherche">
+    <div class="ic">🔎</div><span>Search</span>
+  </a>
+  <a class="tab active" href="games.html" title="Games">
+    <div class="ic">🎮</div><span>Game</span>
+  </a>
+  <a class="tab" href="classement.html" title="Classement">
+    <div class="ic">🏆</div><span>Rank</span>
+  </a>
+  <a class="tab" href="profil_ou_rider.html" title="Profil">
+    <div class="ic">👤</div><span>Profil</span>
+  </a>
+</nav>
+
+<script>
+/* ===== Thème clair / sombre ===== */
+(function(){
+  const saved = localStorage.getItem('ridlyTheme') || 'dark';
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
+  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+
+  const btnTheme = document.getElementById('btnTheme');
+  const updateIcon = () => {
+    const isLight = document.body.classList.contains('theme-light');
+    btnTheme.textContent = isLight ? '☀️' : '🌙';
+  };
+  updateIcon();
+
+  btnTheme.addEventListener('click', ()=>{
+    const isLight = document.body.classList.contains('theme-light');
+    document.body.classList.toggle('theme-light', !isLight);
+    document.body.classList.toggle('theme-dark',  isLight);
+    localStorage.setItem('ridlyTheme', isLight ? 'dark' : 'light');
+    updateIcon();
+  });
+})();
+</script>
+
+<script>
+/* ===== Supabase init + BG vidéo ===== */
+const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
+const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* BG vidéo */
+(function(){
+  const v = document.getElementById('rslBg');
+  if(!v) return;
+  const s = document.createElement('source');
+  s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
+  s.type = "video/mp4";
+  v.appendChild(s);
+  const play = () => {
+    try{
+      v.playbackRate = 0.6;
+      const p = v.play();
+      if(p && p.catch) p.catch(()=>{});
+    }catch(e){}
+  };
+  play();
+  document.addEventListener('visibilitychange',()=>{
+    document.hidden ? v.pause() : play();
+  });
+})();
+</script>
+
+<script>
+/* ===== Game of Scoot logic ===== */
+
+const SCOOT = "SCOOT";
+
+const connectedAs = document.getElementById('connectedAs');
+const gameLocked  = document.getElementById('gameLocked');
+const gameBox     = document.getElementById('gameBox');
+
+const btnCreate   = document.getElementById('btnCreateGame');
+const btnJoin     = document.getElementById('btnJoinGame');
+const createMsg   = document.getElementById('createMsg');
+const joinMsg     = document.getElementById('joinMsg');
+const joinCodeInput = document.getElementById('joinCodeInput');
+
+const noGameBox   = document.getElementById('noGame');
+const currentGameBox = document.getElementById('currentGameBox');
+const p1NameEl    = document.getElementById('p1Name');
+const p2NameEl    = document.getElementById('p2Name');
+const p1LettersEl = document.getElementById('p1Letters');
+const p2LettersEl = document.getElementById('p2Letters');
+const gameCodeLabel   = document.getElementById('gameCodeLabel');
+const gameStatusLabel = document.getElementById('gameStatusLabel');
+const gameMsg     = document.getElementById('gameMsg');
+const trickInput  = document.getElementById('trickInput');
+const btnP1Letter = document.getElementById('btnP1Letter');
+const btnP2Letter = document.getElementById('btnP2Letter');
+
+let me = null;              // { id, pseudo }
+let currentGame = null;     // ligne scoot_games
+let gameChannel = null;
+
+const LOCAL_KEY = "ridly_current_scoot_game_id";
+
+/* noms à afficher (toujours pseudos, jamais emails) */
+let p1DisplayName = "Rider";
+let p2DisplayName = "Adversaire en attente";
+
+function escapeHTML(s){
+  return (s||"").replace(/[&<>"']/g,m=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    "\"":"&quot;",
+    "'":"&#39;"
+  }[m]));
+}
+
+/* util pour les pseudos */
+function profileDisplayName(profile){
+  let name = profile?.pseudo || profile?.full_name || "Rider";
+  if(name && name.includes("@")) name = "Rider";
+  return name;
+}
+
+function randCode(){
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  let c = "";
+  for(let i=0;i<6;i++){
+    c += chars[Math.floor(Math.random()*chars.length)];
+  }
+  return c;
+}
+
+function renderLetters(el, letters){
+  const l = letters || "";
+  let html = "";
+  for(let i=0;i<SCOOT.length;i++){
+    const active = i < l.length;
+    html += `<span class="letter ${active?"active":""}">${SCOOT[i]}</span>`;
+  }
+  el.innerHTML = html;
+}
+
+function nextLetters(current){
+  const len = (current||"").length;
+  if(len >= SCOOT.length) return current || SCOOT;
+  return SCOOT.slice(0, len+1);
+}
+
+function isFinished(letters){
+  return (letters || "").length >= SCOOT.length;
+}
+
+function setCreateMsg(text, type){
+  createMsg.textContent = text || "";
+  createMsg.className = "small-info" + (type ? " "+type : "");
+}
+function setJoinMsg(text, type){
+  joinMsg.textContent = text || "";
+  joinMsg.className = "small-info" + (type ? " "+type : "");
+}
+function setGameMsg(text, type){
+  gameMsg.textContent = text || "";
+  gameMsg.className = "small-info" + (type ? " "+type : "");
+}
+
+/* Charger user + profil (pseudo) */
+async function loadCurrentUser(){
+  const { data, error } = await supa.auth.getUser();
+  if(error || !data.user){
+    connectedAs.textContent = "Tu n’es pas connecté.";
+    gameLocked.style.display = "block";
+    gameBox.style.display    = "none";
+    return false;
+  }
+  const user = data.user;
+
+  const { data: prof } = await supa
+    .from('profiles')
+    .select('pseudo,full_name')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const pseudo = profileDisplayName(prof);
+
+  me = {
+    id: user.id,
+    pseudo
+  };
+
+  p1DisplayName = pseudo;
+
+  connectedAs.textContent = "Tu es connecté en tant que " + pseudo;
+  gameLocked.style.display = "none";
+  gameBox.style.display    = "flex";
+  return true;
+}
+
+/* Rafraîchir les pseudos des 2 joueurs depuis profiles */
+async function refreshPlayerDisplayNames(){
+  if(!currentGame) return;
+
+  // P1
+  if(currentGame.player1_id){
+    try{
+      const { data: prof1 } = await supa
+        .from('profiles')
+        .select('pseudo,full_name')
+        .eq('id', currentGame.player1_id)
+        .maybeSingle();
+      p1DisplayName = profileDisplayName(prof1);
+    }catch(e){
+      console.warn("prof P1", e);
+    }
+  }else if(me && currentGame.player1_id === me.id){
+    p1DisplayName = me.pseudo;
+  }
+
+  // P2
+  if(currentGame.player2_id){
+    try{
+      const { data: prof2 } = await supa
+        .from('profiles')
+        .select('pseudo,full_name')
+        .eq('id', currentGame.player2_id)
+        .maybeSingle();
+      p2DisplayName = profileDisplayName(prof2);
+    }catch(e){
+      console.warn("prof P2", e);
+    }
+  }else{
+    p2DisplayName = "Adversaire en attente";
+  }
+
+  updateGameUI();
+}
+
+/* Charger une game existante depuis localStorage ou Supabase */
+async function loadExistingGame(){
+  if(!me) return;
+
+  let storedId = localStorage.getItem(LOCAL_KEY);
+  let game = null;
+
+  if(storedId){
+    const { data, error } = await supa
+      .from('scoot_games')
+      .select('*')
+      .eq('id', storedId)
+      .maybeSingle();
+    if(!error && data){
+      game = data;
+    }else{
+      localStorage.removeItem(LOCAL_KEY);
+    }
+  }
+
+  if(!game){
+    const { data, error } = await supa
+      .from('scoot_games')
+      .select('*')
+      .or(`player1_id.eq.${me.id},player2_id.eq.${me.id}`)
+      .order('created_at',{ ascending:false })
+      .limit(1)
+      .maybeSingle();
+
+    if(!error && data){
+      game = data;
+      localStorage.setItem(LOCAL_KEY, data.id);
+    }
+  }
+
+  currentGame = game;
+  if(currentGame){
+    await refreshPlayerDisplayNames();
+    subscribeGameRealtime(currentGame.id);
+  }else{
+    updateGameUI();
+  }
+}
+
+/* Mettre à jour l'affichage de la partie */
+function updateGameUI(){
+  if(!currentGame){
+    noGameBox.style.display      = "block";
+    currentGameBox.style.display = "none";
+    setGameMsg("");
+    return;
+  }
+
+  noGameBox.style.display      = "none";
+  currentGameBox.style.display = "block";
+
+  p1NameEl.textContent = p1DisplayName || "Rider";
+  p2NameEl.textContent = p2DisplayName || "Adversaire en attente";
+
+  renderLetters(p1LettersEl, currentGame.letters_p1 || "");
+  renderLetters(p2LettersEl, currentGame.letters_p2 || "");
+
+  gameCodeLabel.textContent   = "Code : " + (currentGame.code || "–");
+  gameStatusLabel.textContent = "Statut : " + (currentGame.status || "–");
+
+  const isP1 = me && currentGame.player1_id === me.id;
+  const isP2 = me && currentGame.player2_id === me.id;
+
+  // Sur ton téléphone tu peux seulement donner une lettre à ton adversaire
+  btnP1Letter.disabled = !isP2 || isFinished(currentGame.letters_p1);
+  btnP2Letter.disabled = !isP1 || isFinished(currentGame.letters_p2);
+
+  if(!isP1 && !isP2){
+    setGameMsg("Tu regardes cette partie en spectateur.", "");
+  }else{
+    setGameMsg("Tu peux seulement ajouter des lettres à ton adversaire sur ton téléphone.", "");
+  }
+}
+
+/* Realtime sur la game */
+function subscribeGameRealtime(gameId){
+  if(gameChannel){
+    supa.removeChannel(gameChannel);
+    gameChannel = null;
+  }
+  gameChannel = supa
+    .channel('scoot_game_'+gameId)
+    .on(
+      'postgres_changes',
+      { event:'UPDATE', schema:'public', table:'scoot_games', filter:`id=eq.${gameId}` },
+      async payload => {
+        currentGame = payload.new;
+        await refreshPlayerDisplayNames();
+      }
+    )
+    .subscribe();
+}
+
+/* Créer une partie */
+async function createGame(){
+  setCreateMsg("");
+  setJoinMsg("");
+  if(!me){
+    setCreateMsg("Tu dois être connecté.", "error");
+    return;
+  }
+
+  btnCreate.disabled = true;
+  try{
+    const code = randCode();
+
+    const { data, error } = await supa
+      .from('scoot_games')
+      .insert({
+        code,
+        player1_id: me.id,
+        player1_name: me.pseudo,   // on stocke le pseudo, pas l'email
+        letters_p1: '',
+        letters_p2: '',
+        status: 'waiting',
+        mode: 'classic'
+      })
+      .select('*')
+      .single();
+
+    if(error){
+      console.error(error);
+      alert("Erreur création partie");
+      setCreateMsg("Erreur lors de la création de la partie.", "error");
+      return;
+    }
+
+    currentGame    = data;
+    p1DisplayName  = me.pseudo;
+    p2DisplayName  = "Adversaire en attente";
+
+    localStorage.setItem(LOCAL_KEY, data.id);
+    updateGameUI();
+    subscribeGameRealtime(data.id);
+
+    setCreateMsg("Partie créée ! Donne ce code à ton pote : " + code, "success");
+  }catch(e){
+    console.error(e);
+    alert("Erreur création partie");
+    setCreateMsg("Erreur réseau.", "error");
+  }finally{
+    btnCreate.disabled = false;
+  }
+}
+
+/* Rejoindre une partie */
+async function joinGame(){
+  setJoinMsg("");
+  setCreateMsg("");
+  if(!me){
+    setJoinMsg("Tu dois être connecté.", "error");
+    return;
+  }
+
+  let code = (joinCodeInput.value || "").trim().toUpperCase();
+  if(!code){
+    setJoinMsg("Entre un code de partie.", "error");
+    return;
+  }
+
+  btnJoin.disabled = true;
+  try{
+    const { data: game, error } = await supa
+      .from('scoot_games')
+      .select('*')
+      .eq('code', code)
+      .maybeSingle();
+
+    if(error || !game){
+      setJoinMsg("Aucune partie trouvée avec ce code.", "error");
+      return;
+    }
+
+    // Si un autre joueur est déjà P2 et que ce n'est pas moi -> refus
+    if(game.player2_id && game.player2_id !== me.id){
+      setJoinMsg("Cette partie est déjà complète.", "error");
+      return;
+    }
+
+    const { data: updated, error: err2 } = await supa
+      .from('scoot_games')
+      .update({
+        player2_id: me.id,
+        player2_name: me.pseudo,   // pseudo uniquement
+        status: game.status === 'waiting' ? 'playing' : game.status
+      })
+      .eq('id', game.id)
+      .select('*')
+      .single();
+
+    if(err2){
+      console.error(err2);
+      setJoinMsg("Erreur lors de la jonction à la partie.", "error");
+      return;
+    }
+
+    currentGame = updated;
+    localStorage.setItem(LOCAL_KEY, updated.id);
+    await refreshPlayerDisplayNames();
+    subscribeGameRealtime(updated.id);
+
+    setJoinMsg("Tu as rejoint la partie !", "success");
+  }catch(e){
+    console.error(e);
+    setJoinMsg("Erreur réseau.", "error");
+  }finally{
+    btnJoin.disabled = false;
+  }
+}
+
+/* Ajouter une lettre à un joueur */
+async function addLetter(target){
+  if(!currentGame || !me) return;
+
+  const isP1 = me.id === currentGame.player1_id;
+  const isP2 = me.id === currentGame.player2_id;
+
+  // Sur chaque téléphone : on n'ajoute que des lettres à l'adversaire
+  if(target === 'p1' && !isP2) return;
+  if(target === 'p2' && !isP1) return;
+
+  const field = target === 'p1' ? 'letters_p1' : 'letters_p2';
+  const current = currentGame[field] || "";
+  if(current.length >= SCOOT.length) return;
+
+  const next = nextLetters(current);
+  const finishedNow = isFinished(next);
+
+  const update = {};
+  update[field] = next;
+  if(finishedNow){
+    update.status = 'finished';
+  }
+
+  const btn = target === 'p1' ? btnP1Letter : btnP2Letter;
+  btn.disabled = true;
+
+  try{
+    const { data, error } = await supa
+      .from('scoot_games')
+      .update(update)
+      .eq('id', currentGame.id)
+      .select('*')
+      .single();
+
+    if(error){
+      console.error(error);
+      setGameMsg("Erreur lors de la mise à jour des lettres.", "error");
+      return;
+    }
+
+    currentGame = data;
+    updateGameUI();
+
+    const trickName = (trickInput.value || "").trim();
+    if(trickName){
+      const round = {
+        game_id: currentGame.id,
+        trick_name: trickName,
+        result: 'fail',
+        created_at: new Date().toISOString()
+      };
+      try{
+        await supa.from('scoot_rounds').insert(round);
+      }catch(e){
+        console.warn("Erreur enregistrement round (non bloquant)", e);
+      }
+      trickInput.value = "";
+    }
+
+    if(finishedNow){
+      alert("SCOOT ! La partie est terminée.");
+    }
+  }catch(e){
+    console.error(e);
+    setGameMsg("Erreur réseau.", "error");
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+/* Init global */
+(async function initGamePage(){
+  const ok = await loadCurrentUser();
+  if(!ok) return;
+  await loadExistingGame();
+})();
+
+/* Events */
+btnCreate.addEventListener('click', createGame);
+btnJoin.addEventListener('click', joinGame);
+btnP1Letter.addEventListener('click', ()=>addLetter('p1'));
+btnP2Letter.addEventListener('click', ()=>addLetter('p2'));
+</script>
+
+<script>
+  // Service worker (ignore l’erreur en local file://)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  }
+</script>
+
+</body>
+</html>

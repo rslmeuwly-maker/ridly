@@ -8,6 +8,10 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#22c55e">
 
+  <!-- Icônes PWA / mobile -->
+  <link rel="icon" type="image/png" sizes="192x192" href="image/1logo_ridly.png">
+  <link rel="apple-touch-icon" href="image/1logo_ridly.png">
+
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -587,16 +591,56 @@
               <label class="chip"><input type="checkbox" id="f-shop" checked/> Shops</label>
               <label class="chip"><input type="checkbox" id="f-cours" checked/> Cours</label>
 
+              <!-- barre de recherche pays -->
+              <input id="f-country-search" class="input" placeholder="Recherche pays (Suisse, France…)" />
+
+              <!-- liste de pays -->
               <select id="f-country" class="select">
                 <option value="">Pays (tous)</option>
                 <option value="CH">Suisse</option>
                 <option value="FR">France</option>
                 <option value="DE">Allemagne</option>
+                <option value="IT">Italie</option>
+                <option value="ES">Espagne</option>
+                <option value="PT">Portugal</option>
+                <option value="BE">Belgique</option>
+                <option value="NL">Pays-Bas</option>
+                <option value="LU">Luxembourg</option>
+                <option value="UK">Royaume-Uni</option>
+                <option value="IE">Irlande</option>
+                <option value="AT">Autriche</option>
+                <option value="DK">Danemark</option>
+                <option value="SE">Suède</option>
+                <option value="NO">Norvège</option>
+                <option value="FI">Finlande</option>
+                <option value="IS">Islande</option>
+                <option value="PL">Pologne</option>
+                <option value="CZ">Tchéquie</option>
+                <option value="SK">Slovaquie</option>
+                <option value="SI">Slovénie</option>
+                <option value="HR">Croatie</option>
+                <option value="HU">Hongrie</option>
+                <option value="RO">Roumanie</option>
+                <option value="BG">Bulgarie</option>
+                <option value="GR">Grèce</option>
+                <option value="TR">Turquie</option>
+                <option value="US">États-Unis</option>
+                <option value="CA">Canada</option>
+                <option value="BR">Brésil</option>
+                <option value="AR">Argentine</option>
+                <option value="MX">Mexique</option>
+                <option value="AU">Australie</option>
+                <option value="NZ">Nouvelle-Zélande</option>
+                <option value="JP">Japon</option>
+                <option value="CN">Chine</option>
+                <option value="KR">Corée du Sud</option>
+                <option value="IL">Israël</option>
+                <option value="MA">Maroc</option>
+                <option value="TN">Tunisie</option>
+                <option value="DZ">Algérie</option>
                 <option value="EU">Autres Europe</option>
                 <option value="WORLD">Monde</option>
               </select>
-
-              <select id="f-canton" class="select"><option value="">Canton (CH)</option></select>
 
               <input id="f-type" class="input" placeholder="Type/texte (bowl, pumptrack, rail…)" />
             </div>
@@ -634,23 +678,50 @@
       <div class="col">
         <label style="font-size:12px;font-weight:700;">Pays</label>
         <select id="asCountry">
+          <option value="">Choisir un pays</option>
           <option value="CH">Suisse</option>
           <option value="FR">France</option>
           <option value="DE">Allemagne</option>
+          <option value="IT">Italie</option>
+          <option value="ES">Espagne</option>
+          <option value="PT">Portugal</option>
+          <option value="BE">Belgique</option>
+          <option value="NL">Pays-Bas</option>
+          <option value="LU">Luxembourg</option>
+          <option value="UK">Royaume-Uni</option>
+          <option value="IE">Irlande</option>
+          <option value="AT">Autriche</option>
+          <option value="DK">Danemark</option>
+          <option value="SE">Suède</option>
+          <option value="NO">Norvège</option>
+          <option value="FI">Finlande</option>
+          <option value="IS">Islande</option>
+          <option value="PL">Pologne</option>
+          <option value="CZ">Tchéquie</option>
+          <option value="SK">Slovaquie</option>
+          <option value="SI">Slovénie</option>
+          <option value="HR">Croatie</option>
+          <option value="HU">Hongrie</option>
+          <option value="RO">Roumanie</option>
+          <option value="BG">Bulgarie</option>
+          <option value="GR">Grèce</option>
+          <option value="TR">Turquie</option>
+          <option value="US">États-Unis</option>
+          <option value="CA">Canada</option>
+          <option value="BR">Brésil</option>
+          <option value="AR">Argentine</option>
+          <option value="MX">Mexique</option>
+          <option value="AU">Australie</option>
+          <option value="NZ">Nouvelle-Zélande</option>
+          <option value="JP">Japon</option>
+          <option value="CN">Chine</option>
+          <option value="KR">Corée du Sud</option>
+          <option value="IL">Israël</option>
+          <option value="MA">Maroc</option>
+          <option value="TN">Tunisie</option>
+          <option value="DZ">Algérie</option>
           <option value="EU">Autres Europe</option>
           <option value="WORLD">Monde</option>
-        </select>
-      </div>
-      <div class="col">
-        <label style="font-size:12px;font-weight:700;">Canton (CH)</label>
-        <select id="asCanton">
-          <option value="">—</option>
-          <option>AG</option><option>AI</option><option>AR</option><option>BE</option><option>BL</option>
-          <option>BS</option><option>FR</option><option>GE</option><option>GL</option><option>GR</option>
-          <option>JU</option><option>LU</option><option>NE</option><option>NW</option><option>OW</option>
-          <option>SG</option><option>SH</option><option>SO</option><option>SZ</option><option>TG</option>
-          <option>TI</option><option>UR</option><option>VD</option><option>VS</option><option>ZG</option>
-          <option>ZH</option>
         </select>
       </div>
     </div>
@@ -832,7 +903,6 @@ window.addEventListener('beforeinstallprompt', (e)=>{
 const btnPwa = document.getElementById('btnPwa');
 if(btnPwa){
   btnPwa.addEventListener('click', async ()=>{
-    // Si le navigateur permet l'installation, on déclenche DIRECT le prompt
     if(deferredInstallPrompt){
       deferredInstallPrompt.prompt();
       try{
@@ -840,7 +910,6 @@ if(btnPwa){
       }catch(e){}
       deferredInstallPrompt = null;
     }else{
-      // Fallback : message pour iOS / cas où le prompt n'est pas dispo
       alert("Pour installer RIDLY, utilise « Ajouter à l'écran d'accueil » dans ton navigateur.");
     }
   });
@@ -893,7 +962,7 @@ const F = {
   shop:   document.getElementById('f-shop'),
   cours:  document.getElementById('f-cours'),
   country:document.getElementById('f-country'),
-  canton: document.getElementById('f-canton'),
+  countrySearch:document.getElementById('f-country-search'),
   type:   document.getElementById('f-type'),
   reset:  document.getElementById('btnReset'),
   locate: document.getElementById('btnLocate')
@@ -907,14 +976,12 @@ function applyFilters(){
     int:F.cours.checked,
     ext:F.cours.checked
   };
-  const cantonSel  = (F.canton.value||'').trim();
   const countrySel = (F.country.value||'').trim();
   const txt        = (F.type.value||'').trim().toLowerCase();
 
   ALL_MARKERS.forEach(o=>{
     let vis = !!show[o.group] || o.group==='riders';
     if(vis && countrySel && o.group!=='riders') vis = (o.country||'')===countrySel;
-    if(vis && cantonSel && o.group!=='riders') vis = (o.canton||'')===cantonSel;
     if(vis && txt && o.group!=='riders') vis = (o.text||'').includes(txt);
 
     if(vis){
@@ -925,8 +992,21 @@ function applyFilters(){
   });
 }
 
+/* Recherche dans la liste des pays */
+if(F.countrySearch){
+  F.countrySearch.addEventListener('input', ()=>{
+    const q = (F.countrySearch.value||'').trim().toLowerCase();
+    const sel = F.country;
+    Array.from(sel.options).forEach(opt=>{
+      if(!opt.value){ opt.style.display=''; return; }
+      const label = (opt.textContent||'').toLowerCase();
+      opt.style.display = label.includes(q) ? '' : 'none';
+    });
+  });
+}
+
 ['change','input'].forEach(ev=>{
-  [F.park,F.street,F.shop,F.cours,F.country,F.canton,F.type].forEach(el=>{
+  [F.park,F.street,F.shop,F.cours,F.country,F.type].forEach(el=>{
     el.addEventListener(ev,applyFilters);
   });
 });
@@ -934,7 +1014,6 @@ function applyFilters(){
 F.reset.onclick = ()=>{
   F.park.checked = F.street.checked = F.shop.checked = F.cours.checked = true;
   F.country.value = '';
-  F.canton.value  = '';
   F.type.value    = '';
   applyFilters();
 };
@@ -1047,13 +1126,6 @@ F.locate.onclick = ()=>{
     m.addTo(layers[c.group]);
   });
 
-  // cantons
-  const cantons = new Set();
-  ALL_MARKERS.forEach(o=>{ if(o.country==='CH' && o.canton) cantons.add(o.canton); });
-  document.getElementById('f-canton').innerHTML =
-    '<option value="">Canton (CH)</option>' +
-    Array.from(cantons).sort().map(c=>`<option value="${c}">${c}</option>`).join('');
-
   applyFilters();
 })();
 
@@ -1100,10 +1172,12 @@ async function loadRiders(){
     if(currentUser && r.user_id===currentUser.id) return;
     if(!r.lat||!r.lng) return;
     const name = r.full_name || r.username || r.email || 'Rider';
+    const profilUrl = `profil_ou_rider.html?id=${encodeURIComponent(r.user_id)}`;
     const popup = `
       <div class="rsl-pop">
         <div class="rsl-pop-title">${name}</div>
         <div class="rsl-pop-desc">Actif récemment</div>
+        <a class="rsl-pop-btn" href="${profilUrl}">Voir le profil →</a>
       </div>`;
     const m = L.marker([r.lat,r.lng],{icon:icons.rider})
       .bindPopup(popup,{closeButton:true});
@@ -1151,7 +1225,6 @@ window.addEventListener('beforeunload', async ()=>{
 const addModal  = document.getElementById('addSpotModal');
 const asType    = document.getElementById('asType');
 const asCountry = document.getElementById('asCountry');
-const asCanton  = document.getElementById('asCanton');
 const asVille   = document.getElementById('asVille');
 const asNom     = document.getElementById('asNom');
 const asDesc    = document.getElementById('asDesc');
@@ -1166,20 +1239,12 @@ function openAddModal(){
   addModal.classList.add('show');
   asMsg.classList.remove('error');
   asMsg.textContent='📍 Utilise la petite carte ou clique la grande carte.';
-  updateCantonVisibility();
   updateAsSaveState();
 }
 
 document.querySelector('#addSpotModal .modal-bg')
   .addEventListener('click',()=>addModal.classList.remove('show'));
 document.getElementById('asCancel').onclick = ()=>addModal.classList.remove('show');
-
-function updateCantonVisibility(){
-  const isCH = (asCountry.value === 'CH');
-  asCanton.parentElement.style.display = isCH ? '' : 'none';
-  if(!isCH) asCanton.value = '';
-}
-asCountry.addEventListener('change', updateCantonVisibility);
 
 function updateAsSaveState(){
   const ok = (asNom.value.trim().length>1 &&
@@ -1189,17 +1254,59 @@ function updateAsSaveState(){
   asSaveBtn.style.opacity = ok ? '1' : '.6';
 }
 ['input','change'].forEach(ev=>{
-  [asNom,asLat,asLng,asCountry,asCanton,asType,asVille,asDesc].forEach(el=>{
+  [asNom,asLat,asLng,asCountry,asType,asVille,asDesc].forEach(el=>{
     el.addEventListener(ev,updateAsSaveState);
   });
 });
 
+/* === NOUVELLE VERSION : remplir ville + pays automatiquement depuis lat/lng (BigDataCloud) === */
+async function autoFillCityCountry(lat, lng){
+  if(!lat || !lng) return;
+  try{
+    const url = 'https://api.bigdatacloud.net/data/reverse-geocode-client'
+      + '?latitude='  + encodeURIComponent(lat)
+      + '&longitude=' + encodeURIComponent(lng)
+      + '&localityLanguage=fr';
+
+    const resp = await fetch(url);
+    if(!resp.ok){
+      console.warn('reverse geocode http error', resp.status);
+      return;
+    }
+    const data = await resp.json();
+    if(!data) return;
+
+    const city = data.city || data.locality || data.principalSubdivision || '';
+    const countryCode = (data.countryCode || '').toUpperCase();
+
+    if(city && asVille){
+      asVille.value = city;
+    }
+
+    if(countryCode && asCountry){
+      let code = countryCode;
+      if(code === 'GB') code = 'UK'; // adapter à ta liste
+      const opt = Array.from(asCountry.options).find(o => o.value === code);
+      if(opt){
+        asCountry.value = code;
+      }
+    }
+
+    updateAsSaveState();
+  }catch(e){
+    console.error('reverse geocode failed', e);
+  }
+}
+
 /* Clic sur la grande carte pour lat/lng */
 map.on('click',e=>{
   if(!addModal.classList.contains('show')) return;
-  asLat.value = e.latlng.lat.toFixed(6);
-  asLng.value = e.latlng.lng.toFixed(6);
+  const lat = e.latlng.lat;
+  const lng = e.latlng.lng;
+  asLat.value = lat.toFixed(6);
+  asLng.value = lng.toFixed(6);
   updateAsSaveState();
+  autoFillCityCountry(lat, lng); // auto ville + pays
 });
 
 /* Petite carte pour choisir lat/lng + recherche */
@@ -1220,7 +1327,8 @@ btnPickLatLng.addEventListener('click', ()=>{
         attribution:'© OpenStreetMap'
       }).addTo(pickMap);
       pickMap.on('click', e=>{
-        const {lat,lng} = e.latlng;
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
         if(!pickMarker){
           pickMarker = L.marker([lat,lng],{icon:icons.park}).addTo(pickMap);
         }else{
@@ -1229,6 +1337,7 @@ btnPickLatLng.addEventListener('click', ()=>{
         asLat.value = lat.toFixed(6);
         asLng.value = lng.toFixed(6);
         updateAsSaveState();
+        autoFillCityCountry(lat, lng); // auto ville + pays
       });
     }else{
       pickMap.invalidateSize();
@@ -1266,6 +1375,7 @@ async function doPickSearch(){
     asLat.value = latNum.toFixed(6);
     asLng.value = lngNum.toFixed(6);
     updateAsSaveState();
+    autoFillCityCountry(latNum, lngNum); // auto ville + pays
   }catch(e){
     console.error(e);
     alert("Recherche impossible pour l'instant.");
@@ -1296,8 +1406,8 @@ document.getElementById('asSave').onclick = async ()=>{
   const row = {
     nom:(asNom.value||'').trim(),
     ville:(asVille.value||'').trim(),
-    canton:(asCanton.value||'').trim(),
-    country:(asCountry.value||'').trim() || (asCanton.value ? 'CH' : 'WORLD'),
+    canton:'',
+    country:(asCountry.value||'').trim() || 'WORLD',
     description:(asDesc.value||'').trim(),
     lat: parseFloat(asLat.value),
     lng: parseFloat(asLng.value)
@@ -1322,9 +1432,9 @@ document.getElementById('asSave').onclick = async ()=>{
         <div class="rsl-pop-loc">${row.ville||''} (${row.canton||''})</div>
         <div class="rsl-pop-desc">${row.description||''}</div>
       </div>`;
+    const g = (asType.value==='street') ? 'street' : 'park';
     const m = L.marker([row.lat,row.lng],{icon})
       .bindPopup(popup,{closeButton:true});
-    const g = (asType.value==='street') ? 'street' : 'park';
 
     ALL_MARKERS.push({
       marker:m,

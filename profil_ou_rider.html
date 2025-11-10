@@ -223,8 +223,14 @@
     .p-head{
       display:grid;
       grid-template-columns:84px 1fr auto;
-      gap:12px;
+      gap:16px;
       align-items:flex-start;
+    }
+    .p-main{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding-top:2px;
     }
     @media(max-width:720px){
       .p-head{
@@ -265,13 +271,11 @@
     .meta-line{
       font-size:12px;
       color:var(--dim);
-      margin-top:4px;
       font-weight:600;
     }
     .loc-line{
       font-size:12px;
       color:var(--dim);
-      margin-top:2px;
     }
 
     .btn{
@@ -500,6 +504,143 @@
       main.main{padding-inline:14px;}
       .tabbar{border-radius:22px 22px 0 0;}
     }
+
+    /* Boutons clicables pour abonnés / abonnements */
+    .chip-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      border:0;
+      padding:2px 10px;
+      margin:0 3px;
+      background:rgba(15,23,42,.8);
+      color:var(--text);
+      font-size:11px;
+      font-weight:600;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    body.theme-light .chip-link{
+      background:rgba(148,163,184,.25);
+    }
+    .chip-link:hover{
+      filter:brightness(1.1);
+    }
+
+    .cgu-row{
+      margin-top:4px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .cgu-row .cgu-btn{
+      font-size:10px;
+      opacity:.85;
+    }
+
+    /* Modal abonnés / abonnements */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background:rgba(15,23,42,.82);
+      z-index:40;
+    }
+    .modal{
+      background:var(--panel);
+      border-radius:18px;
+      border:1px solid var(--border);
+      max-width:420px;
+      width:100%;
+      max-height:80vh;
+      display:flex;
+      flex-direction:column;
+      box-shadow:0 22px 60px rgba(0,0,0,.9);
+    }
+    .modal-header{
+      padding:10px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-size:14px;
+      font-weight:700;
+    }
+    .modal-close{
+      border:0;
+      background:transparent;
+      color:var(--dim);
+      font-size:18px;
+      cursor:pointer;
+      padding:0 2px;
+    }
+    .modal-body{
+      padding:8px 14px 12px;
+      overflow:auto;
+    }
+    .follow-list{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .follow-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:var(--text);
+      padding:6px 8px;
+      border-radius:12px;
+      background:var(--panel-soft);
+      border:1px solid rgba(148,163,184,.35);
+    }
+    .follow-item:hover{
+      border-color:var(--green);
+    }
+    .follow-avatar{
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      overflow:hidden;
+      background:#020617;
+      flex-shrink:0;
+    }
+    body.theme-light .follow-avatar{
+      background:#e5e7eb;
+    }
+    .follow-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .follow-names{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+    .follow-main{
+      font-size:13px;
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .follow-sub{
+      font-size:11px;
+      color:var(--dim);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
   </style>
 </head>
 <body class="theme-dark">
@@ -548,10 +689,15 @@
         <div class="avatar">
           <img id="avatarImg" alt="avatar" src="image/logo_pn360.png"/>
         </div>
-        <div>
+        <div class="p-main">
           <h1 class="name" id="pName">—</h1>
-          <div class="meta-line" id="pStats">0 posts • 0 flashs • 0 abonnés • Moyenne compte : —</div>
           <div class="loc-line" id="pSub">—</div>
+          <div class="meta-line" id="pStats">0 posts • 0 flashs • 0 abonnés • Moyenne compte : —</div>
+          <div class="cgu-row">
+            <button type="button" class="chip-link cgu-btn" onclick="window.location.href='conditions_ridly.html'">
+              Conditions RIDLY
+            </button>
+          </div>
         </div>
         <div class="p-actions" id="actionsBox"></div>
       </div>
@@ -626,6 +772,20 @@
   </main>
 </div>
 
+<!-- Modal abonnés / abonnements -->
+<div class="modal-backdrop" id="followModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="followModalTitle">Abonnés</span>
+      <button type="button" class="modal-close" id="followModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <ul class="follow-list" id="followModalList"></ul>
+      <p class="empty" id="followModalEmpty" style="display:none;margin-top:8px;">Aucun résultat pour l’instant.</p>
+    </div>
+  </div>
+</div>
+
 <!-- Tabbar -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
@@ -659,7 +819,7 @@
   const btnTheme = document.getElementById('btnTheme');
   const updateIcon = () => {
     const isLight = document.body.classList.contains('theme-light');
-    btnTheme.textContent = isLight ? ☀️' : '🌙';
+    btnTheme.textContent = isLight ? '☀️' : '🌙';
   };
   updateIcon();
 
@@ -673,7 +833,7 @@
 })();
 </script>
 
-<!-- Supabase init + BG vidéo -->
+<!-- Supabase init + BG vidéo + Profil logic -->
 <script>
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
@@ -690,10 +850,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   play();
   document.addEventListener('visibilitychange',()=>{ document.hidden ? v.pause() : play(); });
 })();
-</script>
 
-<!-- Profil logic -->
-<script>
 const params = new URLSearchParams(location.search);
 const qId    = params.get('id');
 const qUser  = params.get('u');
@@ -722,21 +879,146 @@ const fInsta      = document.getElementById('fInsta');
 const fBio        = document.getElementById('fBio');
 const fGender     = document.getElementById('fGender');
 
+/* Modal elements */
+const followModal      = document.getElementById('followModal');
+const followModalTitle = document.getElementById('followModalTitle');
+const followModalList  = document.getElementById('followModalList');
+const followModalEmpty = document.getElementById('followModalEmpty');
+const followModalClose = document.getElementById('followModalClose');
+
 let sessionUser   = null;
 let profileUserId = null;
 let isOwn         = false;
+let isAdmin       = false; // ⭐ NEW
 
 let countPosts = 0;
 let countFlashes = 0;
 let accountAvg = null;
 let followersCount = 0;
+let followingCount = 0;
 let isFollowing    = false;
+
+/* Ouvre le modal avec la liste */
+async function openFollowModal(mode){
+  if(!profileUserId) return;
+
+  followModalTitle.textContent = (mode === 'followers') ? 'Abonnés' : 'Abonnements';
+  followModalList.innerHTML = '';
+  followModalEmpty.style.display = 'none';
+  followModal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  try{
+    let ids = [];
+    if(mode === 'followers'){
+      const { data:rows, error } = await supa
+        .from('rider_follows')
+        .select('follower_id')
+        .eq('followed_id', profileUserId)
+        .limit(200);
+      if(error) throw error;
+      ids = (rows || []).map(r=>r.follower_id);
+    }else{
+      const { data:rows, error } = await supa
+        .from('rider_follows')
+        .select('followed_id')
+        .eq('follower_id', profileUserId)
+        .limit(200);
+      if(error) throw error;
+      ids = (rows || []).map(r=>r.followed_id);
+    }
+
+    if(!ids.length){
+      followModalEmpty.textContent = "Aucun résultat pour l’instant.";
+      followModalEmpty.style.display = 'block';
+      return;
+    }
+
+    const { data:profiles, error:pErr } = await supa
+      .from('profiles')
+      .select('id,pseudo,username,full_name,city,canton,country,avatar_url')
+      .in('id', ids);
+
+    if(pErr) throw pErr;
+
+    (profiles || []).forEach(p=>{
+      const displayName = p.pseudo || p.username || p.full_name || 'Rider';
+      const locParts = [];
+      if(p.city) locParts.push(p.city);
+      if(p.canton) locParts.push(p.canton);
+      if(p.country) locParts.push(p.country);
+      const loc = locParts.join(' • ');
+
+      const li = document.createElement('li');
+      const a  = document.createElement('a');
+      a.className = 'follow-item';
+      a.href = 'profil_ou_rider.html?id=' + encodeURIComponent(p.id);
+
+      const avatarWrap = document.createElement('div');
+      avatarWrap.className = 'follow-avatar';
+      const img = document.createElement('img');
+      img.src = p.avatar_url || 'image/logo_pn360.png';
+      img.alt = displayName;
+      avatarWrap.appendChild(img);
+
+      const namesWrap = document.createElement('div');
+      namesWrap.className = 'follow-names';
+      const main = document.createElement('div');
+      main.className = 'follow-main';
+      main.textContent = displayName;
+      const sub = document.createElement('div');
+      sub.className = 'follow-sub';
+      sub.textContent = loc || '—';
+      namesWrap.appendChild(main);
+      namesWrap.appendChild(sub);
+
+      a.appendChild(avatarWrap);
+      a.appendChild(namesWrap);
+
+      li.appendChild(a);
+      followModalList.appendChild(li);
+    });
+
+  }catch(e){
+    console.error(e);
+    followModalEmpty.textContent = "Erreur de chargement.";
+    followModalEmpty.style.display = 'block';
+  }
+}
+
+function closeFollowModal(){
+  followModal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+followModalClose?.addEventListener('click', closeFollowModal);
+followModal?.addEventListener('click', (e)=>{
+  if(e.target === followModal){
+    closeFollowModal();
+  }
+});
 
 function updateStatsLine(){
   const avgTxt = (accountAvg != null)
     ? `Moyenne compte : ${accountAvg.toFixed(1)} / 5`
     : `Moyenne compte : —`;
-  pStats.textContent = `${countPosts} posts • ${countFlashes} flashs • ${followersCount} abonnés • ${avgTxt}`;
+
+  const html = `
+    ${countPosts} posts • ${countFlashes} flashs •
+    <button type="button" class="chip-link" id="followersBtn">${followersCount} abonnés</button> •
+    <button type="button" class="chip-link" id="followingBtn">${followingCount} abonnements</button> •
+    ${avgTxt}
+  `;
+  pStats.innerHTML = html;
+
+  const followersBtn = document.getElementById('followersBtn');
+  const followingBtn = document.getElementById('followingBtn');
+  if(followersBtn){
+    followersBtn.addEventListener('click', ()=>openFollowModal('followers'));
+  }
+  if(followingBtn){
+    followingBtn.addEventListener('click', ()=>openFollowModal('following'));
+  }
 }
 
 (async function init(){
@@ -792,6 +1074,9 @@ async function loadProfile(){
     return;
   }
 
+  // ⭐ NEW : admin ?
+  isAdmin = !!prof.is_admin;
+
   const displayName =
     prof.pseudo ||
     prof.username ||
@@ -822,20 +1107,30 @@ async function loadProfile(){
   }
 }
 
-/* Charge nb d'abonnés + si moi je suis abonné */
+/* Charge nb d'abonnés + nb d'abonnements + si moi je suis abonné */
 async function loadFollowState(){
   followersCount = 0;
+  followingCount = 0;
   isFollowing = false;
+
   if(!profileUserId){
     updateStatsLine();
     return;
   }
   try{
-    const { count } = await supa
+    // abonnés (les gens qui suivent CE profil)
+    const { count:followers } = await supa
       .from('rider_follows')
       .select('*', { count:'exact', head:true })
       .eq('followed_id', profileUserId);
-    followersCount = count || 0;
+    followersCount = followers || 0;
+
+    // abonnements (les profils que CE rider suit)
+    const { count:following } = await supa
+      .from('rider_follows')
+      .select('*', { count:'exact', head:true })
+      .eq('follower_id', profileUserId);
+    followingCount = following || 0;
 
     if(sessionUser){
       const { data:rows } = await supa
@@ -858,7 +1153,16 @@ async function loadFollowState(){
 function buildActions(){
   actionsBox.innerHTML = "";
   if(isOwn){
-    // mon profil : juste Éditer (plus de bouton + Flash)
+    // ⭐ NEW : bouton admin spots uniquement si profil admin
+    if(isAdmin){
+      actionsBox.append(
+        makeBtn("⚙️ Admin spots", () => {
+          window.location.href = "admin_spots.html"; // adapte le nom si besoin
+        })
+      );
+    }
+
+    // mon profil : Éditer
     actionsBox.append(
       makeBtn("✏️ Éditer", toggleEdit)
     );
