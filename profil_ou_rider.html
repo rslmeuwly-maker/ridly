@@ -167,6 +167,7 @@
       text-decoration:none;
       position:relative;
       cursor:pointer;
+      gap:6px;
     }
     body.theme-light .icon-btn{
       background:#e5e7eb;
@@ -186,6 +187,50 @@
       background:#22c55e;
       box-shadow:0 0 8px rgba(34,197,94,.9);
       opacity:0;
+    }
+
+    .nav-badge{
+      position:absolute;
+      top:-3px;
+      right:-3px;
+      min-width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#ef4444;
+      color:#f9fafb;
+      font-size:10px;
+      font-weight:800;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:0 4px;
+      box-shadow:0 0 8px rgba(0,0,0,.6);
+    }
+
+    /* Toast notifs */
+    .toast{
+      position:fixed;
+      left:50%;
+      top:60px;
+      transform:translateX(-50%);
+      background:rgba(15,23,42,.97);
+      color:#f9fafb;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 10px 30px rgba(0,0,0,.6);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s, transform .2s;
+      z-index:60;
+      max-width:90%;
+      text-align:center;
+      white-space:normal;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(4px);
     }
 
     /* Mini titre */
@@ -667,6 +712,12 @@
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+
+        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
+          💌
+          <span class="nav-badge" id="badge1v1"></span>
+        </a>
+
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
           <span class="chat-dot" id="chatDot"></span>
           💬
@@ -694,7 +745,7 @@
           <div class="loc-line" id="pSub">—</div>
           <div class="meta-line" id="pStats">0 posts • 0 flashs • 0 abonnés • Moyenne compte : —</div>
           <div class="cgu-row">
-            <button type="button" class="chip-link cgu-btn" onclick="window.location.href='conditions_ridly.html'">
+            <button type="button" class="chip-link cgu-btn" id="btnCgu">
               Conditions RIDLY
             </button>
           </div>
@@ -808,6 +859,9 @@
   </a>
 </nav>
 
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
 <!-- Thème (même logique que feed.html) -->
 <script>
 (function(){
@@ -833,12 +887,13 @@
 })();
 </script>
 
-<!-- Supabase init + BG vidéo + Profil logic -->
+<!-- Supabase init + BG vidéo + Profil logic + notifs 1v1 + bouton conditions -->
 <script>
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+/* BG vidéo */
 (function(){
   const v = document.getElementById('rslBg');
   if(!v) return;
@@ -851,6 +906,87 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   document.addEventListener('visibilitychange',()=>{ document.hidden ? v.pause() : play(); });
 })();
 
+/* Toast + notifs 1v1 */
+const toastDiv   = document.getElementById('toast');
+const badge1v1   = document.getElementById('badge1v1');
+const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+let unreadToastShown = false;
+
+function showToast(msg){
+  if(!toastDiv) return;
+  toastDiv.textContent = msg;
+  toastDiv.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
+}
+function playNotifSound(){
+  try{
+    notifAudio.currentTime = 0;
+    notifAudio.play().catch(()=>{});
+  }catch(e){}
+}
+function update1v1Badge(count){
+  if(!badge1v1) return;
+  if(count>0){
+    badge1v1.style.display = 'flex';
+    badge1v1.textContent = count>9 ? '9+' : String(count);
+  }else{
+    badge1v1.style.display = 'none';
+  }
+}
+async function checkPrivateUnread(user){
+  if(!user) return;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_unread_counts')
+      .select('unread_count')
+      .eq('user_id', user.id);
+
+    if(error){
+      console.error('unread error', error);
+      return;
+    }
+    const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
+    update1v1Badge(total);
+    if(total>0 && !unreadToastShown){
+      unreadToastShown = true;
+      const s = total>1 ? 's' : '';
+      showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`);
+      playNotifSound();
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+function subscribePrivateAlerts(user){
+  if(!user) return;
+  supa.channel('ridly_private_alert_'+user.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'ridly_private_messages'
+    }, async payload => {
+      const m = payload.new;
+      if(m.to_id !== user.id) return;
+
+      let senderName = 'Rider';
+      try{
+        const { data:p } = await supa
+          .from('profiles')
+          .select('pseudo,full_name')
+          .eq('id', m.from_id)
+          .maybeSingle();
+        if(p) senderName = p.pseudo || p.full_name || 'Rider';
+      }catch(e){}
+
+      playNotifSound();
+      showToast('Nouveau message privé de ' + senderName);
+      checkPrivateUnread(user);
+    })
+    .subscribe();
+}
+
+/* Paramètres & DOM */
 const params = new URLSearchParams(location.search);
 const qId    = params.get('id');
 const qUser  = params.get('u');
@@ -868,6 +1004,7 @@ const postsEmpty  = document.getElementById('postsEmpty');
 const btnNewPost  = document.getElementById('btnNewPost');
 const chatDot     = document.getElementById('chatDot');
 const btnLogout   = document.getElementById('btnLogout');
+const btnCgu      = document.getElementById('btnCgu');
 
 const avatarInput = document.getElementById('fAvatar');
 const fPseudo     = document.getElementById('fPseudo');
@@ -889,7 +1026,7 @@ const followModalClose = document.getElementById('followModalClose');
 let sessionUser   = null;
 let profileUserId = null;
 let isOwn         = false;
-let isAdmin       = false; // ⭐ NEW
+let isAdmin       = false;
 
 let countPosts = 0;
 let countFlashes = 0;
@@ -897,6 +1034,11 @@ let accountAvg = null;
 let followersCount = 0;
 let followingCount = 0;
 let isFollowing    = false;
+
+/* Bouton Conditions RIDLY */
+btnCgu?.addEventListener('click', ()=>{
+  window.location.href = 'conditions_ridly.html';
+});
 
 /* Ouvre le modal avec la liste */
 async function openFollowModal(mode){
@@ -1026,13 +1168,18 @@ function updateStatsLine(){
   sessionUser = user || null;
   if(sessionUser && chatDot) chatDot.style.opacity = 1;
 
-  // bouton déconnexion top bar
-  if(sessionUser && btnLogout){
-    btnLogout.style.display = 'flex';
-    btnLogout.onclick = async ()=>{
-      await supa.auth.signOut();
-      location.href = "index.html";
-    };
+  if(sessionUser){
+    if(btnLogout){
+      btnLogout.style.display = 'flex';
+      btnLogout.onclick = async ()=>{
+        await supa.auth.signOut();
+        location.href = "index.html";
+      };
+    }
+
+    // notifs 1v1
+    checkPrivateUnread(sessionUser);
+    subscribePrivateAlerts(sessionUser);
   }
 
   if(qId){
@@ -1074,7 +1221,6 @@ async function loadProfile(){
     return;
   }
 
-  // ⭐ NEW : admin ?
   isAdmin = !!prof.is_admin;
 
   const displayName =
@@ -1118,14 +1264,12 @@ async function loadFollowState(){
     return;
   }
   try{
-    // abonnés (les gens qui suivent CE profil)
     const { count:followers } = await supa
       .from('rider_follows')
       .select('*', { count:'exact', head:true })
       .eq('followed_id', profileUserId);
     followersCount = followers || 0;
 
-    // abonnements (les profils que CE rider suit)
     const { count:following } = await supa
       .from('rider_follows')
       .select('*', { count:'exact', head:true })
@@ -1153,23 +1297,20 @@ async function loadFollowState(){
 function buildActions(){
   actionsBox.innerHTML = "";
   if(isOwn){
-    // ⭐ NEW : bouton admin spots uniquement si profil admin
     if(isAdmin){
       actionsBox.append(
         makeBtn("⚙️ Admin spots", () => {
-          window.location.href = "admin_spots.html"; // adapte le nom si besoin
+          window.location.href = "admin_spots.html";
         })
       );
     }
 
-    // mon profil : Éditer
     actionsBox.append(
       makeBtn("✏️ Éditer", toggleEdit)
     );
     btnNewPost.style.display = "inline-block";
     btnNewPost.onclick = ()=>location.href="ajouter.html";
   }else{
-    // profil d’un autre rider
     if(sessionUser){
       const chatBtn = makeBtn("💬 Chat privé", () => {
         window.location.href = 'chat1v1.html?to=' + encodeURIComponent(profileUserId);

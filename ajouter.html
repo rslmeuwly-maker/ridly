@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#22c55e">
 
-  <!-- Leaflet (pour la petite carte de choix de spot) -->
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -68,7 +68,7 @@
       flex-direction:column;
     }
 
-    /* ===== BG VIDÉO ===== */
+    /* BG vidéo */
     .rsl-bg-wrap{
       position:fixed;
       inset:0;
@@ -104,7 +104,7 @@
       z-index:1;
     }
 
-    /* ===== TOP NAV (même que feed) ===== */
+    /* NAV */
     nav.nav{
       position:sticky;
       top:0;
@@ -181,8 +181,9 @@
       background:rgba(15,23,42,.9);
       color:var(--text);
       border-radius:999px;
-      width:32px;
+      min-width:32px;
       height:32px;
+      padding:0 10px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -190,6 +191,7 @@
       text-decoration:none;
       position:relative;
       cursor:pointer;
+      gap:4px;
     }
     body.theme-light .icon-btn{
       background:#e5e7eb;
@@ -211,12 +213,29 @@
       opacity:0;
     }
 
-    /* ===== MAIN (même padding que feed) ===== */
+    /* badge 1v1 */
+    .badge{
+      position:absolute;
+      top:-3px;
+      right:-3px;
+      min-width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#ef4444;
+      color:#f9fafb;
+      font-size:10px;
+      font-weight:800;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:0 4px;
+      box-shadow:0 0 8px rgba(0,0,0,.6);
+    }
+
     .main{
       flex:1;
       padding:4px 10px 80px;
     }
-
     .mini-title{
       padding:8px 4px 4px;
       font-size:13px;
@@ -224,7 +243,6 @@
       color:var(--text-dim);
     }
 
-    /* ===== CARD & FORM STYLES ===== */
     .card{
       background:var(--card);
       border-radius:var(--radius-xl);
@@ -375,7 +393,7 @@
       margin:6px 2px 0;
     }
 
-    /* ===== Modales ===== */
+    /* Modales */
     .modal{
       position:fixed;
       inset:0;
@@ -412,7 +430,7 @@
       font-weight:800;
     }
 
-    /* ===== BOTTOM NAV ===== */
+    /* Tabbar bas */
     .tabbar{
       position:fixed;
       left:0;
@@ -453,6 +471,32 @@
       color:var(--accent);
     }
 
+    /* Toast EN HAUT */
+    .toast{
+      position:fixed;
+      left:50%;
+      top:60px;               /* <--- en haut */
+      transform:translateX(-50%);
+      background:rgba(15,23,42,.97);
+      color:#f9fafb;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 10px 30px rgba(0,0,0,.6);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s, transform .2s;
+      z-index:60;
+      max-width:90%;
+      text-align:center;
+      white-space:normal;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(4px);
+    }
+
     @media(min-width:700px){
       nav.nav .row{
         padding-inline:20px;
@@ -468,7 +512,7 @@
 </head>
 <body class="theme-dark">
 
-<!-- BG vidéo depuis Supabase -->
+<!-- BG vidéo -->
 <div class="rsl-bg-wrap" aria-hidden="true">
   <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
   <div class="rsl-bg-dim"></div>
@@ -490,6 +534,13 @@
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+
+        <!-- Nouveau bouton 1v1 -> chat1v1.html -->
+        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
+          💌
+          <span class="badge" id="badge1v1"></span>
+        </a>
+
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
           <span class="chat-dot" id="chatDot"></span>
           💬
@@ -637,6 +688,11 @@
       Les points viennent de la carte <b>« Où rider ? »</b>.
     </p>
 
+    <div class="row" style="margin-bottom:8px">
+      <input id="spotSearch" class="input" placeholder="Ville / adresse / spot…">
+      <button type="button" class="btn" id="spotSearchBtn" style="flex:0 0 auto;">Rechercher</button>
+    </div>
+
     <div class="row" style="margin-bottom:10px">
       <button type="button" class="btn" id="spotPickerLocate">📍 Ma position</button>
       <button type="button" class="btn" id="spotPickerClear">Sans spot</button>
@@ -651,7 +707,7 @@
   </div>
 </div>
 
-<!-- Modale AJOUTER UN NOUVEAU SPOT (depuis Ajouter) -->
+<!-- Modale AJOUTER UN NOUVEAU SPOT -->
 <div class="modal" id="addSpotModal">
   <div class="modal-bg"></div>
   <div class="modal-card">
@@ -708,19 +764,22 @@
       <textarea id="asDesc" class="input" style="min-height:70px" placeholder="Description rapide (bowl, rails, niveau…)"></textarea>
     </div>
 
+    <!-- Petite carte pour l'ajout -->
+    <div id="addSpotMap" style="height:260px;border-radius:12px;overflow:hidden;border:1px solid rgba(148,163,184,.6);margin-bottom:8px;"></div>
+
     <div class="row">
       <div style="flex:1">
         <label style="font-size:12px;font-weight:700;">Latitude</label>
-        <input id="asLat" class="input" placeholder="Clique la carte au-dessus"/>
+        <input id="asLat" class="input" placeholder="Clique la carte"/>
       </div>
       <div style="flex:1">
         <label style="font-size:12px;font-weight:700;">Longitude</label>
-        <input id="asLng" class="input" placeholder="Clique la carte au-dessus"/>
+        <input id="asLng" class="input" placeholder="Clique la carte"/>
       </div>
     </div>
 
     <p style="font-size:11px;color:#9ca3af;margin:4px 0 8px">
-      Astuce : laisse la modale ouverte et tape sur la <b>carte des spots</b> pour remplir lat / lng automatiquement.
+      Astuce : tape sur la <b>petite carte</b> pour remplir lat / lng, ville, pays automatiquement.
     </p>
 
     <div class="row" style="align-items:center;justify-content:space-between;margin-top:6px">
@@ -733,7 +792,7 @@
   </div>
 </div>
 
-<!-- NAVIGATION BAS -->
+<!-- TABBAR -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
     <div class="ic">📍</div><span>Spots</span>
@@ -755,8 +814,11 @@
   </a>
 </nav>
 
+<!-- Toast global -->
+<div id="toast" class="toast"></div>
+
 <script>
-/* ===== Thème clair/sombre ===== */
+/* Thème */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -781,12 +843,11 @@
 </script>
 
 <script>
-/* ===== Supabase init ===== */
+/* Supabase + BG vidéo */
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-/* BG vidéo depuis Supabase storage */
 (function(){
   const v = document.getElementById('rslBg');
   if(!v) return;
@@ -794,7 +855,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
   s.type = "video/mp4";
   v.appendChild(s);
-  const play = () => {
+  const play = ()=>{
     try{
       v.playbackRate = 0.6;
       const p = v.play();
@@ -809,7 +870,89 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Auth info ===== */
+/* Toast + 1v1 notif */
+const toastDiv  = document.getElementById('toast');
+const badge1v1  = document.getElementById('badge1v1');
+const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+let unreadToastShown = false;
+
+function showToast(msg){
+  if(!toastDiv) return;
+  toastDiv.textContent = msg;
+  toastDiv.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
+}
+function playNotifSound(){
+  try{
+    notifAudio.currentTime = 0;
+    notifAudio.play().catch(()=>{});
+  }catch(e){}
+}
+function update1v1Badge(count){
+  if(!badge1v1) return;
+  if(count>0){
+    badge1v1.style.display = 'flex';
+    badge1v1.textContent = count>9 ? '9+' : String(count);
+  }else{
+    badge1v1.style.display = 'none';
+  }
+}
+async function checkPrivateUnread(me){
+  if(!me) return;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_unread_counts')
+      .select('unread_count')
+      .eq('user_id', me.id);
+
+    if(error){
+      console.error('unread error', error);
+      return;
+    }
+    const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
+    update1v1Badge(total);
+    if(total>0 && !unreadToastShown){
+      unreadToastShown = true;
+      const s = total>1 ? 's' : '';
+      showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`);
+      playNotifSound();
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+function subscribePrivateAlerts(me){
+  if(!me) return;
+  supa.channel('ridly_private_alert_'+me.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'ridly_private_messages'
+    }, async payload => {
+      const m = payload.new;
+      if(m.to_id !== me.id) return;
+
+      let senderName = 'Rider';
+      try{
+        const { data:p } = await supa
+          .from('profiles')
+          .select('pseudo,full_name')
+          .eq('id', m.from_id)
+          .maybeSingle();
+        if(p) senderName = p.pseudo || p.full_name || 'Rider';
+      }catch(e){}
+
+      playNotifSound();
+      showToast('Nouveau message privé de ' + senderName);
+      checkPrivateUnread(me);
+    })
+    .subscribe();
+}
+</script>
+
+<script>
+/* Auth + notifs 1v1 */
 let me = null;
 let displayName = null;
 const authState = document.getElementById('authState');
@@ -823,6 +966,9 @@ const authState = document.getElementById('authState');
       authState.textContent = `Connecté : ${displayName}`;
       const dot = document.getElementById('chatDot');
       if(dot) dot.style.opacity = 1;
+
+      await checkPrivateUnread(me);
+      subscribePrivateAlerts(me);
     }else{
       authState.textContent = `Pas connecté`;
       document.getElementById('formFeed').style.opacity=".4";
@@ -836,7 +982,7 @@ const authState = document.getElementById('authState');
 </script>
 
 <script>
-/* ===== Toggle mode (feed / story / reel) ===== */
+/* Mode feed/story/reel */
 const btnModeFeed  = document.getElementById('btnModeFeed');
 const btnModeStory = document.getElementById('btnModeStory');
 const btnModeReel  = document.getElementById('btnModeReel');
@@ -875,7 +1021,7 @@ else if(location.hash === '#reel'){ setMode('reel'); }
 </script>
 
 <script>
-/* ===== Form elements ===== */
+/* Form + upload helper */
 const fType      = document.getElementById('fType');
 const fSpotId    = document.getElementById('fSpotId');
 const fSpotType  = document.getElementById('fSpotType');
@@ -903,12 +1049,10 @@ const rSpotType  = document.getElementById('rSpotType');
 const btnPickSpotReel = document.getElementById('btnPickSpotReel');
 const chosenSpotLabelReel = document.getElementById('chosenSpotLabelReel');
 
-/* Labels fichiers */
 fFile.addEventListener('change',()=>{fFileLabel.textContent=fFile.files?.[0]?.name || "Ajouter une photo / vidéo";});
 sFile.addEventListener('change',()=>{sFileLabel.textContent=sFile.files?.[0]?.name || "Ajouter une story";});
 rFile.addEventListener('change',()=>{rFileLabel.textContent=rFile.files?.[0]?.name || "Ajouter un reel (vidéo)";});
 
-/* Helper upload */
 async function uploadToBucket(bucket, path, file){
   let { error } = await supa.storage.from(bucket).upload(path,file,{
     upsert:false,
@@ -930,7 +1074,7 @@ async function uploadToBucket(bucket, path, file){
 </script>
 
 <script>
-/* ===== Choix + création de spot via carte (feed + reel) ===== */
+/* Carte choix spot + ajout spot + recherche + auto ville/pays/adresse */
 const spotModal        = document.getElementById('chooseSpotModal');
 const spotModalBg      = document.querySelector('#chooseSpotModal .modal-bg');
 const spotPickerClose  = document.getElementById('spotPickerClose');
@@ -951,20 +1095,89 @@ const asMsg            = document.getElementById('asMsg');
 const asSaveBtn        = document.getElementById('asSave');
 const asCancelBtn      = document.getElementById('asCancel');
 
+const spotSearch    = document.getElementById('spotSearch');
+const spotSearchBtn = document.getElementById('spotSearchBtn');
+
 let spotMap = null;
 let spotMarkers = [];
-let currentSpotTarget = 'feed'; // "feed" ou "reel"
+let currentSpotTarget = 'feed';
+let addSpotMapInstance = null;
+let spotSearchMarker = null;
 
+function isLocalFileOrigin(){
+  return location.protocol === 'file:' || location.origin === 'null';
+}
+
+async function fillAddressFromLatLng(lat, lng){
+  if (isLocalFileOrigin()){
+    console.log('Géocodage désactivé en file:// (CORS).');
+    return;
+  }
+
+  try{
+    const url = 'https://nominatim.openstreetmap.org/reverse'
+      + '?format=json&lat=' + encodeURIComponent(lat)
+      + '&lon=' + encodeURIComponent(lng)
+      + '&zoom=18&addressdetails=1';
+
+    const res  = await fetch(url, { headers:{'Accept':'application/json'} });
+    const data = await res.json();
+    const addr = data.address || {};
+
+    const city =
+      addr.city ||
+      addr.town ||
+      addr.village ||
+      addr.hamlet ||
+      '';
+
+    if(city && !asVille.value){
+      asVille.value = city;
+    }
+
+    let countryCodeRaw = (addr.country_code || '').toUpperCase();
+    if(countryCodeRaw === 'GB') countryCodeRaw = 'UK';
+
+    if(countryCodeRaw){
+      const opts = Array.from(asCountry.options);
+      const found = opts.find(o => o.value === countryCodeRaw);
+      if(found){
+        asCountry.value = countryCodeRaw;
+      }
+    }
+
+    const countryName = addr.country || '';
+    let line = '';
+    if(addr.road)         line = addr.road;
+    if(addr.house_number) line = (line ? line + ' ' : '') + addr.house_number;
+
+    const descParts = [];
+    if(line)        descParts.push(line);
+    if(city)        descParts.push(city);
+    if(countryName) descParts.push(countryName);
+
+    if(descParts.length && !asDesc.value){
+      asDesc.value = descParts.join(', ');
+    }
+
+    asMsg.textContent = "Position mise à jour, adresse récupérée.";
+  }catch(e){
+    console.warn('Reverse geocode fail', e);
+    asMsg.textContent = "Position mise à jour.";
+  }
+}
+
+/* Ouverture modale choix spot */
 btnPickSpot.addEventListener('click', ()=>{
   currentSpotTarget = 'feed';
   spotModal.classList.add('show');
-  setTimeout(initSpotMap, 60);
+  setTimeout(()=>{ initSpotMap(); }, 80);
 });
 
 btnPickSpotReel.addEventListener('click', ()=>{
   currentSpotTarget = 'reel';
   spotModal.classList.add('show');
-  setTimeout(initSpotMap, 60);
+  setTimeout(()=>{ initSpotMap(); }, 80);
 });
 
 spotModalBg.addEventListener('click', ()=> spotModal.classList.remove('show'));
@@ -996,30 +1209,39 @@ function setChosenSpot(spot){
   spotModal.classList.remove('show');
 }
 
+/* Init carte "choisir un spot" */
 async function initSpotMap(){
+  const container = document.getElementById('chooseSpotMap');
+  if(!container) return;
+
   if(!spotMap){
-    spotMap = L.map('chooseSpotMap').setView([46.8, 8.2], 6);
+    spotMap = L.map(container).setView([46.8, 8.2], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
       maxZoom:19,
       attribution:'© OpenStreetMap'
     }).addTo(spotMap);
 
-    // clic sur la carte pour remplir lat/lng quand la modale "ajout spot" est ouverte
+    setTimeout(()=>{ spotMap.invalidateSize(); }, 50);
+
     spotMap.on('click', e=>{
       if(!addSpotModal.classList.contains('show')) return;
       const { lat, lng } = e.latlng;
       asLat.value = lat.toFixed(6);
       asLng.value = lng.toFixed(6);
-      asMsg.textContent = "Position mise à jour, tu peux enregistrer.";
+      asMsg.textContent = "Position mise à jour, récupération de l'adresse…";
+      fillAddressFromLatLng(lat, lng);
     });
 
     await loadSpotMarkers();
   }else{
-    spotMap.invalidateSize();
+    setTimeout(()=>{ spotMap.invalidateSize(); }, 50);
   }
 }
 
+/* Charge markers parks/street */
 async function loadSpotMarkers(){
+  if(!spotMap) return;
+
   spotMarkers.forEach(m=>spotMap.removeLayer(m));
   spotMarkers = [];
 
@@ -1066,6 +1288,60 @@ async function loadSpotMarkers(){
   }
 }
 
+/* Recherche dans la modale "Choisir un spot" */
+async function doSpotSearch(){
+  const q = (spotSearch.value || '').trim();
+  if(!q) return;
+
+  if (isLocalFileOrigin()){
+    alert("La recherche d’adresse ne peut pas fonctionner quand la page est ouverte directement en fichier.\nOuvre RIDLY via http://localhost ou en ligne pour tester cette fonction.");
+    return;
+  }
+
+  if(!spotMap){
+    await initSpotMap();
+  }
+  spotSearchBtn.disabled = true;
+  const oldLabel = spotSearchBtn.textContent;
+  spotSearchBtn.textContent = '…';
+
+  try{
+    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q='
+      + encodeURIComponent(q);
+    const res = await fetch(url, { headers:{'Accept':'application/json'} });
+    const data = await res.json();
+    if(!data || !data.length){
+      alert('Lieu introuvable.');
+      return;
+    }
+    const { lat, lon } = data[0];
+    const latNum = parseFloat(lat);
+    const lngNum = parseFloat(lon);
+
+    spotMap.setView([latNum, lngNum], 14);
+
+    if(spotSearchMarker){
+      spotMap.removeLayer(spotSearchMarker);
+    }
+    spotSearchMarker = L.marker([latNum, lngNum]).addTo(spotMap);
+  }catch(e){
+    console.error(e);
+    alert('Recherche impossible pour le moment.');
+  }finally{
+    spotSearchBtn.disabled = false;
+    spotSearchBtn.textContent = oldLabel;
+  }
+}
+
+spotSearchBtn.addEventListener('click', doSpotSearch);
+spotSearch.addEventListener('keydown', e=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    doSpotSearch();
+  }
+});
+
+/* Localiser */
 spotPickerLocate.addEventListener('click', ()=>{
   if(!navigator.geolocation){
     alert("Géolocalisation indisponible.");
@@ -1088,17 +1364,44 @@ spotPickerLocate.addEventListener('click', ()=>{
   });
 });
 
-/* ===== Ouverture / fermeture modale AJOUT SPOT ===== */
+/* Modale Ajouter un spot */
 spotPickerAdd.addEventListener('click', ()=>{
   addSpotModal.classList.add('show');
   asMsg.style.color = '#9ca3af';
-  asMsg.textContent = 'Clique la carte ou remplis les champs puis Enregistrer.';
+  asMsg.textContent = 'Clique la petite carte ou remplis les champs puis Enregistrer.';
+  setTimeout(()=>{ initAddSpotMap(); }, 80);
 });
 
 addSpotBg.addEventListener('click', ()=> addSpotModal.classList.remove('show'));
 asCancelBtn.addEventListener('click', ()=> addSpotModal.classList.remove('show'));
 
-/* ===== Enregistrer le nouveau spot ===== */
+/* Carte de la modale "Ajouter un spot" */
+function initAddSpotMap(){
+  const container = document.getElementById('addSpotMap');
+  if(!container) return;
+
+  if(!addSpotMapInstance){
+    addSpotMapInstance = L.map(container).setView([46.8, 8.2], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:19,
+      attribution:'© OpenStreetMap'
+    }).addTo(addSpotMapInstance);
+
+    setTimeout(()=>{ addSpotMapInstance.invalidateSize(); }, 50);
+
+    addSpotMapInstance.on('click', e=>{
+      const { lat, lng } = e.latlng;
+      asLat.value = lat.toFixed(6);
+      asLng.value = lng.toFixed(6);
+      asMsg.textContent = "Position mise à jour, récupération de l'adresse…";
+      fillAddressFromLatLng(lat, lng);
+    });
+  }else{
+    setTimeout(()=>{ addSpotMapInstance.invalidateSize(); }, 50);
+  }
+}
+
+/* Enregistrer le spot */
 asSaveBtn.addEventListener('click', async ()=>{
   asMsg.style.color = '#e5e7eb';
   asMsg.textContent = 'Envoi…';
@@ -1134,7 +1437,6 @@ asSaveBtn.addEventListener('click', async ()=>{
     asMsg.style.color = '#22c55e';
     asMsg.textContent = 'Spot ajouté ✅';
 
-    // recharger les markers et auto-sélectionner le nouveau spot
     await loadSpotMarkers();
 
     addSpotModal.classList.remove('show');
@@ -1154,7 +1456,7 @@ asSaveBtn.addEventListener('click', async ()=>{
 </script>
 
 <script>
-/* ===== Publier FEED ===== */
+/* Publier FEED */
 formFeed.addEventListener('submit',async e=>{
   e.preventDefault();
   feedMsg.textContent='';
@@ -1170,9 +1472,9 @@ formFeed.addEventListener('submit',async e=>{
     return;
   }
 
-  const baseType   = fType.value;             // park / street / other (select)
+  const baseType   = fType.value;
   const spotIdStr  = fSpotId.value;
-  const mapType    = fSpotType.value || null; // park / street si carte
+  const mapType    = fSpotType.value || null;
   const finalType  = mapType || baseType || null;
 
   const caption   = (fCaption.value||'').trim();
@@ -1185,7 +1487,7 @@ formFeed.addEventListener('submit',async e=>{
     const mediaUrl = await uploadToBucket('feed', path, file);
 
     const row={
-      spot_id:   spotIdStr || null,          // UUID ou null
+      spot_id:   spotIdStr || null,
       spot_type: finalType,
       user_id:   me.id,
       user_display: displayName||'Rider',
@@ -1211,7 +1513,7 @@ formFeed.addEventListener('submit',async e=>{
 </script>
 
 <script>
-/* ===== Publier STORY ===== */
+/* Publier STORY */
 formStory.addEventListener('submit',async e=>{
   e.preventDefault();
   storyMsg.textContent='';
@@ -1255,7 +1557,7 @@ formStory.addEventListener('submit',async e=>{
 </script>
 
 <script>
-/* ===== Publier REEL ===== */
+/* Publier REEL */
 formReel.addEventListener('submit',async e=>{
   e.preventDefault();
   reelMsg.textContent='';
@@ -1316,7 +1618,11 @@ formReel.addEventListener('submit',async e=>{
 </script>
 
 <script>
-  if ('serviceWorker' in navigator) {
+  // Service worker uniquement en https ou sur localhost
+  if (
+    'serviceWorker' in navigator &&
+    (location.protocol === 'https:' || location.hostname === 'localhost')
+  ) {
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
   }
 </script>

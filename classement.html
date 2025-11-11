@@ -100,7 +100,7 @@
       z-index:1;
     }
 
-    /* ===== TOP NAV (comme feed) ===== */
+    /* ===== TOP NAV ===== */
     nav.nav{
       position:sticky;
       top:0;
@@ -177,8 +177,9 @@
       background:rgba(15,23,42,.9);
       color:var(--text);
       border-radius:999px;
-      width:32px;
+      min-width:32px;
       height:32px;
+      padding:0 10px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -186,6 +187,7 @@
       text-decoration:none;
       position:relative;
       cursor:pointer;
+      gap:4px;
     }
     body.theme-light .icon-btn{
       background:#e5e7eb;
@@ -205,6 +207,24 @@
       background:#22c55e;
       box-shadow:0 0 8px rgba(34,197,94,.8);
       opacity:0;
+    }
+    /* Badge 1v1 (même que ajouter.html) */
+    .badge{
+      position:absolute;
+      top:-3px;
+      right:-3px;
+      min-width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#ef4444;
+      color:#f9fafb;
+      font-size:10px;
+      font-weight:800;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:0 4px;
+      box-shadow:0 0 8px rgba(0,0,0,.6);
     }
 
     /* ===== MAIN ===== */
@@ -369,7 +389,33 @@
       text-align:center;
     }
 
-    /* ===== TABBAR (comme feed) ===== */
+    /* ===== TOAST (notif 1v1) ===== */
+    .toast{
+      position:fixed;
+      left:50%;
+      top:60px;
+      transform:translateX(-50%);
+      background:rgba(15,23,42,.97);
+      color:#f9fafb;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 10px 30px rgba(0,0,0,.6);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s, transform .2s;
+      z-index:60;
+      max-width:90%;
+      text-align:center;
+      white-space:normal;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(4px);
+    }
+
+    /* ===== TABBAR ===== */
     .tabbar{
       position:fixed;
       left:0;
@@ -448,6 +494,14 @@
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+
+        <!-- Bouton 1v1 EXACTEMENT comme ajouter.html -->
+        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
+          💌
+          <span class="badge" id="badge1v1"></span>
+        </a>
+
+        <!-- Chat global -->
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
           <span class="chat-dot" id="chatDot"></span>
           💬
@@ -480,7 +534,10 @@
 
 </div>
 
-<!-- TABBAR (même ordre que feed/games) -->
+<!-- Toast notif 1v1 -->
+<div id="toast" class="toast"></div>
+
+<!-- TABBAR (même ordre que le reste) -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
     <div class="ic">📍</div><span>Spots</span>
@@ -502,7 +559,7 @@
   </a>
 </nav>
 
-<!-- THEME clair / sombre (même logique que feed/games) -->
+<!-- THEME clair / sombre -->
 <script>
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
@@ -534,7 +591,7 @@ const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-/* BG vidéo RIDLY (comme feed/games) */
+/* BG vidéo RIDLY */
 (function(){
   const v = document.getElementById('rslBg');
   if(!v) return;
@@ -549,12 +606,93 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
+/* ===== Toast + notifs 1v1 (même logique que ajouter.html) ===== */
+const toastDiv  = document.getElementById('toast');
+const badge1v1  = document.getElementById('badge1v1');
+const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+let unreadToastShown = false;
+let me = null;
+
+function showToast(msg){
+  if(!toastDiv) return;
+  toastDiv.textContent = msg;
+  toastDiv.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
+}
+function playNotifSound(){
+  try{
+    notifAudio.currentTime = 0;
+    notifAudio.play().catch(()=>{});
+  }catch(e){}
+}
+function update1v1Badge(count){
+  if(!badge1v1) return;
+  if(count>0){
+    badge1v1.style.display = 'flex';
+    badge1v1.textContent = count>9 ? '9+' : String(count);
+  }else{
+    badge1v1.style.display = 'none';
+  }
+}
+async function checkPrivateUnread(){
+  if(!me) return;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_unread_counts')
+      .select('unread_count')
+      .eq('user_id', me.id);
+
+    if(error){
+      console.error('unread error', error);
+      return;
+    }
+    const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
+    update1v1Badge(total);
+    if(total>0 && !unreadToastShown){
+      unreadToastShown = true;
+      const s = total>1 ? 's' : '';
+      showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`);
+      playNotifSound();
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+function subscribePrivateAlerts(){
+  if(!me) return;
+  supa.channel('ridly_private_alert_'+me.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'ridly_private_messages'
+    }, async payload => {
+      const m = payload.new;
+      if(m.to_id !== me.id) return;
+
+      let senderName = 'Rider';
+      try{
+        const { data:p } = await supa
+          .from('profiles')
+          .select('pseudo,full_name')
+          .eq('id', m.from_id)
+          .maybeSingle();
+        if(p) senderName = p.pseudo || p.full_name || 'Rider';
+      }catch(e){}
+
+      playNotifSound();
+      showToast('Nouveau message privé de ' + senderName);
+      checkPrivateUnread();
+    })
+    .subscribe();
+}
+</script>
+
+<script>
 /* ===== Classement Game of Scoot ===== */
 const board     = document.getElementById('leaderboard');
 const btnReload = document.getElementById('btnReload');
 const chatDot   = document.getElementById('chatDot');
-
-if(chatDot) chatDot.style.opacity = 1;
 
 async function loadClassement(){
   board.innerHTML = '<div class="loading">Chargement du classement...</div>';
@@ -580,11 +718,12 @@ async function loadClassement(){
 
     const mapUsers = {};
     (users||[]).forEach(u => {
-      const label =
+      let label =
         u.pseudo ||
         u.full_name ||
         u.email ||
-        ('Rider ' + u.id.slice(0,6));
+        ('Rider ' + (u.id || '').slice(0,6));
+      if(label && label.includes('@')) label = 'Rider';
       mapUsers[u.id] = label;
     });
 
@@ -601,7 +740,7 @@ async function loadClassement(){
       const losses = d.losses || 0;
       const total  = wins + losses;
       const ratio  = total ? (wins / total * 100).toFixed(1) + '%' : '-';
-      const name   = mapUsers[d.user_id] || 'Rider inconnu';
+      const name   = mapUsers[d.user_id] || 'Rider';
       const profileUrl = 'profil_ou_rider.html?id=' + encodeURIComponent(d.user_id);
 
       html += `
@@ -629,7 +768,25 @@ btnReload.addEventListener('click', e => {
   loadClassement();
 });
 
-loadClassement();
+/* init page : auth + notifs + classement */
+(async function initPage(){
+  try{
+    const { data:{ user } } = await supa.auth.getUser();
+    me = user || null;
+    if(me){
+      if(chatDot) chatDot.style.opacity = 1;
+      await checkPrivateUnread();
+      subscribePrivateAlerts();
+    }else{
+      update1v1Badge(0);
+    }
+  }catch(e){
+    console.error(e);
+    update1v1Badge(0);
+  }
+
+  loadClassement();
+})();
 </script>
 
 <script>

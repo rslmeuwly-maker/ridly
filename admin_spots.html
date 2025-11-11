@@ -43,7 +43,7 @@
 
     .wrap{max-width:1200px;margin:14px auto 28px;padding:0 18px}
 
-    /* Tabs haut : Spots / Posts IG */
+    /* Tabs haut : Spots / Posts IG / Messages */
     .top-tabs{
       display:flex;
       gap:8px;
@@ -222,10 +222,11 @@
 
 <div class="wrap">
 
-  <!-- TABS HAUT : Spots / Posts IG -->
+  <!-- TABS HAUT : Spots / Posts IG / Messages -->
   <div class="top-tabs">
     <button id="tabMainSpots" class="active">Spots</button>
     <button id="tabMainPosts">Posts → Instagram</button>
+    <button id="tabMainMessages">Messages privés</button>
   </div>
 
   <!-- SECTION SPOTS -->
@@ -287,6 +288,34 @@
     <div id="globalMsg" class="msg-global"></div>
   </section>
 
+  <!-- SECTION MESSAGES PRIVÉS -->
+  <section class="section-card hidden" id="messagesSection">
+    <h2 class="sec-title">Messages privés (chat)</h2>
+    <p class="sec-sub">
+      Contrôle des messages 1v1 (table <b>ridly_private_messages</b>) : texte, photos, vidéos, vocaux.
+    </p>
+
+    <div class="filters">
+      <input id="msgQ" class="input" placeholder="Filtre texte (contenu, pseudo)…"/>
+      <select id="msgTypeSel" class="input">
+        <option value="">Type (tous)</option>
+        <option value="text">Texte</option>
+        <option value="voice">Vocal</option>
+        <option value="image">Photo</option>
+        <option value="video">Vidéo</option>
+      </select>
+      <select id="msgStatusSel" class="input">
+        <option value="">Statut modération</option>
+        <option value="reported">Signalés</option>
+        <option value="unchecked">Non contrôlés</option>
+      </select>
+      <button id="msgRefresh" class="btn">Rafraîchir</button>
+    </div>
+
+    <div id="messagesTableWrap"></div>
+    <div id="msgGlobal" class="msg-global"></div>
+  </section>
+
 </div>
 
 <script>
@@ -300,13 +329,15 @@ const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 /* ========= Elements communs ========= */
-const adminWho      = document.getElementById('adminWho');
-const igStatus      = document.getElementById('igStatus');
-const globalMsg     = document.getElementById('globalMsg');
-const tabMainSpots  = document.getElementById('tabMainSpots');
-const tabMainPosts  = document.getElementById('tabMainPosts');
-const spotsSection  = document.getElementById('spotsSection');
-const postsSection  = document.getElementById('postsSection');
+const adminWho        = document.getElementById('adminWho');
+const igStatus        = document.getElementById('igStatus');
+const globalMsg       = document.getElementById('globalMsg');
+const tabMainSpots    = document.getElementById('tabMainSpots');
+const tabMainPosts    = document.getElementById('tabMainPosts');
+const tabMainMessages = document.getElementById('tabMainMessages');
+const spotsSection    = document.getElementById('spotsSection');
+const postsSection    = document.getElementById('postsSection');
+const messagesSection = document.getElementById('messagesSection');
 
 let me = null;
 
@@ -314,20 +345,38 @@ let me = null;
 function isVideoUrl(url){
   return /\.(mp4|mov|m4v|avi|webm)$/i.test(url || '');
 }
+function escapeHTML(str){
+  return (str || '').replace(/[&<>"']/g, m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+  }[m]));
+}
 
-/* ========= Switch onglets haut : Spots / Posts ========= */
+/* ========= Switch onglets haut : Spots / Posts / Messages ========= */
 tabMainSpots.addEventListener('click', ()=>{
   tabMainSpots.classList.add('active');
   tabMainPosts.classList.remove('active');
+  tabMainMessages.classList.remove('active');
   spotsSection.classList.remove('hidden');
   postsSection.classList.add('hidden');
+  messagesSection.classList.add('hidden');
 });
 
 tabMainPosts.addEventListener('click', ()=>{
   tabMainPosts.classList.add('active');
   tabMainSpots.classList.remove('active');
+  tabMainMessages.classList.remove('active');
   postsSection.classList.remove('hidden');
   spotsSection.classList.add('hidden');
+  messagesSection.classList.add('hidden');
+});
+
+tabMainMessages.addEventListener('click', ()=>{
+  tabMainMessages.classList.add('active');
+  tabMainSpots.classList.remove('active');
+  tabMainPosts.classList.remove('active');
+  messagesSection.classList.remove('hidden');
+  spotsSection.classList.add('hidden');
+  postsSection.classList.add('hidden');
 });
 
 /* ========= AUTH ADMIN ========= */
@@ -338,6 +387,7 @@ async function mustBeAdmin(){
     me = { id:"local-admin" };
     await loadSpots();
     await loadPosts();
+    await loadAdminMessages();
     await checkIGToken();
     return;
   }
@@ -364,6 +414,7 @@ async function mustBeAdmin(){
 
   await loadSpots();
   await loadPosts();
+  await loadAdminMessages();
   await checkIGToken();
 }
 
@@ -605,9 +656,9 @@ function postRowHtml(r){
         <div class="small">${created}</div>
       </td>
       <td>
-        <div style="font-weight:700;font-size:13px">${r.caption || '(sans légende)'}</div>
-        <div class="small">${spotTxt}</div>
-        <div class="small">${r.user_display || ''}</div>
+        <div style="font-weight:700;font-size:13px">${escapeHTML(r.caption || '(sans légende)')}</div>
+        <div class="small">${escapeHTML(spotTxt)}</div>
+        <div class="small">${escapeHTML(r.user_display || '')}</div>
       </td>
       <td>
         <div class="row-flex">
@@ -615,7 +666,8 @@ function postRowHtml(r){
             ? `<button class="btn" data-act="repost">Reposter IG</button>`
             : `<button class="btn green" data-act="post">Poster sur IG</button>`
           }
-          <button class="btn red" data-act="mark">Marquer comme posté (sans IG)</button>
+          <button class="btn" data-act="mark">Marquer comme posté (sans IG)</button>
+          <button class="btn red" data-act="delete">Supprimer</button>
         </div>
       </td>
     </tr>
@@ -685,6 +737,19 @@ async function handlePostAction(btn){
       return;
     }
     const { error } = await supa.from('spot_posts').update({ posted_to_ig:true }).eq('id',id);
+    if(error){
+      alert("Erreur Supabase : " + error.message);
+      return;
+    }
+    await loadPosts();
+    return;
+  }
+
+  if(act === 'delete'){
+    if(!confirm("Supprimer définitivement ce post ?")){
+      return;
+    }
+    const { error } = await supa.from('spot_posts').delete().eq('id',id);
     if(error){
       alert("Erreur Supabase : " + error.message);
       return;
@@ -780,6 +845,248 @@ async function publishPostToIG(id, btn){
   }finally{
     btn.disabled = false;
     btn.textContent = oldLabel;
+  }
+}
+
+/* ===========================================================
+   PARTIE 3 : MESSAGES PRIVÉS (ridly_private_messages)
+   =========================================================== */
+
+const msgQ             = document.getElementById('msgQ');
+const msgTypeSel       = document.getElementById('msgTypeSel');
+const msgStatusSel     = document.getElementById('msgStatusSel');
+const msgRefreshBtn    = document.getElementById('msgRefresh');
+const messagesTableWrap= document.getElementById('messagesTableWrap');
+const msgGlobal        = document.getElementById('msgGlobal');
+
+msgRefreshBtn.addEventListener('click', loadAdminMessages);
+msgQ.addEventListener('input', ()=>{
+  clearTimeout(window._msgTimer);
+  window._msgTimer = setTimeout(loadAdminMessages,250);
+});
+msgTypeSel.addEventListener('change', loadAdminMessages);
+msgStatusSel.addEventListener('change', loadAdminMessages);
+
+function getMsgTypeFromContent(content){
+  const c = content || "";
+  if(c.startsWith('VOICE:')) return 'voice';
+  if(c.startsWith('IMG:'))   return 'image';
+  if(c.startsWith('VID:'))   return 'video';
+  return 'text';
+}
+
+function msgRowHtml(m, fromName, toName){
+  const created = m.created_at ? new Date(m.created_at).toLocaleString('fr-CH') : '';
+  const c = m.content || "";
+  const type = getMsgTypeFromContent(c);
+
+  let typeLabel = 'Texte';
+  if(type === 'voice') typeLabel = 'Vocal';
+  if(type === 'image') typeLabel = 'Photo';
+  if(type === 'video') typeLabel = 'Vidéo';
+
+  let preview = c;
+  let mediaHtml = '';
+
+  if(type === 'voice'){
+    const url = c.slice(6);
+    preview = '[Vocal]';
+    mediaHtml = `<audio src="${escapeHTML(url)}" controls style="max-width:160px;"></audio>`;
+  }else if(type === 'image'){
+    const url = c.slice(4);
+    preview = '[Photo]';
+    mediaHtml = `<img src="${escapeHTML(url)}" class="media-thumb" onerror="this.style.display='none'">`;
+  }else if(type === 'video'){
+    const rest = c.slice(4);
+    const parts = rest.split('|');
+    const url = parts[0];
+    preview = '[Vidéo]';
+    mediaHtml = `<video src="${escapeHTML(url)}" class="media-thumb" muted playsinline onerror="this.style.display='none'"></video>`;
+  }else{
+    preview = c.slice(0,120);
+  }
+
+  const isRep = !!m.is_reported;
+  const isChecked = !!m.admin_checked;
+  let tagClass = 'pending';
+  let tagLabel = 'Normal';
+
+  if(isRep){
+    tagClass = 'rejected';
+    tagLabel = 'Signalé';
+  }else if(isChecked){
+    tagClass = 'approved';
+    tagLabel = 'Contrôlé';
+  }
+
+  return `
+    <tr data-id="${m.id}" data-is-reported="${isRep ? '1':'0'}" data-admin-checked="${isChecked ? '1':'0'}">
+      <td>
+        <span class="tag ${tagClass}">${tagLabel}</span>
+        <div class="small">${typeLabel}</div>
+      </td>
+      <td>
+        <div style="font-weight:700;font-size:13px">${escapeHTML(fromName)}</div>
+        <div class="small">${escapeHTML(m.from_id || '')}</div>
+      </td>
+      <td>
+        <div style="font-weight:700;font-size:13px">${escapeHTML(toName)}</div>
+        <div class="small">${escapeHTML(m.to_id || '')}</div>
+      </td>
+      <td>
+        <div style="font-size:13px;white-space:pre-wrap;max-width:260px;">${escapeHTML(preview)}</div>
+        ${mediaHtml ? `<div style="margin-top:6px;">${mediaHtml}</div>` : ''}
+        <div class="small">${created}</div>
+      </td>
+      <td>
+        <div class="row-flex">
+          <button class="btn" data-msg-act="markChecked">Contrôlé</button>
+          <button class="btn" data-msg-act="toggleReported">${isRep ? 'Enlever signalement' : 'Signaler'}</button>
+          <button class="btn red" data-msg-act="delete">Supprimer</button>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+async function loadAdminMessages(){
+  msgGlobal.textContent = "";
+  try{
+    let { data, error } = await supa
+      .from('ridly_private_messages')
+      .select('id,from_id,to_id,content,created_at,is_reported,admin_checked')
+      .order('created_at',{ascending:false})
+      .limit(500);
+
+    if(error){
+      messagesTableWrap.innerHTML = `<p style="color:#fca5a5">Erreur Supabase : ${error.message}</p>`;
+      return;
+    }
+
+    let rows = (data || []).map(m => ({
+      ...m,
+      _type: getMsgTypeFromContent(m.content)
+    }));
+
+    const statusFilter = msgStatusSel.value;
+    if(statusFilter === 'reported'){
+      rows = rows.filter(m => m.is_reported);
+    }else if(statusFilter === 'unchecked'){
+      rows = rows.filter(m => !m.admin_checked);
+    }
+
+    const typeFilter = msgTypeSel.value;
+    if(typeFilter){
+      rows = rows.filter(m => m._type === typeFilter);
+    }
+
+    const q = (msgQ.value || '').trim().toLowerCase();
+    if(q){
+      rows = rows.filter(m => (m.content || '').toLowerCase().includes(q));
+    }
+
+    if(!rows.length){
+      messagesTableWrap.innerHTML = `<p class="small">Aucun message trouvé.</p>`;
+      return;
+    }
+
+    const ids = Array.from(new Set(rows.flatMap(m => [m.from_id, m.to_id]).filter(Boolean)));
+    let profMap = new Map();
+    if(ids.length){
+      const { data:profiles, error:peErr } = await supa
+        .from('profiles')
+        .select('id,pseudo,full_name')
+        .in('id', ids);
+      if(!peErr){
+        (profiles||[]).forEach(p => {
+          profMap.set(p.id, p);
+        });
+      }
+    }
+
+    const bodyHtml = rows.map(m => {
+      const fromP = profMap.get(m.from_id);
+      const toP   = profMap.get(m.to_id);
+      const fromName = fromP?.pseudo || fromP?.full_name || (m.from_id || '').slice(0,8);
+      const toName   = toP?.pseudo   || toP?.full_name   || (m.to_id   || '').slice(0,8);
+      return msgRowHtml(m, fromName, toName);
+    }).join('');
+
+    messagesTableWrap.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Statut / Type</th>
+            <th>De</th>
+            <th>À</th>
+            <th>Contenu</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${bodyHtml}
+        </tbody>
+      </table>
+    `;
+
+    messagesTableWrap.querySelectorAll('button[data-msg-act]').forEach(btn=>{
+      btn.addEventListener('click', ()=> handleMsgAction(btn));
+    });
+
+  }catch(e){
+    console.error(e);
+    messagesTableWrap.innerHTML = `<p style="color:#fca5a5">Erreur : ${e.message || e}</p>`;
+  }
+}
+
+async function handleMsgAction(btn){
+  const act = btn.dataset.msgAct;
+  const tr  = btn.closest('tr');
+  const id  = tr.dataset.id;
+  if(!id) return;
+
+  if(act === 'delete'){
+    if(!confirm("Supprimer définitivement ce message (chat privé) ?")){
+      return;
+    }
+    const { error } = await supa
+      .from('ridly_private_messages')
+      .delete()
+      .eq('id', id);
+    if(error){
+      alert("Erreur Supabase : " + error.message);
+      return;
+    }
+    await loadAdminMessages();
+    return;
+  }
+
+  if(act === 'markChecked'){
+    const { error } = await supa
+      .from('ridly_private_messages')
+      .update({ admin_checked:true })
+      .eq('id', id);
+    if(error){
+      alert("Erreur Supabase : " + error.message);
+      return;
+    }
+    await loadAdminMessages();
+    return;
+  }
+
+  if(act === 'toggleReported'){
+    const current = tr.dataset.isReported === '1';
+    const newVal  = !current;
+    const { error } = await supa
+      .from('ridly_private_messages')
+      .update({ is_reported:newVal })
+      .eq('id', id);
+    if(error){
+      alert("Erreur Supabase : " + error.message);
+      return;
+    }
+    await loadAdminMessages();
+    return;
   }
 }
 

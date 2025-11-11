@@ -279,12 +279,13 @@
       color:rgba(148,163,184,.9);
     }
 
+    /* BOUTONS VERT FONCÉ */
     .btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      background:linear-gradient(180deg,var(--accent),#16a34a);
-      color:#022c16;
+      background:#065f46;
+      color:#ecfdf5;
       border:0;
       border-radius:10px;
       font-weight:800;
@@ -320,8 +321,10 @@
       color:#fda4af;
       font-weight:600;
     }
+    /* >>> ICI : phrase "Partie créée ! Donne ce code..." en VERT FONCÉ <<< */
     .small-info.success{
-      color:#bbf7d0;
+      color:#065f46;      /* vert foncé */
+      font-weight:700;    /* bien visible */
     }
 
     /* ===== SCOREBOARD ===== */
@@ -383,7 +386,7 @@
       font-size:11px;
       color:var(--text-dim);
       display:flex;
-      justify-content:space-between;
+      justify-content:flex-start;
       margin-top:6px;
       flex-wrap:wrap;
       gap:4px;
@@ -400,9 +403,9 @@
       white-space:nowrap;
     }
     .btn-sm.primary{
-      border-color:rgba(34,197,94,.8);
-      background:rgba(22,163,74,.25);
-      color:#bbf7d0;
+      border-color:#16a34a;
+      background:#065f46;
+      color:#ecfdf5;
     }
     .btn-sm:disabled{
       opacity:.45;
@@ -410,6 +413,35 @@
     }
     .btn-sm:active{
       transform:scale(.97);
+    }
+
+    /* ===== CODE DE PARTIE (BADGE) ===== */
+    .game-code-row{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      align-items:flex-start;
+    }
+    .game-code-label{
+      font-size:12px;
+      font-weight:600;
+      color:var(--text-dim);
+    }
+    .game-code-value{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:.3em;
+      padding:6px 14px;
+      border-radius:999px;
+      background:#065f46;
+      color:#ecfdf5;
+      border:1px solid #16a34a;
+      box-shadow:0 8px 20px rgba(6,95,70,.55);
+      min-width:170px;
     }
 
     /* ===== BOTTOM NAV ===== */
@@ -563,8 +595,13 @@
               <button id="btnP2Letter" class="btn-sm primary">P2 prend une lettre</button>
             </div>
 
+            <!-- Code de partie lisible -->
+            <div class="game-code-row">
+              <span class="game-code-label">Code de partie</span>
+              <span class="game-code-value" id="gameCodeValue">------</span>
+            </div>
+
             <div class="game-meta">
-              <span id="gameCodeLabel">Code : –</span>
               <span id="gameStatusLabel">Statut : –</span>
             </div>
 
@@ -673,34 +710,19 @@ const p1NameEl    = document.getElementById('p1Name');
 const p2NameEl    = document.getElementById('p2Name');
 const p1LettersEl = document.getElementById('p1Letters');
 const p2LettersEl = document.getElementById('p2Letters');
-const gameCodeLabel   = document.getElementById('gameCodeLabel');
+const gameCodeValue   = document.getElementById('gameCodeValue');
 const gameStatusLabel = document.getElementById('gameStatusLabel');
 const gameMsg     = document.getElementById('gameMsg');
 const trickInput  = document.getElementById('trickInput');
 const btnP1Letter = document.getElementById('btnP1Letter');
 const btnP2Letter = document.getElementById('btnP2Letter');
 
-let me = null;              // { id, pseudo }
-let currentGame = null;     // ligne scoot_games
+let me = null;
+let currentGame = null;
 let gameChannel = null;
 
 const LOCAL_KEY = "ridly_current_scoot_game_id";
 
-/* noms à afficher (toujours pseudos, jamais emails) */
-let p1DisplayName = "Rider";
-let p2DisplayName = "Adversaire en attente";
-
-function escapeHTML(s){
-  return (s||"").replace(/[&<>"']/g,m=>({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    "\"":"&quot;",
-    "'":"&#39;"
-  }[m]));
-}
-
-/* util pour les pseudos */
 function profileDisplayName(profile){
   let name = profile?.pseudo || profile?.full_name || "Rider";
   if(name && name.includes("@")) name = "Rider";
@@ -768,12 +790,7 @@ async function loadCurrentUser(){
 
   const pseudo = profileDisplayName(prof);
 
-  me = {
-    id: user.id,
-    pseudo
-  };
-
-  p1DisplayName = pseudo;
+  me = { id: user.id, pseudo };
 
   connectedAs.textContent = "Tu es connecté en tant que " + pseudo;
   gameLocked.style.display = "none";
@@ -785,7 +802,9 @@ async function loadCurrentUser(){
 async function refreshPlayerDisplayNames(){
   if(!currentGame) return;
 
-  // P1
+  let p1 = "Rider";
+  let p2 = "Adversaire en attente";
+
   if(currentGame.player1_id){
     try{
       const { data: prof1 } = await supa
@@ -793,15 +812,9 @@ async function refreshPlayerDisplayNames(){
         .select('pseudo,full_name')
         .eq('id', currentGame.player1_id)
         .maybeSingle();
-      p1DisplayName = profileDisplayName(prof1);
-    }catch(e){
-      console.warn("prof P1", e);
-    }
-  }else if(me && currentGame.player1_id === me.id){
-    p1DisplayName = me.pseudo;
+      p1 = profileDisplayName(prof1);
+    }catch(e){}
   }
-
-  // P2
   if(currentGame.player2_id){
     try{
       const { data: prof2 } = await supa
@@ -809,18 +822,17 @@ async function refreshPlayerDisplayNames(){
         .select('pseudo,full_name')
         .eq('id', currentGame.player2_id)
         .maybeSingle();
-      p2DisplayName = profileDisplayName(prof2);
-    }catch(e){
-      console.warn("prof P2", e);
-    }
-  }else{
-    p2DisplayName = "Adversaire en attente";
+      p2 = profileDisplayName(prof2);
+    }catch(e){}
   }
+
+  p1NameEl.textContent = p1;
+  p2NameEl.textContent = p2 || "Adversaire en attente";
 
   updateGameUI();
 }
 
-/* Charger une game existante depuis localStorage ou Supabase */
+/* Charger une game existante */
 async function loadExistingGame(){
   if(!me) return;
 
@@ -870,25 +882,22 @@ function updateGameUI(){
     noGameBox.style.display      = "block";
     currentGameBox.style.display = "none";
     setGameMsg("");
+    gameCodeValue.textContent = "------";
     return;
   }
 
   noGameBox.style.display      = "none";
   currentGameBox.style.display = "block";
 
-  p1NameEl.textContent = p1DisplayName || "Rider";
-  p2NameEl.textContent = p2DisplayName || "Adversaire en attente";
-
   renderLetters(p1LettersEl, currentGame.letters_p1 || "");
   renderLetters(p2LettersEl, currentGame.letters_p2 || "");
 
-  gameCodeLabel.textContent   = "Code : " + (currentGame.code || "–");
+  gameCodeValue.textContent   = currentGame.code || "------";
   gameStatusLabel.textContent = "Statut : " + (currentGame.status || "–");
 
   const isP1 = me && currentGame.player1_id === me.id;
   const isP2 = me && currentGame.player2_id === me.id;
 
-  // Sur ton téléphone tu peux seulement donner une lettre à ton adversaire
   btnP1Letter.disabled = !isP2 || isFinished(currentGame.letters_p1);
   btnP2Letter.disabled = !isP1 || isFinished(currentGame.letters_p2);
 
@@ -899,7 +908,7 @@ function updateGameUI(){
   }
 }
 
-/* Realtime sur la game */
+/* Realtime */
 function subscribeGameRealtime(gameId){
   if(gameChannel){
     supa.removeChannel(gameChannel);
@@ -936,7 +945,7 @@ async function createGame(){
       .insert({
         code,
         player1_id: me.id,
-        player1_name: me.pseudo,   // on stocke le pseudo, pas l'email
+        player1_name: me.pseudo,
         letters_p1: '',
         letters_p2: '',
         status: 'waiting',
@@ -946,24 +955,19 @@ async function createGame(){
       .single();
 
     if(error){
-      console.error(error);
-      alert("Erreur création partie");
+      console.error("Supabase create error:", error);
       setCreateMsg("Erreur lors de la création de la partie.", "error");
       return;
     }
 
-    currentGame    = data;
-    p1DisplayName  = me.pseudo;
-    p2DisplayName  = "Adversaire en attente";
-
+    currentGame = data;
     localStorage.setItem(LOCAL_KEY, data.id);
-    updateGameUI();
+    await refreshPlayerDisplayNames();
     subscribeGameRealtime(data.id);
 
     setCreateMsg("Partie créée ! Donne ce code à ton pote : " + code, "success");
   }catch(e){
     console.error(e);
-    alert("Erreur création partie");
     setCreateMsg("Erreur réseau.", "error");
   }finally{
     btnCreate.disabled = false;
@@ -998,7 +1002,6 @@ async function joinGame(){
       return;
     }
 
-    // Si un autre joueur est déjà P2 et que ce n'est pas moi -> refus
     if(game.player2_id && game.player2_id !== me.id){
       setJoinMsg("Cette partie est déjà complète.", "error");
       return;
@@ -1008,7 +1011,7 @@ async function joinGame(){
       .from('scoot_games')
       .update({
         player2_id: me.id,
-        player2_name: me.pseudo,   // pseudo uniquement
+        player2_name: me.pseudo,
         status: game.status === 'waiting' ? 'playing' : game.status
       })
       .eq('id', game.id)
@@ -1042,7 +1045,6 @@ async function addLetter(target){
   const isP1 = me.id === currentGame.player1_id;
   const isP2 = me.id === currentGame.player2_id;
 
-  // Sur chaque téléphone : on n'ajoute que des lettres à l'adversaire
   if(target === 'p1' && !isP2) return;
   if(target === 'p2' && !isP1) return;
 
@@ -1089,9 +1091,7 @@ async function addLetter(target){
       };
       try{
         await supa.from('scoot_rounds').insert(round);
-      }catch(e){
-        console.warn("Erreur enregistrement round (non bloquant)", e);
-      }
+      }catch(e){}
       trickInput.value = "";
     }
 
@@ -1121,8 +1121,9 @@ btnP2Letter.addEventListener('click', ()=>addLetter('p2'));
 </script>
 
 <script>
-  // Service worker (ignore l’erreur en local file://)
-  if ('serviceWorker' in navigator) {
+  // Service worker (évite l’erreur en file://)
+  if ('serviceWorker' in navigator &&
+      (location.protocol === 'http:' || location.protocol === 'https:')) {
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
   }
 </script>

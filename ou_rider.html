@@ -108,7 +108,7 @@
       z-index:1;
     }
 
-    /* ===== TOP NAV (style feed + bouton PWA) ===== */
+    /* ===== TOP NAV (style feed + bouton PWA + 1v1) ===== */
     nav.nav{
       position:sticky;
       top:0;
@@ -223,6 +223,50 @@
       background:#22c55e;
       box-shadow:0 0 8px rgba(34,197,94,.8);
       opacity:0;
+    }
+
+    .badge{
+      position:absolute;
+      top:-3px;
+      right:-3px;
+      min-width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#ef4444;
+      color:#f9fafb;
+      font-size:10px;
+      font-weight:800;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:0 4px;
+      box-shadow:0 0 8px rgba(0,0,0,.6);
+    }
+
+    /* Toast pour notifs 1v1 */
+    .toast{
+      position:fixed;
+      left:50%;
+      top:60px;
+      transform:translateX(-50%);
+      background:rgba(15,23,42,.97);
+      color:#f9fafb;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 10px 30px rgba(0,0,0,.6);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s, transform .2s;
+      z-index:60;
+      max-width:90%;
+      text-align:center;
+      white-space:normal;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(4px);
     }
 
     /* ===== MAIN ===== */
@@ -534,7 +578,7 @@
 
 <div class="page-wrap">
 
-  <!-- NAV TOP (style feed + PWA) -->
+  <!-- NAV TOP -->
   <nav class="nav">
     <div class="row">
       <div class="nav-left">
@@ -550,9 +594,19 @@
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">
           🌙
         </button>
+
+        <!-- Bouton PWA conservé -->
         <button type="button" class="icon-btn" id="btnPwa" title="Installer l'app RIDLY">
           📲 <span class="label">App</span>
         </button>
+
+        <!-- Bouton 1v1 -->
+        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
+          💌
+          <span class="badge" id="badge1v1"></span>
+        </a>
+
+        <!-- Chat global -->
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
           <span class="chat-dot" id="chatDot"></span>
           💬
@@ -818,6 +872,9 @@
   </a>
 </nav>
 
+<!-- Toast global -->
+<div id="toast" class="toast"></div>
+
 <script>
 /* ===== Thème clair/sombre (même logique que feed) ===== */
 (function(){
@@ -850,20 +907,134 @@ const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentUser = null;
+</script>
 
-(async function(){
+<script>
+/* ===== Toast + notifs 1v1 ===== */
+const toastDiv   = document.getElementById('toast');
+const badge1v1   = document.getElementById('badge1v1');
+const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+let unreadToastShown = false;
+
+function showToast(msg){
+  if(!toastDiv) return;
+  toastDiv.textContent = msg;
+  toastDiv.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
+}
+function playNotifSound(){
   try{
-    const { data:{ user } } = await supa.auth.getUser();
-    if(!user){
-      window.location.href = 'index.html';
+    notifAudio.currentTime = 0;
+    notifAudio.play().catch(()=>{});
+  }catch(e){}
+}
+function update1v1Badge(count){
+  if(!badge1v1) return;
+  if(count>0){
+    badge1v1.style.display = 'flex';
+    badge1v1.textContent = count>9 ? '9+' : String(count);
+  }else{
+    badge1v1.style.display = 'none';
+  }
+}
+async function checkPrivateUnread(me){
+  if(!me) return;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_unread_counts')
+      .select('unread_count')
+      .eq('user_id', me.id);
+
+    if(error){
+      console.error('unread error', error);
       return;
     }
-    currentUser = user;
-    const dot = document.getElementById('chatDot');
-    if(dot) dot.style.opacity = 1;
+    const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
+    update1v1Badge(total);
+    if(total>0 && !unreadToastShown){
+      unreadToastShown = true;
+      const s = total>1 ? 's' : '';
+      showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`);
+      playNotifSound();
+    }
   }catch(e){
     console.error(e);
-    window.location.href = 'index.html';
+  }
+}
+function subscribePrivateAlerts(me){
+  if(!me) return;
+  supa.channel('ridly_private_alert_'+me.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'ridly_private_messages'
+    }, async payload => {
+      const m = payload.new;
+      if(m.to_id !== me.id) return;
+
+      let senderName = 'Rider';
+      try{
+        const { data:p } = await supa
+          .from('profiles')
+          .select('pseudo,full_name')
+          .eq('id', m.from_id)
+          .maybeSingle();
+        if(p) senderName = p.pseudo || p.full_name || 'Rider';
+      }catch(e){}
+
+      playNotifSound();
+      showToast('Nouveau message privé de ' + senderName);
+      checkPrivateUnread(me);
+    })
+    .subscribe();
+}
+</script>
+
+<script>
+/* ===== Auth : redirection + chatDot + notifs 1v1 ===== */
+const chatDot = document.getElementById('chatDot');
+
+(async function(){
+  // On regarde si on revient de Google avec une erreur OAuth
+  const params = new URLSearchParams(window.location.search);
+  const oauthError = params.get('error');
+  const oauthCode  = params.get('error_code');
+
+  if (oauthError) {
+    console.warn("OAuth error:", oauthError, oauthCode);
+    // Message simple pour l'utilisateur
+    alert("Erreur lors de la connexion Google. Tu peux réessayer depuis la page de connexion.");
+    // Nettoie l'URL (enlève ?error=...) pour éviter la boucle si on recharge
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
+  try{
+    const { data:{ user } } = await supa.auth.getUser();
+
+    if(!user){
+      // Cas normal : pas connecté, on envoie vers index.html
+      // MAIS si on vient avec une erreur OAuth, on évite la boucle
+      if (!oauthError) {
+        window.location.href = 'index.html';
+      }
+      return;
+    }
+
+    currentUser = user;
+    if(chatDot) chatDot.style.opacity = 1;
+
+    await checkPrivateUnread(user);
+    subscribePrivateAlerts(user);
+  }catch(e){
+    console.error(e);
+    // Si pas d'erreur OAuth connue, on renvoie au login
+    const p2 = new URLSearchParams(window.location.search);
+    if (!p2.get('error')) {
+      window.location.href = 'index.html';
+    }
   }
 })();
 </script>
@@ -1259,7 +1430,7 @@ function updateAsSaveState(){
   });
 });
 
-/* === NOUVELLE VERSION : remplir ville + pays automatiquement depuis lat/lng (BigDataCloud) === */
+/* Auto ville + pays depuis lat/lng */
 async function autoFillCityCountry(lat, lng){
   if(!lat || !lng) return;
   try{
@@ -1285,7 +1456,7 @@ async function autoFillCityCountry(lat, lng){
 
     if(countryCode && asCountry){
       let code = countryCode;
-      if(code === 'GB') code = 'UK'; // adapter à ta liste
+      if(code === 'GB') code = 'UK';
       const opt = Array.from(asCountry.options).find(o => o.value === code);
       if(opt){
         asCountry.value = code;
@@ -1306,7 +1477,7 @@ map.on('click',e=>{
   asLat.value = lat.toFixed(6);
   asLng.value = lng.toFixed(6);
   updateAsSaveState();
-  autoFillCityCountry(lat, lng); // auto ville + pays
+  autoFillCityCountry(lat, lng);
 });
 
 /* Petite carte pour choisir lat/lng + recherche */
@@ -1337,7 +1508,7 @@ btnPickLatLng.addEventListener('click', ()=>{
         asLat.value = lat.toFixed(6);
         asLng.value = lng.toFixed(6);
         updateAsSaveState();
-        autoFillCityCountry(lat, lng); // auto ville + pays
+        autoFillCityCountry(lat, lng);
       });
     }else{
       pickMap.invalidateSize();
@@ -1375,7 +1546,7 @@ async function doPickSearch(){
     asLat.value = latNum.toFixed(6);
     asLng.value = lngNum.toFixed(6);
     updateAsSaveState();
-    autoFillCityCountry(latNum, lngNum); // auto ville + pays
+    autoFillCityCountry(latNum, lngNum);
   }catch(e){
     console.error(e);
     alert("Recherche impossible pour l'instant.");

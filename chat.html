@@ -100,7 +100,7 @@
       z-index:1;
     }
 
-    /* ===== TOP NAV (comme FEED) ===== */
+    /* ===== TOP NAV ===== */
     nav.nav{
       position:sticky;
       top:0;
@@ -196,6 +196,33 @@
       color:var(--accent);
     }
 
+    .nav-msg-ic{
+      width:18px;
+      height:18px;
+      display:block;
+      filter:drop-shadow(0 0 4px rgba(0,0,0,.6));
+    }
+
+    .nav-badge{
+      position:absolute;
+      top:2px;
+      right:2px;
+      min-width:14px;
+      height:14px;
+      padding:0 3px;
+      border-radius:999px;
+      background:#ef4444;
+      color:#fff;
+      font-size:9px;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 0 0 1px rgba(15,23,42,.9);
+    }
+    .nav-badge.show{
+      display:flex;
+    }
+
     /* ===== MAIN ===== */
     .main{
       flex:1;
@@ -251,18 +278,24 @@
       padding:8px;
       overflow-y:auto;
       font-size:13px;
+      display:flex;
+      flex-direction:column;
     }
     body.theme-light .chat-messages{
       background:#f9fafb;
     }
 
-    /* ligne message + avatar */
+    /* ===== LIGNE MESSAGE ===== */
     .msg-row{
       display:flex;
       gap:8px;
       align-items:flex-start;
       margin-bottom:6px;
     }
+    .msg-row.me{
+      flex-direction:row-reverse;
+    }
+
     .msg-avatar{
       width:32px;
       height:32px;
@@ -291,12 +324,36 @@
     .msg{
       padding:6px 8px;
       border-radius:10px;
-      margin-bottom:0; /* géré par .msg-row */
-      background:rgba(15,23,42,1);
+      margin-bottom:0;
       flex:1;
+      background:rgba(15,23,42,1);
+      color:var(--text);
     }
     body.theme-light .msg{
       background:#e5e7eb;
+      color:#111827;
+    }
+
+    /* moi = vert dégradé style WhatsApp */
+    .msg-row.me .msg{
+      background:linear-gradient(135deg,#34d399,#67e8f9);
+      color:#022c16;
+    }
+    body.theme-light .msg-row.me .msg{
+      background:linear-gradient(135deg,#6ee7b7,#a5f3fc);
+      color:#022c16;
+    }
+
+    /* message qui mentionne mon pseudo => bleu chez moi */
+    .msg-row.mention-me:not(.me) .msg{
+      border:1px solid #3b82f6;
+      box-shadow:0 0 0 1px rgba(59,130,246,.5);
+      background:rgba(59,130,246,.20);
+      color:#e5f0ff;
+    }
+    body.theme-light .msg-row.mention-me:not(.me) .msg{
+      background:rgba(59,130,246,.18);
+      color:#1e3a8a;
     }
 
     .msg-header{
@@ -327,10 +384,44 @@
       word-wrap:break-word;
     }
 
+    /* ===== ROUE J'AIME ===== */
+    .msg-footer{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:4px;
+    }
+    .like-wheel{
+      border:none;
+      background:transparent;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      font-size:12px;
+      color:var(--text-dim);
+      cursor:pointer;
+      padding:2px 6px;
+      border-radius:999px;
+    }
+    .like-wheel.hidden{
+      display:none;
+    }
+    .like-wheel .wheel-icon{
+      font-size:14px;
+    }
+    .like-wheel.liked{
+      color:#eab308;
+      background:rgba(234,179,8,.1);
+    }
+    .like-wheel.liked .wheel-icon{
+      text-shadow:0 0 6px rgba(250,204,21,.85);
+    }
+
+    /* ===== INPUT / BOUTONS ===== */
     .chat-input-row{
       display:flex;
       gap:8px;
       align-items:flex-end;
+      position:relative; /* pour la liste @mention */
     }
     .chat-input{
       flex:1;
@@ -369,6 +460,26 @@
       box-shadow:none;
     }
 
+    .btn-media{
+      width:40px;
+      height:40px;
+      border-radius:10px;
+      border:0;
+      background:#0f172a;
+      color:#e5e7eb;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      box-shadow:0 4px 10px rgba(0,0,0,.45);
+      cursor:pointer;
+      flex-shrink:0;
+    }
+    body.theme-light .btn-media{
+      background:#e5e7eb;
+      color:#111827;
+    }
+
     .chat-info{
       font-size:11px;
       color:var(--text-dim);
@@ -381,7 +492,100 @@
       color:#fda4af;
     }
 
-    /* ===== BOTTOM NAV (comme FEED) ===== */
+    /* ===== IMAGE MINI + MODALE ===== */
+    .media-thumb{
+      width:120px;
+      height:120px;
+      border-radius:14px;
+      overflow:hidden;
+      position:relative;
+      background:#020617;
+      cursor:pointer;
+      margin-top:4px;
+    }
+    .media-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .img-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.85);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:40;
+    }
+    .img-modal-inner{
+      max-width:92%;
+      max-height:92%;
+      border-radius:18px;
+      box-shadow:0 18px 45px rgba(0,0,0,.8);
+    }
+
+    /* ===== LISTE @MENTION ===== */
+    .mention-list{
+      position:absolute;
+      left:0;
+      right:80px;
+      bottom:48px;
+      background:var(--bg-soft);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:4px;
+      font-size:13px;
+      max-height:160px;
+      overflow-y:auto;
+      display:none;
+      z-index:5;
+    }
+    .mention-item{
+      padding:4px 8px;
+      border-radius:8px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .mention-item span{
+      font-weight:600;
+    }
+    .mention-item:hover,
+    .mention-item.active{
+      background:var(--accent-soft);
+      color:var(--accent);
+    }
+
+    /* ===== TOAST (1v1) ===== */
+    .toast{
+      position:fixed;
+      top:16px;
+      left:50%;
+      transform:translate(-50%,-10px);
+      background:rgba(15,23,42,.95);
+      color:#f9fafb;
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:13px;
+      box-shadow:0 10px 25px rgba(0,0,0,.45);
+      z-index:50;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease, transform .2s ease;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translate(-50%,0);
+      pointer-events:auto;
+    }
+    .toast:hover{
+      cursor:pointer;
+    }
+
+    /* ===== TABBAR ===== */
     .tabbar{
       position:fixed;
       left:0;
@@ -437,7 +641,7 @@
 </head>
 <body class="theme-dark">
 
-<!-- BG vidéo depuis Supabase -->
+<!-- BG vidéo -->
 <div class="rsl-bg-wrap" aria-hidden="true">
   <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
   <div class="rsl-bg-dim"></div>
@@ -445,7 +649,7 @@
 
 <div class="page-wrap">
 
-  <!-- NAV TOP (identique feed, mais avec bouton 1v1) -->
+  <!-- NAV TOP -->
   <nav class="nav">
     <div class="row">
       <div class="nav-left">
@@ -459,8 +663,11 @@
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-        <!-- bouton 1v1 spécifique à la page chat -->
-        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Chat 1v1">🤝</a>
+        <!-- Bouton 1v1 avec logo + badge -->
+        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
+          <img src="image/1logo_ridly.png" alt="Messages" class="nav-msg-ic"/>
+          <span class="nav-badge" id="badge1v1"></span>
+        </a>
       </div>
     </div>
   </nav>
@@ -491,18 +698,32 @@
             class="chat-input"
             maxlength="400"
             placeholder="Écris ton message… (max 400 caractères)"></textarea>
-          <button id="chatSend" class="btn">Envoyer</button>
+          <button id="mediaBtn" type="button" class="btn-media" title="Photo">📷</button>
+          <button id="chatSend" class="btn" type="button">Envoyer</button>
+
+          <!-- suggestions @pseudo -->
+          <div id="mentionList" class="mention-list"></div>
         </div>
         <div class="chat-info">
           Messages récents uniquement. Certains mots sont bloqués automatiquement.
         </div>
         <div id="chatError"></div>
+
+        <input id="mediaInput" type="file" accept="image/*" style="display:none"/>
       </div>
     </section>
   </main>
 </div>
 
-<!-- NAVIGATION BAS (comme FEED, sans onglet Chat) -->
+<!-- MODALE IMAGE FULL -->
+<div id="imgModal" class="img-modal">
+  <img id="imgModalInner" class="img-modal-inner" src="" alt="Image">
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- TABBAR -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
     <div class="ic">📍</div><span>Spots</span>
@@ -525,7 +746,7 @@
 </nav>
 
 <script>
-/* ===== Thème clair/sombre (comme feed) ===== */
+/* ===== Thème ===== */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -550,12 +771,11 @@
 </script>
 
 <script>
-/* ===== Supabase init ===== */
+/* ===== Supabase init + BG vidéo ===== */
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-/* BG vidéo depuis Supabase storage */
 (function(){
   const v = document.getElementById('rslBg');
   if(!v) return;
@@ -578,7 +798,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Chat global logic ===== */
+/* ===== Chat global + photos + roues + mentions + alert 1v1 + badge nav ===== */
 
 const chatBox      = document.getElementById('chatBox');
 const chatLocked   = document.getElementById('chatLocked');
@@ -587,18 +807,32 @@ const chatInput    = document.getElementById('chatInput');
 const chatSend     = document.getElementById('chatSend');
 const chatError    = document.getElementById('chatError');
 
+const mediaBtn     = document.getElementById('mediaBtn');
+const mediaInput   = document.getElementById('mediaInput');
+
+const imgModal     = document.getElementById('imgModal');
+const imgModalInner= document.getElementById('imgModalInner');
+
+const toastDiv     = document.getElementById('toast');
+const mentionList  = document.getElementById('mentionList');
+
+const badge1v1     = document.getElementById('badge1v1');
+
 let me       = null;
 let profile  = null;
 const seenMessageIds = new Set();
+let unreadToastShown = false;
 
-/* Mots interdits (à compléter si besoin) */
-const BANNED_WORDS = [
-  "con",
-  "connard",
-  "fdp",
-  "merde"
-];
+const notifAudio   = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+const mentionAudio = new Audio('https://ridly.ch/sons/alglobal.mp3');   // son pour @mention
 
+const BANNED_WORDS = ["con","connard","fdp","merde"];
+
+/* participants pour @autocomplete */
+const participants = new Map();
+let mentionState = null;
+
+/* helpers */
 function escapeHTML(s){
   return (s||"").replace(/[&<>"']/g,m=>({
     "&":"&amp;",
@@ -606,7 +840,7 @@ function escapeHTML(s){
     ">":"&gt;",
     "\"":"&quot;",
     "'":"&#39;"
-  }[m]));
+  }[m] || m));
 }
 function formatTime(iso){
   if(!iso) return "";
@@ -621,9 +855,166 @@ function containsBannedWords(text){
   }
   return false;
 }
+function playNotifSound(){
+  try{
+    notifAudio.currentTime = 0;
+    notifAudio.play().catch(()=>{});
+  }catch(e){}
+}
+function playMentionSound(){
+  try{
+    mentionAudio.currentTime = 0;
+    mentionAudio.play().catch(()=>{});
+  }catch(e){}
+}
+function showToast(msg){
+  if(!toastDiv) return;
+  toastDiv.textContent = msg;
+  toastDiv.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
+}
 
-/* Ajouter un message dans le DOM (avec avatar) */
-function appendMessage(m, scroll=true){
+/* badge 1v1 */
+function updateBadge1v1(total){
+  if(!badge1v1) return;
+  if(total > 0){
+    badge1v1.textContent = total > 9 ? '9+' : String(total);
+    badge1v1.classList.add('show');
+  }else{
+    badge1v1.textContent = '';
+    badge1v1.classList.remove('show');
+  }
+}
+
+/* participants */
+function registerParticipant(userId, prof){
+  if(!userId || !prof) return;
+  const pseudo = prof.pseudo || prof.full_name;
+  if(!pseudo) return;
+  const key = pseudo.toLowerCase();
+  if(!participants.has(key)){
+    participants.set(key,{
+      id:userId,
+      pseudo,
+      display:pseudo
+    });
+  }
+}
+
+/* unread 1v1 */
+async function checkPrivateUnread(){
+  if(!me) return;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_unread_counts')
+      .select('unread_count')
+      .eq('user_id', me.id);
+
+    if(error){
+      console.error('unread error', error);
+      updateBadge1v1(0);
+      return;
+    }
+    const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
+    updateBadge1v1(total);
+
+    if(total>0 && !unreadToastShown){
+      unreadToastShown = true;
+      const s = total>1 ? 's' : '';
+      showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`);
+      playNotifSound();
+    }
+  }catch(e){
+    console.error(e);
+    updateBadge1v1(0);
+  }
+}
+
+/* alerts 1v1 temps réel */
+function subscribePrivateAlerts(){
+  if(!me) return;
+  supa.channel('ridly_private_alert_'+me.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'ridly_private_messages'
+    }, async payload => {
+      const m = payload.new;
+      if(m.to_id !== me.id) return;
+
+      let senderName = 'Rider';
+      try{
+        const { data:p } = await supa
+          .from('profiles')
+          .select('pseudo,full_name')
+          .eq('id', m.from_id)
+          .maybeSingle();
+        if(p) senderName = p.pseudo || p.full_name || 'Rider';
+      }catch(e){}
+
+      playNotifSound();
+      showToast('Nouveau message privé de ' + senderName);
+
+      // recharge le compteur pour le badge
+      checkPrivateUnread();
+    })
+    .subscribe();
+}
+
+/* upload image */
+async function uploadImage(file){
+  const safeName = (file.name || 'photo').replace(/[^\w.\-]+/g,'_');
+  const path = `global_media/${me.id}/${Date.now()}_${safeName}`;
+  let { error } = await supa.storage.from('voice').upload(path,file,{
+    upsert:false,
+    contentType:file.type || 'image/jpeg'
+  });
+  if(error){
+    const res2 = await supa.storage.from('voice').upload(path,file,{
+      upsert:true,
+      contentType:file.type || 'image/jpeg'
+    });
+    if(res2.error) throw res2.error;
+  }
+  const { data:pub } = supa.storage.from('voice').getPublicUrl(path);
+  const url = pub?.publicUrl;
+  if(!url) throw new Error("URL de fichier indisponible");
+  return url;
+}
+
+/* like wheel */
+async function toggleLike(msgId, btn){
+  if(!me) return;
+  const countSpan = btn.querySelector('.like-count');
+  let count = parseInt(countSpan.textContent || "0",10) || 0;
+  const isLiked = btn.classList.contains('liked');
+
+  try{
+    if(isLiked){
+      await supa
+        .from('ridly_chat_likes')
+        .delete()
+        .eq('msg_id', msgId)
+        .eq('user_id', me.id);
+      btn.classList.remove('liked');
+      count = Math.max(0,count-1);
+    }else{
+      await supa
+        .from('ridly_chat_likes')
+        .upsert({ msg_id: msgId, user_id: me.id, liked:true });
+      btn.classList.add('liked');
+      count = count+1;
+    }
+    countSpan.textContent = String(count);
+    btn.classList.remove('hidden');
+  }catch(e){
+    console.error('like error', e);
+  }
+}
+
+/* appendMessage (ajout param isNew) */
+function appendMessage(m, scroll=true, isNew=false){
   if(!m || !m.id) return;
   if(seenMessageIds.has(m.id)) return;
   seenMessageIds.add(m.id);
@@ -632,9 +1023,30 @@ function appendMessage(m, scroll=true){
   const avatarUrl = m.profiles?.avatar_url || null;
   const safeName  = escapeHTML(pseudo);
   const timeTxt   = formatTime(m.created_at);
+  const content   = m.content || "";
+  const isMine    = me && m.user_id === me.id;
 
   const row = document.createElement('div');
   row.className = 'msg-row';
+  if(isMine) row.classList.add('me');
+
+  /* mention pour moi */
+  let isMentionForMe = false;
+  if(!isMine && profile && profile.pseudo){
+    const myPseudoLower = profile.pseudo.toLowerCase();
+    const cLower = content.toLowerCase();
+    if(
+      cLower === '@'+myPseudoLower ||
+      cLower.startsWith('@'+myPseudoLower+' ') ||
+      cLower.startsWith('@'+myPseudoLower+',')
+    ){
+      isMentionForMe = true;
+      row.classList.add('mention-me');
+      if(isNew){
+        playMentionSound();
+      }
+    }
+  }
 
   const avatar = document.createElement('div');
   avatar.className = 'msg-avatar';
@@ -645,8 +1057,9 @@ function appendMessage(m, scroll=true){
   }
 
   const msgDiv = document.createElement('div');
-  msgDiv.className = "msg";
-  msgDiv.innerHTML = `
+  msgDiv.className = 'msg';
+
+  const headerHtml = `
     <div class="msg-header">
       <span class="msg-user">
         <a href="profil_ou_rider.html?id=${encodeURIComponent(m.user_id || '')}">
@@ -655,42 +1068,132 @@ function appendMessage(m, scroll=true){
       </span>
       <span class="msg-time">${timeTxt}</span>
     </div>
-    <div class="msg-body">${escapeHTML(m.content)}</div>
   `;
+
+  let bodyHtml = "";
+  if(content.startsWith('IMG:')){
+    const url = content.slice(4);
+    bodyHtml = `
+      <div class="msg-body">
+        <div class="media-thumb">
+          <img src="${escapeHTML(url)}" class="chat-img" alt="photo">
+        </div>
+      </div>
+    `;
+  }else{
+    bodyHtml = `<div class="msg-body">${escapeHTML(content)}</div>`;
+  }
+
+  const likeCount = m.like_count || 0;
+  const likedByMe = !!m.liked_by_me;
+  const hiddenCls = (likeCount===0 && !likedByMe) ? 'hidden' : '';
+
+  const footerHtml = `
+    <div class="msg-footer">
+      <button class="like-wheel ${hiddenCls} ${likedByMe?'liked':''}" data-id="${m.id}">
+        <span class="wheel-icon">🛞</span>
+        <span class="like-count">${likeCount}</span>
+      </button>
+    </div>
+  `;
+
+  msgDiv.innerHTML = headerHtml + bodyHtml + footerHtml;
 
   row.appendChild(avatar);
   row.appendChild(msgDiv);
   chatMessages.appendChild(row);
+
+  /* image full-screen */
+  const img = row.querySelector('.chat-img');
+  if(img){
+    img.addEventListener('click', ()=>{
+      imgModalInner.src = img.src;
+      imgModal.style.display = 'flex';
+    });
+  }
+
+  /* like */
+  const likeBtn = msgDiv.querySelector('.like-wheel');
+  if(likeBtn){
+    msgDiv.addEventListener('dblclick', ()=>{
+      toggleLike(m.id, likeBtn);
+    });
+    likeBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      toggleLike(m.id, likeBtn);
+    });
+  }
 
   if(scroll){
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 }
 
-/* Charger les 80 derniers messages */
+/* loadMessages */
 async function loadMessages(){
   try{
     const { data, error } = await supa
       .from('ridly_chat_messages')
       .select('id,user_id,content,created_at,profiles(pseudo,full_name,avatar_url)')
-      .order('created_at', { ascending:false })
+      .order('created_at',{ascending:false})
       .limit(80);
 
     if(error){
       console.error(error);
-      chatMessages.innerHTML='<div class="muted">Erreur de chargement du chat.</div>';
+      chatMessages.innerHTML = '<div class="muted">Erreur de chargement du chat.</div>';
       return;
     }
 
     const list = (data||[]).slice().reverse();
     chatMessages.innerHTML = "";
+    seenMessageIds.clear();
 
     if(!list.length){
       chatMessages.innerHTML = '<div class="muted">Pas encore de messages. Lance la discussion 👇</div>';
       return;
     }
 
-    list.forEach(m => appendMessage(m,false));
+    const ids = list.map(m=>m.id);
+
+    participants.clear();
+    list.forEach(m=>{
+      if(m.profiles){
+        registerParticipant(m.user_id, m.profiles);
+      }
+    });
+    if(profile && me){
+      registerParticipant(me.id, profile);
+    }
+
+    const likeMap = new Map();
+    if(ids.length){
+      try{
+        const { data:likesData } = await supa
+          .from('ridly_chat_likes')
+          .select('msg_id,user_id,liked')
+          .in('msg_id', ids)
+          .eq('liked',true);
+
+        (likesData||[]).forEach(l=>{
+          const cur = likeMap.get(l.msg_id) || {count:0,mine:false};
+          cur.count++;
+          if(me && l.user_id === me.id) cur.mine = true;
+          likeMap.set(l.msg_id, cur);
+        });
+      }catch(e){
+        console.error('likes load error', e);
+      }
+    }
+
+    list.forEach(m=>{
+      const info = likeMap.get(m.id) || {count:0,mine:false};
+      appendMessage({
+        ...m,
+        like_count: info.count,
+        liked_by_me: info.mine
+      }, false, false);   // historique => pas de son
+    });
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }catch(e){
     console.error(e);
@@ -698,7 +1201,7 @@ async function loadMessages(){
   }
 }
 
-/* Realtime : nouveaux messages */
+/* realtime messages */
 function subscribeNewMessages(){
   supa.channel('ridly_chat')
     .on('postgres_changes',{
@@ -709,18 +1212,26 @@ function subscribeNewMessages(){
       const m = payload.new;
       const msg = {
         ...m,
-        profiles: (m.user_id === me?.id && profile)
-          ? { pseudo: profile.pseudo, full_name: profile.full_name, avatar_url: profile.avatar_url }
-          : null
+        profiles: (me && m.user_id === me.id && profile)
+          ? { pseudo:profile.pseudo, full_name:profile.full_name, avatar_url:profile.avatar_url }
+          : null,
+        like_count:0,
+        liked_by_me:false
       };
-      appendMessage(msg,true);
+
+      if(msg.profiles){
+        registerParticipant(msg.user_id, msg.profiles);
+      }
+
+      appendMessage(msg,true,true);   // nouveau message => si @moi => son
     })
     .subscribe();
 }
 
-/* Envoyer un message */
+/* envoyer texte */
 async function sendMessage(){
   chatError.textContent = "";
+  hideMentionList();
   const txt = (chatInput.value || "").trim();
   if(!txt) return;
   if(txt.length > 400){
@@ -750,9 +1261,14 @@ async function sendMessage(){
     }else if(data){
       const msg = {
         ...data,
-        profiles: profile ? { pseudo: profile.pseudo, full_name: profile.full_name, avatar_url: profile.avatar_url } : null
+        profiles: profile ? { pseudo:profile.pseudo, full_name:profile.full_name, avatar_url:profile.avatar_url } : null,
+        like_count:0,
+        liked_by_me:false
       };
-      appendMessage(msg,true);
+      if(msg.profiles){
+        registerParticipant(msg.user_id, msg.profiles);
+      }
+      appendMessage(msg,true,false);   // mon message => pas de son mention
       chatInput.value = "";
     }
   }catch(e){
@@ -763,13 +1279,134 @@ async function sendMessage(){
   }
 }
 
-/* Init session + profil + chat */
+/* photo */
+mediaBtn.addEventListener('click', ()=>{
+  chatError.textContent = "";
+  if(!me){
+    chatError.textContent = "Tu dois être connecté pour envoyer une photo.";
+    return;
+  }
+  mediaInput.value = "";
+  mediaInput.click();
+});
+
+mediaInput.addEventListener('change', async ()=>{
+  const file = mediaInput.files && mediaInput.files[0];
+  if(!file) return;
+  if(!me){
+    chatError.textContent = "Tu dois être connecté pour envoyer une photo.";
+    return;
+  }
+  try{
+    const url = await uploadImage(file);
+    const content = 'IMG:'+url;
+    const { data, error } = await supa
+      .from('ridly_chat_messages')
+      .insert([{ user_id: me.id, content }])
+      .select('id,user_id,content,created_at')
+      .single();
+    if(error){
+      console.error(error);
+      chatError.textContent = "Erreur lors de l’envoi de la photo.";
+    }else if(data){
+      const msg = {
+        ...data,
+        profiles: profile ? { pseudo:profile.pseudo, full_name:profile.full_name, avatar_url:profile.avatar_url } : null,
+        like_count:0,
+        liked_by_me:false
+      };
+      if(msg.profiles){
+        registerParticipant(msg.user_id, msg.profiles);
+      }
+      appendMessage(msg,true,false);  // mon image => pas de son mention
+    }
+  }catch(e){
+    console.error(e);
+    chatError.textContent = "Erreur lors de l’envoi de la photo.";
+  }
+});
+
+/* modale image */
+imgModal.addEventListener('click', ()=>{
+  imgModal.style.display = 'none';
+  imgModalInner.src = '';
+});
+
+/* ===== AUTOCOMPLETE @PSEUDO ===== */
+function hideMentionList(){
+  mentionList.style.display = 'none';
+  mentionList.innerHTML = '';
+  mentionState = null;
+}
+
+function showMentionSuggestions(query){
+  const q = (query||'').toLowerCase();
+  const items = [];
+  participants.forEach(p=>{
+    if(!q || p.pseudo.toLowerCase().startsWith(q)){
+      items.push(p);
+    }
+  });
+  if(!items.length){
+    hideMentionList();
+    return;
+  }
+  mentionList.innerHTML = '';
+  items.slice(0,10).forEach(p=>{
+    const div = document.createElement('div');
+    div.className = 'mention-item';
+    div.dataset.pseudo = p.pseudo;
+    div.innerHTML = `<span>@${escapeHTML(p.pseudo)}</span>`;
+    div.addEventListener('click', ()=>{
+      applyMention(p.pseudo);
+    });
+    mentionList.appendChild(div);
+  });
+  mentionList.style.display = 'block';
+}
+
+function applyMention(pseudo){
+  if(!mentionState) return;
+  const value = chatInput.value;
+  const start = mentionState.start;
+  const end   = mentionState.end;
+  const before = value.slice(0,start);
+  const after  = value.slice(end);
+  const insert = '@' + pseudo + ' ';
+  chatInput.value = before + insert + after;
+  const pos = before.length + insert.length;
+  chatInput.focus();
+  chatInput.setSelectionRange(pos,pos);
+  hideMentionList();
+}
+
+chatInput.addEventListener('input', ()=>{
+  const value = chatInput.value;
+  const pos = chatInput.selectionStart || value.length;
+  const sub = value.slice(0,pos);
+  const match = sub.match(/@([^\s@]{0,20})$/);
+  if(!match){
+    hideMentionList();
+    return;
+  }
+  const start = sub.lastIndexOf('@');
+  mentionState = { start, end: pos };
+  const query = match[1] || '';
+  showMentionSuggestions(query);
+});
+
+chatInput.addEventListener('blur', ()=>{
+  setTimeout(hideMentionList,150);
+});
+
+/* ===== init session ===== */
 (async function init(){
   try{
     const { data:{ user } } = await supa.auth.getUser();
     if(!user){
       chatLocked.style.display = "block";
       chatBox.style.display    = "none";
+      updateBadge1v1(0);
       return;
     }
     me = user;
@@ -782,19 +1419,24 @@ async function sendMessage(){
       .select('pseudo,full_name,avatar_url')
       .eq('id', me.id)
       .maybeSingle();
-
     profile = prof || null;
+    if(profile){
+      registerParticipant(me.id, profile);
+    }
 
     await loadMessages();
     subscribeNewMessages();
+    await checkPrivateUnread();
+    subscribePrivateAlerts();
   }catch(e){
     console.error(e);
     chatLocked.style.display = "block";
     chatBox.style.display    = "none";
+    updateBadge1v1(0);
   }
 })();
 
-/* Events */
+/* events généraux */
 chatSend.addEventListener('click', sendMessage);
 chatInput.addEventListener('keydown', e=>{
   if(e.key === 'Enter' && !e.shiftKey){
@@ -805,8 +1447,7 @@ chatInput.addEventListener('keydown', e=>{
 </script>
 
 <script>
-  // Service worker
-  if ('serviceWorker' in navigator) {
+  if('serviceWorker' in navigator){
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
   }
 </script>

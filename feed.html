@@ -100,7 +100,7 @@
       z-index:1;
     }
 
-    /* TOP NAV */
+    /* TOP NAV (aligné sur ajouter.html) */
     nav.nav{
       position:sticky;
       top:0;
@@ -177,8 +177,9 @@
       background:rgba(15,23,42,.9);
       color:var(--text);
       border-radius:999px;
-      width:32px;
+      min-width:32px;
       height:32px;
+      padding:0 10px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -186,6 +187,7 @@
       text-decoration:none;
       position:relative;
       cursor:pointer;
+      gap:4px;
     }
     body.theme-light .icon-btn{
       background:#e5e7eb;
@@ -205,6 +207,25 @@
       background:#22c55e;
       box-shadow:0 0 8px rgba(34,197,94,.8);
       opacity:0;
+    }
+
+    /* badge 1v1 */
+    .badge{
+      position:absolute;
+      top:-3px;
+      right:-3px;
+      min-width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#ef4444;
+      color:#f9fafb;
+      font-size:10px;
+      font-weight:800;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:0 4px;
+      box-shadow:0 0 8px rgba(0,0,0,.6);
     }
 
     /* MAIN */
@@ -496,6 +517,32 @@
       color:var(--accent);
     }
 
+    /* Toast en haut (pour notifs 1v1) */
+    .toast{
+      position:fixed;
+      left:50%;
+      top:60px;
+      transform:translateX(-50%);
+      background:rgba(15,23,42,.97);
+      color:#f9fafb;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 10px 30px rgba(0,0,0,.6);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s, transform .2s;
+      z-index:60;
+      max-width:90%;
+      text-align:center;
+      white-space:normal;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(4px);
+    }
+
     @media(min-width:700px){
       nav.nav .row{
         padding-inline:20px;
@@ -533,6 +580,14 @@
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+
+        <!-- Nouveau bouton 1v1 -->
+        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
+          💌
+          <span class="badge" id="badge1v1"></span>
+        </a>
+
+        <!-- Chat global -->
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
           <span class="chat-dot" id="chatDot"></span>
           💬
@@ -582,6 +637,9 @@
   </a>
 </nav>
 
+<!-- Toast global -->
+<div id="toast" class="toast"></div>
+
 <script>
 /* ===== Thème clair / sombre ===== */
 (function(){
@@ -601,7 +659,8 @@
     const isLight = document.body.classList.contains('theme-light');
     document.body.classList.toggle('theme-light', !isLight);
     document.body.classList.toggle('theme-dark',  isLight);
-    localStorage.setItem('ridlyTheme', isLight ? 'light' : 'dark');
+    // on enregistre le NOUVEAU thème (même logique que ajouter.html)
+    localStorage.setItem('ridlyTheme', isLight ? 'dark' : 'light');
     updateIcon();
   });
 })();
@@ -632,6 +691,88 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     document.hidden ? v.pause() : play();
   });
 })();
+</script>
+
+<script>
+/* ===== Toast + notifs 1v1 ===== */
+const toastDiv  = document.getElementById('toast');
+const badge1v1  = document.getElementById('badge1v1');
+const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+let unreadToastShown = false;
+
+function showToast(msg){
+  if(!toastDiv) return;
+  toastDiv.textContent = msg;
+  toastDiv.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
+}
+function playNotifSound(){
+  try{
+    notifAudio.currentTime = 0;
+    notifAudio.play().catch(()=>{});
+  }catch(e){}
+}
+function update1v1Badge(count){
+  if(!badge1v1) return;
+  if(count>0){
+    badge1v1.style.display = 'flex';
+    badge1v1.textContent = count>9 ? '9+' : String(count);
+  }else{
+    badge1v1.style.display = 'none';
+  }
+}
+async function checkPrivateUnread(me){
+  if(!me) return;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_unread_counts')
+      .select('unread_count')
+      .eq('user_id', me.id);
+
+    if(error){
+      console.error('unread error', error);
+      return;
+    }
+    const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
+    update1v1Badge(total);
+    if(total>0 && !unreadToastShown){
+      unreadToastShown = true;
+      const s = total>1 ? 's' : '';
+      showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`);
+      playNotifSound();
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+function subscribePrivateAlerts(me){
+  if(!me) return;
+  supa.channel('ridly_private_alert_'+me.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'ridly_private_messages'
+    }, async payload => {
+      const m = payload.new;
+      if(m.to_id !== me.id) return;
+
+      let senderName = 'Rider';
+      try{
+        const { data:p } = await supa
+          .from('profiles')
+          .select('pseudo,full_name')
+          .eq('id', m.from_id)
+          .maybeSingle();
+        if(p) senderName = p.pseudo || p.full_name || 'Rider';
+      }catch(e){}
+
+      playNotifSound();
+      showToast('Nouveau message privé de ' + senderName);
+      checkPrivateUnread(me);
+    })
+    .subscribe();
+}
 </script>
 
 <script>
@@ -675,6 +816,9 @@ function timeAgo(iso){
     me = user;
     displayName = user.user_metadata?.full_name || user.email || "Rider";
     if(chatDot) chatDot.style.opacity = 1;
+
+    await checkPrivateUnread(me);
+    subscribePrivateAlerts(me);
 
     await Promise.all([
       loadStories(),
@@ -893,12 +1037,14 @@ async function loadFeed(){
         const sp = parkById[p.spot_id];
         spotLabel = sp.nom || 'Skatepark';
         if(sp.ville) spotLabel += ' — ' + sp.ville;
-        spotLink = `ou_rider.html?type=park&id=${encodeURIComponent(p.spot_id)}`;
+        // 👉 lien vers spot.html (park)
+        spotLink = `spot.html?id=${encodeURIComponent(p.spot_id)}`;
       }else if(p.spot_id && streetById[p.spot_id]){
         const sp = streetById[p.spot_id];
         spotLabel = sp.nom || 'Street spot';
         if(sp.ville) spotLabel += ' — ' + sp.ville;
-        spotLink = `ou_rider.html?type=street&id=${encodeURIComponent(p.spot_id)}`;
+        // 👉 lien vers spot.html (street)
+        spotLink = `spot.html?id=${encodeURIComponent(p.spot_id)}&street=1`;
       }
 
       const likes = likesByPost[p.id] || [];
@@ -974,7 +1120,7 @@ function renderFeed(){
     spot.className = 'post-spot';
     spot.textContent = post.spotLabel || 'Spot non lié';
     if(post.spotLink){
-      spot.href = post.spotLink;
+      spot.href = post.spotLink;  // 👉 maintenant vers spot.html
     }else{
       spot.style.opacity = .8;
     }
