@@ -184,8 +184,9 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* Auth RIDLY — Google direct vers ou_rider.html */
-const ORIGIN = window.location.origin;
+/* Auth RIDLY — Google -> OU_RIDER, gestion e-mail, et redirection si déjà loggé */
+
+const ORIGIN   = window.location.origin;
 const SPOTS_URL = ORIGIN + "/ou_rider.html";
 
 const btnGoogle = document.getElementById('btnGoogle');
@@ -199,7 +200,16 @@ const btnEmailSignup = document.getElementById('btnEmailSignup');
 function setGoogleMsg(t,cls){googleMsg.textContent=t||"";googleMsg.className="small-info"+(cls?" "+cls:"")}
 function setEmailMsg(t,cls){emailMsg.textContent=t||"";emailMsg.className="small-info"+(cls?" "+cls:"")}
 
-/* Si déjà connecté → spots */
+/* Arrivée avec ?oauth=failed depuis ou_rider.html -> message clair */
+(function(){
+  const p = new URLSearchParams(location.search);
+  if(p.get('oauth')==='failed'){
+    setGoogleMsg("Erreur lors de la connexion Google. Réessaie.", "error");
+    history.replaceState({}, document.title, location.pathname);
+  }
+})();
+
+/* Déjà connecté ? -> Spots */
 (async function initAuthPage(){
   try{
     const { data } = await supa.auth.getUser();
@@ -207,20 +217,20 @@ function setEmailMsg(t,cls){emailMsg.textContent=t||"";emailMsg.className="small
   }catch(e){ console.warn(e); }
 })();
 
-/* Google → redirige directement sur ou_rider.html */
+/* Google -> redirige directement vers /ou_rider.html (c'est là qu'on fait exchangeCodeForSession) */
 async function signInWithGoogle(){
   setGoogleMsg("");
   try{
     const { error } = await supa.auth.signInWithOAuth({
       provider:'google',
-      options:{ redirectTo: ORIGIN + "/ou_rider.html" }
+      options:{ redirectTo: SPOTS_URL }
     });
     if(error){ console.error(error); setGoogleMsg("Impossible de lancer Google.", "error"); }
     else { setGoogleMsg("Redirection vers Google…", "success"); }
   }catch(e){ console.error(e); setGoogleMsg("Erreur inattendue Google.", "error"); }
 }
 
-/* Email / mot de passe */
+/* E-mail / mot de passe */
 async function emailLogin(){
   setEmailMsg("");
   const email=(emailInput.value||"").trim(), pass=passwordInput.value||"";
