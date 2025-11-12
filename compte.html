@@ -26,7 +26,10 @@
     body.theme-light{--bg:#f4f4f5;--bg-soft:#e5e7eb;--card:#ffffff;--text:#020617;--text-dim:#6b7280;--border:rgba(148,163,184,.25)}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{margin:0;padding:0;height:100%}
-    body{font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#000;color:var(--text);display:flex;flex-direction:column}
+    body{
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      background:#000;color:var(--text);display:flex;flex-direction:column
+    }
 
     /* BG vidéo */
     .rsl-bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
@@ -45,7 +48,7 @@
     .brand img{width:32px;height:32px;border-radius:12px;background:#000;padding:3px;box-shadow:0 0 12px rgba(34,197,94,.7)}
     .brand span{font-weight:700;letter-spacing:-0.03em;font-size:20px}
     .nav-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
-    .icon-btn{border:1px solid rgba(15,23,42,.8);background:rgba(15,23,42,.9);color:var(--text);border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:17px;text-decoration:none;cursor:pointer}
+    .icon-btn{border:1px solid rgba(15,23,42,.8);background:rgba(15,23,42,.9);color:var(--text);border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer}
     body.theme-light .icon-btn{background:#e5e7eb;border-color:rgba(148,163,184,.6)}
     .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
 
@@ -93,7 +96,7 @@
     <div class="row">
       <div class="nav-left">
         <a class="brand" href="ou_rider.html">
-          <img src="image/1logo_ridly.png" alt="RIDLY"/><span>RIDLY</span>
+          <img src="image/1logo_ridly.png" alt="RIDLY" onerror="this.style.visibility='hidden'"/><span>RIDLY</span>
         </a>
       </div>
       <div class="nav-tools">
@@ -125,7 +128,7 @@
       <div id="emailMsg" class="small-info"></div>
 
       <p class="already">
-        Tu es déjà connecté ? On va te rediriger automatiquement vers les spots.
+        Tu es déjà connecté ? Redirection automatique vers les spots.
         Si rien ne se passe, clique ici : <a href="ou_rider.html">Aller aux spots</a>
       </p>
     </section>
@@ -146,7 +149,7 @@
 /* Thème clair/sombre */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const prefersDark = globalThis.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
   const theme = (saved==='light'||saved==='dark') ? saved : (prefersDark?'dark':'light');
   document.body.classList.add(theme==='light' ? 'theme-light':'theme-dark');
   const btnTheme=document.getElementById('btnTheme');
@@ -166,18 +169,24 @@
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* Vidéo de fond */
 (function(){
   const v=document.getElementById('rslBg'); if(!v) return;
-  const s=document.createElement('source'); s.src=SUPABASE_URL+"/storage/v1/object/public/ridly/ridly.mp4"; s.type="video/mp4"; v.appendChild(s);
+  const s=document.createElement('source');
+  s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
+  s.type = "video/mp4";
+  v.appendChild(s);
   const play=()=>{try{v.playbackRate=0.6; const p=v.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){}};
-  play(); document.addEventListener('visibilitychange',()=>{document.hidden?v.pause():play()});
+  play();
+  document.addEventListener('visibilitychange',()=>{document.hidden?v.pause():play()});
 })();
 </script>
 
 <script>
-/* Auth RIDLY — gestion OAuth + redirections */
-const SPOTS_URL = "https://ridly.ch/ou_rider.html";
-const GOOGLE_REDIRECT = "https://ridly.ch/compte.html";
+/* Auth RIDLY — Google direct vers ou_rider.html */
+const ORIGIN = window.location.origin;
+const SPOTS_URL = ORIGIN + "/ou_rider.html";
 
 const btnGoogle = document.getElementById('btnGoogle');
 const googleMsg = document.getElementById('googleMsg');
@@ -190,49 +199,28 @@ const btnEmailSignup = document.getElementById('btnEmailSignup');
 function setGoogleMsg(t,cls){googleMsg.textContent=t||"";googleMsg.className="small-info"+(cls?" "+cls:"")}
 function setEmailMsg(t,cls){emailMsg.textContent=t||"";emailMsg.className="small-info"+(cls?" "+cls:"")}
 
-/* 1) A l'arrivée de Google: échange le code pour une session et nettoie l'URL */
-(async function handleOAuthReturn(){
-  try{
-    const hasOAuthParams = location.search.includes('code=') || location.hash.includes('access_token=');
-    if(hasOAuthParams){
-      await supa.auth.exchangeCodeForSession();
-      history.replaceState({}, document.title, location.pathname); // enlève ?code=... ou #access_token
-    }
-  }catch(e){
-    console.warn('exchangeCodeForSession:', e);
-  }
-
-  // Affiche proprement une éventuelle erreur renvoyée par Google (sans bloquer)
-  const p = new URLSearchParams(location.search);
-  const err = p.get('error') || p.get('error_code') || p.get('error_description');
-  if(err){ setGoogleMsg("Erreur OAuth: "+err, "error"); }
-
-  // Déjà connecté ? → spots
+/* Si déjà connecté → spots */
+(async function initAuthPage(){
   try{
     const { data } = await supa.auth.getUser();
-    if(data.user){ location.href = SPOTS_URL; return; }
+    if(data?.user){ location.href = SPOTS_URL; return; }
   }catch(e){ console.warn(e); }
-
-  // Surveiller l'état (connexion email / Google)
-  supa.auth.onAuthStateChange((ev, session)=>{
-    if(ev==='SIGNED_IN' && session){ location.href = SPOTS_URL; }
-  });
 })();
 
-/* 2) Lancer Google */
+/* Google → redirige directement sur ou_rider.html */
 async function signInWithGoogle(){
   setGoogleMsg("");
   try{
     const { error } = await supa.auth.signInWithOAuth({
       provider:'google',
-      options:{ redirectTo: GOOGLE_REDIRECT }
+      options:{ redirectTo: ORIGIN + "/ou_rider.html" }
     });
     if(error){ console.error(error); setGoogleMsg("Impossible de lancer Google.", "error"); }
     else { setGoogleMsg("Redirection vers Google…", "success"); }
   }catch(e){ console.error(e); setGoogleMsg("Erreur inattendue Google.", "error"); }
 }
 
-/* 3) Email / mot de passe */
+/* Email / mot de passe */
 async function emailLogin(){
   setEmailMsg("");
   const email=(emailInput.value||"").trim(), pass=passwordInput.value||"";
@@ -265,9 +253,9 @@ btnEmailSignup.addEventListener('click', emailSignup);
 </script>
 
 <script>
-/* Service worker (web, pas file://) */
+/* Service worker (protégé) */
 if('serviceWorker' in navigator && (location.protocol==='http:'||location.protocol==='https:')){
-  navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  navigator.serviceWorker.register('service-worker.js').catch(()=>{});
 }
 </script>
 
