@@ -1,0 +1,297 @@
+<!doctype html>
+
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Conditions générales — RIDLY</title>  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">  <style>
+    :root{
+      --green:#22c55e;
+      --green-dark:#16a34a;
+      --bg:#0b1220;
+      --panel:#0f172a;
+      --border:rgba(255,255,255,.12);
+      --text:#f1f5f9;
+      --dim:#9aa5b1;
+      --link:#22c55e;
+      --danger:#ef4444;
+      --warning:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:"Outfit",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:linear-gradient(180deg,var(--bg) 0%, #0a0f1c 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    a{color:var(--link);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .wrap{max-width:1000px;margin:0 auto;padding:24px}
+    header.hero{
+      position:sticky;top:0;z-index:10;
+      background:rgba(11,18,32,.8);backdrop-filter:blur(6px);
+      border-bottom:1px solid var(--border);
+    }
+    .hero-inner{display:flex;align-items:center;gap:12px;padding:14px 24px}
+    .logo{width:36px;height:36px;border-radius:10px;background:radial-gradient(circle at 30% 30%, var(--green), var(--green-dark));
+      box-shadow:0 0 0 2px rgba(34,197,94,.25),0 10px 30px rgba(34,197,94,.15)}
+    h1{font-size:28px;margin:0}
+    .badge{display:inline-block;font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:999px;color:var(--dim);margin-left:8px}
+
+    .page{display:grid;grid-template-columns:280px 1fr;gap:24px;margin-top:24px}
+    @media (max-width: 960px){.page{grid-template-columns:1fr}}
+
+    nav.toc{position:sticky;top:74px;align-self:start;border:1px solid var(--border);border-radius:16px;background:var(--panel)}
+    .toc h3{margin:0;padding:14px 16px;border-bottom:1px solid var(--border);font-size:14px;color:var(--dim)}
+    .toc a{display:block;padding:10px 14px;font-size:14px;color:var(--text)}
+    .toc a:hover{background:rgba(255,255,255,.03)}
+
+    .card{border:1px solid var(--border);background:var(--panel);border-radius:18px;padding:18px;margin-bottom:16px}
+    .card h2{margin:.2rem 0 0.8rem 0;font-size:22px}
+    .card h3{margin:1.2rem 0 .6rem 0;font-size:18px}
+    .muted{color:var(--dim)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+
+    .list-tight{margin:.4rem 0;padding-left:1.1rem}
+    .list-tight li{margin:.25rem 0}
+
+    .note{border-left:3px solid var(--green);padding-left:12px}
+
+    footer{margin:32px 0 80px}
+    .footer-inner{border-top:1px solid var(--border);padding-top:16px;color:var(--dim);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
+    .btn-top{position:fixed;right:16px;bottom:16px;border:none;border-radius:999px;padding:12px 14px;background:var(--green);color:#02160a;cursor:pointer;font-weight:700;box-shadow:0 8px 30px rgba(34,197,94,.35)}
+  </style></head>
+<body>
+  <header class="hero">
+    <div class="hero-inner wrap">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Conditions générales — RIDLY</h1>
+        <div class="badge">Dernière mise à jour : 12 novembre 2025</div>
+      </div>
+    </div>
+  </header>  <main class="wrap page">
+    <!-- Table des matières -->
+    <nav class="toc" aria-label="Table des matières">
+      <h3>Sommaire</h3>
+      <a href="#info-legales">1. Informations légales</a>
+      <a href="#objet">2. Objet des CGU/CGV</a>
+      <a href="#acces">3. Accès au service</a>
+      <a href="#compte">4. Création de compte</a>
+      <a href="#features">5. Fonctionnalités</a>
+      <a href="#comportement">6. Comportement</a>
+      <a href="#contenus">7. Contenus publiés & droits</a>
+      <a href="#responsabilite">8. Responsabilité</a>
+      <a href="#moderation">9. Modération</a>
+      <a href="#donnees">10. Données & confidentialité</a>
+      <a href="#securite">11. Sécurité</a>
+      <a href="#paiements">12. Abonnements & paiements</a>
+      <a href="#pi">13. Propriété intellectuelle</a>
+      <a href="#evolutions">14. Évolutions du service</a>
+      <a href="#duree">15. Durée & résiliation</a>
+      <a href="#droit">16. Droit applicable</a>
+      <a href="#contact">17. Contact</a>
+    </nav><!-- Contenu principal -->
+<section>
+  <article id="info-legales" class="card">
+    <h2>1. Informations légales</h2>
+    <p><strong>RIDLY</strong> (site <span class="mono">ridly.ch</span> et application mobile) est opéré par :</p>
+    <ul class="list-tight">
+      <li><strong>Propriétaire & responsable de la publication :</strong> Joël Meuwly</li>
+      <li><strong>Pays :</strong> Suisse</li>
+      <li><strong>Contact :</strong> <a href="mailto:contact@ridly.ch">contact@ridly.ch</a></li>
+    </ul>
+    <p class="muted note">RIDLY est une plateforme communautaire dédiée aux sports de glisse (trottinette, skate, BMX, etc.), permettant de partager des spots, vidéos, photos, reels, d’échanger par messagerie et d’explorer une carte interactive.</p>
+  </article>
+
+  <article id="objet" class="card">
+    <h2>2. Objet des CGU/CGV</h2>
+    <p>Les présentes conditions définissent les modalités d’accès et d’utilisation de RIDLY, les droits et obligations des utilisateurs, les règles relatives aux contenus et, le cas échéant, les conditions de vente de services (abonnements, publicités, sponsoring, etc.). L’utilisation de RIDLY implique l’acceptation pleine et entière de ces conditions.</p>
+  </article>
+
+  <article id="acces" class="card">
+    <h2>3. Accès au service</h2>
+    <ul class="list-tight">
+      <li><strong>Âge :</strong> accès à partir de 13 ans ; pour les moins de 16 ans, accord du représentant légal.</li>
+      <li><strong>Coût :</strong> accès gratuit. Des fonctionnalités payantes pourront être proposées ultérieurement.</li>
+      <li><strong>Prérequis :</strong> connexion Internet et appareil compatible (à la charge de l’utilisateur).</li>
+      <li><strong>Disponibilité :</strong> RIDLY met en œuvre des moyens raisonnables pour assurer la disponibilité, sans garantie d’absence d’interruption.</li>
+    </ul>
+  </article>
+
+  <article id="compte" class="card">
+    <h2>4. Création de compte</h2>
+    <ul class="list-tight">
+      <li>Inscription par e‑mail/mot de passe ou via fournisseurs d’identité (Google, Apple, etc.).</li>
+      <li>Informations exactes, à jour ; interdiction d’usurpation d’identité.</li>
+      <li>Compte personnel et incessible ; le titulaire reste responsable des activités réalisées via son compte.</li>
+      <li>RIDLY peut exiger une vérification (e‑mail, 2FA) et suspendre un compte en cas d’anomalie.</li>
+    </ul>
+  </article>
+
+  <article id="features" class="card">
+    <h2>5. Fonctionnalités principales</h2>
+    <ul class="list-tight">
+      <li>Profil utilisateur (photo, bio, niveau, préférences).</li>
+      <li>Publication de spots, photos, vidéos et reels.</li>
+      <li>Messagerie privée et/ou de groupe.</li>
+      <li>Carte interactive des skateparks et lieux de ride.</li>
+      <li>Interactions sociales (likes, commentaires, abonnements).</li>
+      <li>Modération participative et signalements.</li>
+    </ul>
+  </article>
+
+  <article id="comportement" class="card">
+    <h2>6. Comportement des utilisateurs</h2>
+    <p>Les utilisateurs s’engagent à respecter les lois suisses et internationales et à adopter une conduite responsable :</p>
+    <ul class="list-tight">
+      <li>Pas de contenus haineux, diffamatoires, discriminatoires, pornographiques, violents ou contraires aux bonnes mœurs.</li>
+      <li>Pas d’incitation à des pratiques dangereuses ou illégales.</li>
+      <li>Pas de spam, harcèlement, phishing, ni de promotion de produits/services illégaux.</li>
+      <li>Respect de la sécurité et de la vie privée des autres membres.</li>
+    </ul>
+    <p>En cas de manquement, RIDLY peut suspendre ou supprimer le compte, sans préavis.</p>
+  </article>
+
+  <article id="contenus" class="card">
+    <h2>7. Contenus publiés & droits</h2>
+    <ul class="list-tight">
+      <li><strong>Propriété :</strong> vous conservez vos droits sur vos contenus.</li>
+      <li><strong>Licence à RIDLY :</strong> vous accordez à RIDLY une licence non exclusive, mondiale, gratuite, pour héberger, reproduire, adapter et diffuser vos contenus dans le cadre du service et de sa promotion (site, app, réseaux officiels), pour la durée légale des droits.</li>
+      <li><strong>Garanties :</strong> vous garantissez détenir les droits nécessaires et que vos contenus ne portent pas atteinte aux droits de tiers.</li>
+      <li><strong>Visibilité :</strong> certains contenus peuvent être publics par défaut ; paramétrez votre compte selon vos préférences.</li>
+    </ul>
+  </article>
+
+  <article id="responsabilite" class="card">
+    <h2>8. Responsabilité</h2>
+    <ul class="list-tight">
+      <li>RIDLY n’est pas responsable des contenus des utilisateurs ni des interactions entre membres.</li>
+      <li>RIDLY ne peut être tenu responsable des pertes de données, pannes, bugs ou dommages indirects liés à l’usage du service.</li>
+      <li>RIDLY met en œuvre des mesures raisonnables pour la sécurité et la disponibilité.</li>
+    </ul>
+  </article>
+
+  <article id="moderation" class="card">
+    <h2>9. Modération</h2>
+    <p>Les utilisateurs peuvent signaler des contenus. RIDLY peut retirer tout contenu non conforme, limiter des fonctionnalités, ou suspendre un compte, sans obligation de justification préalable, notamment en cas de risque juridique ou de sécurité.</p>
+  </article>
+
+  <article id="donnees" class="card">
+    <h2>10. Données personnelles & confidentialité</h2>
+    <h3>10.1. Données traitées</h3>
+    <ul class="list-tight">
+      <li>Données de compte (e‑mail, pseudo, avatar, préférences).</li>
+      <li>Contenus et métadonnées publiés volontairement.</li>
+      <li>Données techniques (adresse IP, identifiants d’appareil, logs, cookies/app tokens).</li>
+    </ul>
+    <h3>10.2. Fondements & finalités</h3>
+    <ul class="list-tight">
+      <li>Exécution du contrat (fourniture du service, messagerie, publication, carte, etc.).</li>
+      <li>Intérêt légitime (sécurité, lutte contre la fraude/abus, amélioration produit, statistiques agrégées).</li>
+      <li>Consentement (notifications, newsletters, géolocalisation fine, fonctionnalités marketing le cas échéant).</li>
+    </ul>
+    <h3>10.3. Hébergement & sous-traitance</h3>
+    <p>Les données sont hébergées auprès de prestataires conformes (p. ex. <strong>Supabase</strong> pour la base de données et l’authentification, et fournisseurs cloud associés), avec des garanties RGPD et <strong>LPD suisse</strong>. Les paiements, lorsqu’ils seront activés, sont traités par des prestataires certifiés (p. ex. <strong>Stripe</strong>). RIDLY ne stocke aucune donnée de carte bancaire.</p>
+    <h3>10.4. Durées de conservation</h3>
+    <ul class="list-tight">
+      <li>Compte & contenus : pendant la vie du compte et jusqu’à 24 mois après suppression (sauvegardes/journaux), sauf obligations légales contraires.</li>
+      <li>Logs techniques : 12 à 24 mois selon finalité de sécurité.</li>
+    </ul>
+    <h3>10.5. Droits des utilisateurs</h3>
+    <ul class="list-tight">
+      <li>Accès, rectification, effacement, portabilité, limitation et opposition, selon RGPD/LPD.</li>
+      <li>Retrait du consentement à tout moment pour les traitements basés sur le consentement.</li>
+      <li>Demande par e‑mail : <a href="mailto:contact@ridly.ch">contact@ridly.ch</a>.</li>
+    </ul>
+    <h3>10.6. Partage & transferts</h3>
+    <ul class="list-tight">
+      <li>Pas de vente de données. Partage limité aux sous‑traitants nécessaires (hébergement, analytics, envoi e‑mail, etc.).</li>
+      <li>Transferts hors Suisse/UE possibles avec garanties adéquates (clauses contractuelles types, DPA).</li>
+    </ul>
+  </article>
+
+  <article id="securite" class="card">
+    <h2>11. Sécurité</h2>
+    <ul class="list-tight">
+      <li>Authentification sécurisée, chiffrage en transit, bonnes pratiques de durcissement.</li>
+      <li>Signalez toute faille suspectée à <a href="mailto:contact@ridly.ch">contact@ridly.ch</a>.</li>
+      <li>RIDLY peut imposer des mesures (2FA, réinitialisation, blocage) en cas de risque.</li>
+    </ul>
+  </article>
+
+  <article id="paiements" class="card">
+    <h2>12. Abonnements & paiements (si activés)</h2>
+    <ul class="list-tight">
+      <li>Fonctionnalités payantes possibles : premium, boost de publication, publicité/sponsoring.</li>
+      <li>Paiements traités par un prestataire certifié (ex. Stripe, PCI‑DSS). RIDLY ne conserve pas les données bancaires.</li>
+      <li>Conditions commerciales (prix, reconduction, rétractation) précisées sur l’écran d’achat au moment opportun.</li>
+      <li>Factures envoyées par e‑mail ; TVA selon droit applicable.</li>
+    </ul>
+  </article>
+
+  <article id="pi" class="card">
+    <h2>13. Propriété intellectuelle</h2>
+    <ul class="list-tight">
+      <li>Éléments du service (marques, logos, design, code, bases de données) : propriété exclusive de Joël Meuwly / RIDLY.</li>
+      <li>Toute reproduction totale ou partielle sans autorisation écrite est interdite.</li>
+    </ul>
+  </article>
+
+  <article id="evolutions" class="card">
+    <h2>14. Évolutions du service</h2>
+    <p>RIDLY peut faire évoluer le service, corriger des bugs ou suspendre temporairement certaines fonctionnalités pour maintenance. Les modifications substantielles des présentes conditions seront notifiées de manière appropriée (in‑app, e‑mail ou bannière).</p>
+  </article>
+
+  <article id="duree" class="card">
+    <h2>15. Durée, suspension & résiliation</h2>
+    <ul class="list-tight">
+      <li>Les conditions s’appliquent pendant toute l’utilisation du service.</li>
+      <li>L’utilisateur peut supprimer son compte depuis les paramètres ou par demande à <a href="mailto:contact@ridly.ch">contact@ridly.ch</a>.</li>
+      <li>RIDLY peut suspendre/supprimer un compte en cas de non‑respect des règles ou de risque juridique/sécurité.</li>
+    </ul>
+  </article>
+
+  <article id="droit" class="card">
+    <h2>16. Droit applicable & juridiction</h2>
+    <p>Les présentes conditions sont régies par le <strong>droit suisse</strong>. En cas de litige, les tribunaux compétents sont ceux du <strong>canton de Fribourg</strong>, sous réserve de dispositions impératives contraires.</p>
+  </article>
+
+  <article id="contact" class="card">
+    <h2>17. Contact</h2>
+    <p>Pour toute question, demande relative aux données personnelles ou signalement :</p>
+    <ul class="list-tight">
+      <li>E‑mail : <a href="mailto:contact@ridly.ch">contact@ridly.ch</a></li>
+      <li>Site : <a href="https://ridly.ch" target="_blank" rel="noopener">ridly.ch</a></li>
+    </ul>
+  </article>
+</section>
+
+  </main>  <footer class="wrap">
+    <div class="footer-inner">
+      <div>© <span id="y"></span> RIDLY — Joël Meuwly. Tous droits réservés.</div>
+      <div class="muted">LPD Suisse & RGPD — sécurité et confidentialité au cœur du service.</div>
+    </div>
+  </footer><button class="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut">↑</button>
+
+  <script>
+    // Année automatique
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Si vous l'intégrez dans l'app, vous pouvez ajouter ici une ancre auto depuis query ?section=
+    (function(){
+      try{
+        const params=new URLSearchParams(location.search);
+        const target=params.get('section');
+        if(target){
+          const el=document.getElementById(target);
+          if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}        }
+      }catch(e){}
+    })();
+  </script></body>
+</html>
