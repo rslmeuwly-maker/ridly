@@ -1,3 +1,4 @@
+<!-- ===== compte.html ===== -->
 <!doctype html>
 <html lang="fr">
 <head>
@@ -9,6 +10,7 @@
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <!-- Ton fichier env.js (optionnel, sinon on garde les valeurs en dur) -->
   <script src="js/env.js"></script>
 
   <!-- Fonts -->
@@ -22,252 +24,232 @@
       --text:#f9fafb;--text-dim:#9ca3af;--border:rgba(148,163,184,.35);
       --radius-xl:18px;
     }
-    body.theme-dark{--bg:#020617;--bg-soft:#030712;--card:#020617;--text:#f9fafb;--text-dim:#9ca3af;--border:rgba(148,163,184,.35)}
-    body.theme-light{--bg:#f4f4f5;--bg-soft:#e5e7eb;--card:#ffffff;--text:#020617;--text-dim:#6b7280;--border:rgba(148,163,184,.25)}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{margin:0;padding:0;height:100%}
     body{
       font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-      background:#000;color:var(--text);display:flex;flex-direction:column
+      background:#000;color:var(--text);display:flex;flex-direction:column;
     }
-
-    /* BG vidéo */
-    .rsl-bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
-    .rsl-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;filter:brightness(.55) saturate(1.05)}
-    .rsl-bg-dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.4),rgba(0,0,0,.85))}
-    body.theme-light .rsl-bg-dim{background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96))}
-
-    .page-wrap{flex:1;display:flex;flex-direction:column;max-width:640px;margin:0 auto;width:100%;position:relative;z-index:1}
-
-    /* NAV */
-    nav.nav{position:sticky;top:0;z-index:20;background:rgba(2,6,23,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
-    body.theme-light nav.nav{background:rgba(244,244,245,.95)}
+    .page-wrap{flex:1;display:flex;flex-direction:column;max-width:640px;margin:0 auto;width:100%}
+    nav.nav{
+      position:sticky;top:0;z-index:20;
+      background:rgba(2,6,23,.9);backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+    }
     nav.nav .row{display:flex;align-items:center;justify-content:space-between;padding:8px 14px}
-    .nav-left{display:flex;align-items:center;gap:8px}
     .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text)}
-    .brand img{width:32px;height:32px;border-radius:12px;background:#000;padding:3px;box-shadow:0 0 12px rgba(34,197,94,.7)}
+    .brand img{
+      width:32px;height:32px;border-radius:12px;background:#000;
+      padding:3px;box-shadow:0 0 12px rgba(34,197,94,.7)
+    }
     .brand span{font-weight:700;letter-spacing:-0.03em;font-size:20px}
-    .nav-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
-    .icon-btn{border:1px solid rgba(15,23,42,.8);background:rgba(15,23,42,.9);color:var(--text);border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer}
-    body.theme-light .icon-btn{background:#e5e7eb;border-color:rgba(148,163,184,.6)}
-    .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
 
-    /* MAIN */
     .main{flex:1;padding:10px 12px 80px}
-    .card{background:var(--card);border-radius:var(--radius-xl);border:1px solid rgba(15,23,42,.9);box-shadow:0 18px 45px rgba(0,0,0,.6);padding:16px 14px 18px;margin-top:10px}
-    body.theme-light .card{border-color:rgba(209,213,219,.9);box-shadow:0 14px 30px rgba(15,23,42,.15)}
+    .card{
+      background:var(--card);border-radius:var(--radius-xl);
+      border:1px solid rgba(15,23,42,.9);
+      box-shadow:0 18px 45px rgba(0,0,0,.6);
+      padding:16px 14px 18px;margin-top:10px;
+    }
     h1.main-title{margin:0 0 4px;font-size:20px;font-weight:800}
     .muted{font-size:13px;color:var(--text-dim);margin:0 0 10px}
     .section-title{font-size:14px;font-weight:600;margin:14px 0 4px}
     .field-label{font-size:12px;font-weight:600;margin:8px 0 3px;color:var(--text-dim)}
-    .text-input{width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--bg-soft);color:var(--text);font-size:14px;outline:none}
-    body.theme-light .text-input{background:#f3f4f6}
-    .text-input::placeholder{color:rgba(148,163,184,.9)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#065f46;color:#ecfdf5;border:0;border-radius:999px;font-weight:700;font-size:14px;padding:9px 16px;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.5);white-space:nowrap}
+    .text-input{
+      width:100%;padding:8px 10px;border-radius:10px;
+      border:1px solid var(--border);background:#030712;
+      color:var(--text);font-size:14px;outline:none;
+    }
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      background:#065f46;color:#ecfdf5;border:0;border-radius:999px;
+      font-weight:700;font-size:14px;padding:9px 16px;cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.5);white-space:nowrap;
+    }
     .btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
-    .btn:active{transform:scale(.97)}
     .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);box-shadow:none}
-    .small-info{font-size:11px;color:var(--text-dim);margin-top:4px}
+    .small-info{font-size:12px;color:var(--text-dim);margin-top:6px;white-space:pre-wrap}
     .small-info.error{color:#fda4af;font-weight:600}
     .small-info.success{color:#bbf7d0}
-    .already{margin-top:14px;font-size:12px;color:var(--text-dim)}
-    .already a{color:var(--accent);text-decoration:none;font-weight:600}
 
-    /* TABBAR */
-    .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;border-top:1px solid var(--border);background:rgba(2,6,23,.97);backdrop-filter:blur(18px);display:flex;justify-content:space-around;align-items:center;padding:6px 8px 10px}
-    body.theme-light .tabbar{background:rgba(244,244,245,.97)}
-    .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:var(--text-dim);font-size:9px;letter-spacing:.04em;text-transform:uppercase;padding:4px 0}
+    .tabbar{
+      position:fixed;left:0;right:0;bottom:0;z-index:30;
+      border-top:1px solid var(--border);
+      background:rgba(2,6,23,.97);backdrop-filter:blur(18px);
+      display:flex;justify-content:space-around;align-items:center;
+      padding:6px 8px 10px;
+    }
+    .tab{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:2px;
+      text-decoration:none;color:var(--text-dim);
+      font-size:9px;letter-spacing:.04em;text-transform:uppercase;
+      padding:4px 0;
+    }
     .tab .ic{font-size:20px;line-height:1}
     .tab.active{color:var(--accent)}
-    @media(min-width:700px){nav.nav .row{padding-inline:20px}.main{padding-inline:16px}.tabbar{border-radius:22px 22px 0 0}}
   </style>
 </head>
-<body class="theme-dark">
-
-<!-- BG vidéo -->
-<div class="rsl-bg-wrap" aria-hidden="true">
-  <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
-  <div class="rsl-bg-dim"></div>
-</div>
-
+<body>
 <div class="page-wrap">
-  <!-- NAV -->
   <nav class="nav">
     <div class="row">
-      <div class="nav-left">
-        <a class="brand" href="ou_rider.html">
-          <img src="image/1logo_ridly.png" alt="RIDLY" onerror="this.style.visibility='hidden'"/><span>RIDLY</span>
-        </a>
-      </div>
-      <div class="nav-tools">
-        <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-      </div>
+      <a class="brand" href="ou_rider.html">
+        <img src="image/1logo_ridly.png" alt="RIDLY"/><span>RIDLY</span>
+      </a>
     </div>
   </nav>
 
-  <!-- MAIN -->
   <main class="main">
-    <section class="card" id="authCard">
+    <section class="card">
       <h1 class="main-title">Connexion</h1>
-      <p class="muted" id="authSubtitle">Connecte-toi pour accéder à tous les spots, games et features RIDLY.</p>
+      <p class="muted">Connecte-toi pour accéder aux features RIDLY.</p>
 
       <div class="section-title">Connexion rapide</div>
       <button class="btn" id="btnGoogle"><span>🔑</span><span>Continuer avec Google</span></button>
       <div id="googleMsg" class="small-info"></div>
 
-      <div class="section-title">Connexion par e-mail</div>
+      <div class="section-title">E-mail / mot de passe</div>
       <label class="field-label" for="emailInput">E-mail</label>
       <input id="emailInput" class="text-input" type="email" placeholder="toi@example.ch" autocomplete="email"/>
       <label class="field-label" for="passwordInput">Mot de passe</label>
       <input id="passwordInput" class="text-input" type="password" placeholder="••••••••" autocomplete="current-password"/>
-
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn" id="btnEmailLogin">Se connecter</button>
         <button class="btn btn-outline" id="btnEmailSignup">Créer un compte</button>
       </div>
       <div id="emailMsg" class="small-info"></div>
 
-      <p class="already">
-        Tu es déjà connecté ? Redirection automatique vers les spots.
-        Si rien ne se passe, clique ici : <a href="ou_rider.html">Aller aux spots</a>
-      </p>
+      <div class="small-info" style="margin-top:14px;border-top:1px dashed rgba(148,163,184,.35);padding-top:10px">
+        <b>Debug:</b>
+        <div>• ORIGIN: <span id="dbgOrigin"></span></div>
+        <div>• redirectTo utilisé: <span id="dbgRedirect"></span></div>
+        <div>• Astuce: si “redirect_uri_mismatch”, ajoute exactement cette URL dans
+          <i>Supabase → Auth → URL configuration → Redirect URLs</i>.
+        </div>
+      </div>
     </section>
   </main>
 </div>
 
-<!-- TABBAR -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html"><div class="ic">📍</div><span>Spots</span></a>
   <a class="tab" href="feed.html"><div class="ic">🎬</div><span>Feed</span></a>
   <a class="tab" href="recherche.html"><div class="ic">🔎</div><span>Search</span></a>
-  <a class="tab" href="games.html"><div class="ic">🎮</div><span>Game</span></a>
-  <a class="tab" href="classement.html"><div class="ic">🏆</div><span>Rank</span></a>
   <a class="tab active" href="compte.html"><div class="ic">👤</div><span>Compte</span></a>
 </nav>
 
 <script>
-/* Thème clair/sombre */
-(function(){
-  const saved = localStorage.getItem('ridlyTheme') || 'dark';
-  const prefersDark = globalThis.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = (saved==='light'||saved==='dark') ? saved : (prefersDark?'dark':'light');
-  document.body.classList.add(theme==='light' ? 'theme-light':'theme-dark');
-  const btnTheme=document.getElementById('btnTheme');
-  const upd=()=>{btnTheme.textContent=document.body.classList.contains('theme-light')?'☀️':'🌙'};
-  upd();
-  btnTheme.addEventListener('click',()=>{
-    const isLight=document.body.classList.contains('theme-light');
-    document.body.classList.toggle('theme-light',!isLight);
-    document.body.classList.toggle('theme-dark',isLight);
-    localStorage.setItem('ridlyTheme',isLight?'dark':'light'); upd();
-  });
-})();
-</script>
+  // ---- Supabase init ----
+  const SUPABASE_URL  = window.env?.SUPABASE_URL  || "https://jynxifufaauoxwzjapzq.supabase.co";
+  const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+  const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-<script>
-/* Supabase + BG vidéo */
-const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
-const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
-const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  // ---- UI refs ----
+  const btnGoogle       = document.getElementById('btnGoogle');
+  const googleMsg       = document.getElementById('googleMsg');
+  const emailMsg        = document.getElementById('emailMsg');
+  const emailInput      = document.getElementById('emailInput');
+  const passwordInput   = document.getElementById('passwordInput');
+  const btnEmailLogin   = document.getElementById('btnEmailLogin');
+  const btnEmailSignup  = document.getElementById('btnEmailSignup');
 
-/* Vidéo de fond */
-(function(){
-  const v=document.getElementById('rslBg'); if(!v) return;
-  const s=document.createElement('source');
-  s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
-  s.type = "video/mp4";
-  v.appendChild(s);
-  const play=()=>{try{v.playbackRate=0.6; const p=v.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){}};
-  play();
-  document.addEventListener('visibilitychange',()=>{document.hidden?v.pause():play()});
-})();
-</script>
-
-<script>
-/* Auth RIDLY — Google -> OU_RIDER, gestion e-mail, et redirection si déjà loggé */
-
-const ORIGIN   = window.location.origin;
-const SPOTS_URL = ORIGIN + "/ou_rider.html";
-
-const btnGoogle = document.getElementById('btnGoogle');
-const googleMsg = document.getElementById('googleMsg');
-const emailMsg  = document.getElementById('emailMsg');
-const emailInput = document.getElementById('emailInput');
-const passwordInput = document.getElementById('passwordInput');
-const btnEmailLogin = document.getElementById('btnEmailLogin');
-const btnEmailSignup = document.getElementById('btnEmailSignup');
-
-function setGoogleMsg(t,cls){googleMsg.textContent=t||"";googleMsg.className="small-info"+(cls?" "+cls:"")}
-function setEmailMsg(t,cls){emailMsg.textContent=t||"";emailMsg.className="small-info"+(cls?" "+cls:"")}
-
-/* Arrivée avec ?oauth=failed depuis ou_rider.html -> message clair */
-(function(){
-  const p = new URLSearchParams(location.search);
-  if(p.get('oauth')==='failed'){
-    setGoogleMsg("Erreur lors de la connexion Google. Réessaie.", "error");
-    history.replaceState({}, document.title, location.pathname);
+  function setGoogleMsg(t, cls){
+    googleMsg.textContent = t || "";
+    googleMsg.className = "small-info" + (cls ? (" "+cls) : "");
   }
-})();
+  function setEmailMsg(t, cls){
+    emailMsg.textContent = t || "";
+    emailMsg.className = "small-info" + (cls ? (" "+cls) : "");
+  }
 
-/* Déjà connecté ? -> Spots */
-(async function initAuthPage(){
-  try{
-    const { data } = await supa.auth.getUser();
-    if(data?.user){ location.href = SPOTS_URL; return; }
-  }catch(e){ console.warn(e); }
-})();
+  // ---- Debug ORIGIN + redirectTo ----
+  const ORIGIN = window.location.origin;
+  const REDIRECT_AFTER_LOGIN = ORIGIN + "/ou_rider.html";
+  document.getElementById('dbgOrigin').textContent   = ORIGIN;
+  document.getElementById('dbgRedirect').textContent = REDIRECT_AFTER_LOGIN;
 
-/* Google -> redirige directement vers /ou_rider.html (c'est là qu'on fait exchangeCodeForSession) */
-async function signInWithGoogle(){
-  setGoogleMsg("");
-  try{
-    const { error } = await supa.auth.signInWithOAuth({
-      provider:'google',
-      options:{ redirectTo: SPOTS_URL }
+  // ---- Si déjà logué → direct sur la carte ----
+  (async ()=>{
+    try{
+      const { data } = await supa.auth.getUser();
+      if (data?.user) {
+        location.href = "ou_rider.html";
+      }
+    }catch(e){ console.warn(e); }
+  })();
+
+  // ---- Connexion Google ----
+  btnGoogle.addEventListener('click', async ()=>{
+    setGoogleMsg('');
+    console.log('[OAuth] start, redirectTo =', REDIRECT_AFTER_LOGIN);
+
+    const { data, error } = await supa.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: REDIRECT_AFTER_LOGIN,
+        queryParams: { prompt: 'select_account' }
+      }
     });
-    if(error){ console.error(error); setGoogleMsg("Impossible de lancer Google.", "error"); }
-    else { setGoogleMsg("Redirection vers Google…", "success"); }
-  }catch(e){ console.error(e); setGoogleMsg("Erreur inattendue Google.", "error"); }
-}
 
-/* E-mail / mot de passe */
-async function emailLogin(){
-  setEmailMsg("");
-  const email=(emailInput.value||"").trim(), pass=passwordInput.value||"";
-  if(!email||!pass){ setEmailMsg("Entre ton e-mail et ton mot de passe.", "error"); return; }
-  btnEmailLogin.disabled=btnEmailSignup.disabled=true;
-  try{
-    const { error } = await supa.auth.signInWithPassword({ email, password:pass });
-    if(error){ console.error(error); setEmailMsg("Connexion impossible. Vérifie tes identifiants.", "error"); }
-    else { location.href = SPOTS_URL; }
-  }catch(e){ console.error(e); setEmailMsg("Erreur réseau pendant la connexion.", "error"); }
-  finally{ btnEmailLogin.disabled=btnEmailSignup.disabled=false; }
-}
-async function emailSignup(){
-  setEmailMsg("");
-  const email=(emailInput.value||"").trim(), pass=passwordInput.value||"";
-  if(!email||!pass){ setEmailMsg("Entre un e-mail et un mot de passe pour créer ton compte.", "error"); return; }
-  btnEmailLogin.disabled=btnEmailSignup.disabled=true;
-  try{
-    const { error } = await supa.auth.signUp({ email, password:pass });
-    if(error){ console.error(error); setEmailMsg("Impossible de créer le compte.", "error"); }
-    else { setEmailMsg("Compte créé ! Vérifie tes e-mails si besoin, puis reconnecte-toi.", "success"); }
-  }catch(e){ console.error(e); setEmailMsg("Erreur réseau pendant la création du compte.", "error"); }
-  finally{ btnEmailLogin.disabled=btnEmailSignup.disabled=false; }
-}
+    if (error) {
+      console.error('[OAuth ERROR]', error);
+      setGoogleMsg('Erreur Google: ' + (error.message || 'inconnue'), 'error');
+    } else {
+      setGoogleMsg('Redirection vers Google…', 'success');
+    }
+  });
 
-/* Bind */
-btnGoogle.addEventListener('click', signInWithGoogle);
-btnEmailLogin.addEventListener('click', emailLogin);
-btnEmailSignup.addEventListener('click', emailSignup);
+  // ---- Email / mot de passe ----
+  btnEmailLogin.addEventListener('click', async ()=>{
+    setEmailMsg('');
+    const email = (emailInput.value||'').trim();
+    const pass  = passwordInput.value||'';
+    if (!email || !pass){
+      setEmailMsg('Entre ton e-mail et ton mot de passe.', 'error');
+      return;
+    }
+    btnEmailLogin.disabled = btnEmailSignup.disabled = true;
+    try{
+      const { error } = await supa.auth.signInWithPassword({ email, password: pass });
+      if(error){
+        console.error(error);
+        setEmailMsg('Connexion impossible. Vérifie tes identifiants.', 'error');
+      }else{
+        location.href = "ou_rider.html";
+      }
+    }catch(e){
+      console.error(e);
+      setEmailMsg('Erreur réseau pendant la connexion.', 'error');
+    }finally{
+      btnEmailLogin.disabled = btnEmailSignup.disabled = false;
+    }
+  });
+
+  btnEmailSignup.addEventListener('click', async ()=>{
+    setEmailMsg('');
+    const email = (emailInput.value||'').trim();
+    const pass  = passwordInput.value||'';
+    if (!email || !pass){
+      setEmailMsg('Entre un e-mail et un mot de passe pour créer ton compte.', 'error');
+      return;
+    }
+    btnEmailLogin.disabled = btnEmailSignup.disabled = true;
+    try{
+      const { error } = await supa.auth.signUp({ email, password: pass });
+      if(error){
+        console.error(error);
+        setEmailMsg("Impossible de créer le compte.", "error");
+      }else{
+        setEmailMsg("Compte créé ! Vérifie tes e-mails si besoin, puis reconnecte-toi.", "success");
+      }
+    }catch(e){
+      console.error(e);
+      setEmailMsg("Erreur réseau pendant la création du compte.", "error");
+    }finally{
+      btnEmailLogin.disabled = btnEmailSignup.disabled = false;
+    }
+  });
 </script>
-
-<script>
-/* Service worker (protégé) */
-if('serviceWorker' in navigator && (location.protocol==='http:'||location.protocol==='https:')){
-  navigator.serviceWorker.register('service-worker.js').catch(()=>{});
-}
-</script>
-
 </body>
 </html>

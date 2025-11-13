@@ -34,9 +34,12 @@
     body.theme-light{--bg:#f4f4f5;--bg-soft:#e5e7eb;--card:#ffffff;--text:#020617;--text-dim:#6b7280;--border:rgba(148,163,184,.25)}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{margin:0;padding:0;height:100%}
-    body{font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#000;color:var(--text);display:flex;flex-direction:column}
+    body{
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      background:#000;color:var(--text);display:flex;flex-direction:column
+    }
 
-    /* BG */
+    /* ===== BG vidéo & voile ===== */
     .rsl-bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
     .rsl-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;filter:brightness(.55) saturate(1.05)}
     .rsl-bg-dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7))}
@@ -44,40 +47,55 @@
 
     .page-wrap{flex:1;display:flex;flex-direction:column;max-width:900px;margin:0 auto;width:100%;position:relative;z-index:1}
 
-    /* NAV */
+    /* ===== NAV ===== */
     nav.nav{position:sticky;top:0;z-index:20;background:rgba(2,6,23,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
     body.theme-light nav.nav{background:rgba(244,244,245,.95)}
     nav.nav .row{display:flex;align-items:center;justify-content:space-between;padding:8px 14px}
     .nav-left{display:flex;align-items:center;gap:8px}
     .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text)}
-    .brand img{width:32px;height:32px;border-radius:12px;background:#000;padding:3px;box-shadow:0 0 12px rgba(34,197,94,.7)}
-    .brand span{font-weight:700;letter-spacing:-0.03em;font-size:20px}
-
+    .brand img{
+      width:32px;height:32px;border-radius:12px;background:#000;padding:3px;
+      box-shadow:0 0 0 rgba(34,197,94,0); transition:transform .5s ease, box-shadow .8s ease;
+    }
+    .brand span{font-weight:800;letter-spacing:-0.03em;font-size:20px;transition:opacity .5s ease, transform .5s ease}
     .add-btn{border:none;outline:none;width:30px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;cursor:pointer;background:radial-gradient(circle at 30% 20%,#4ade80 0,#22c55e 35%,#16a34a 100%);color:#022c16;box-shadow:0 10px 22px rgba(34,197,94,.7)}
     .add-btn span{transform:translateY(-1px)}
-
     .nav-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
-    .icon-btn{border:1px solid rgba(15,23,42,.8);background:rgba(15,23,42,.9);color:var(--text);border-radius:999px;height:32px;min-width:32px;padding:0 10px;display:flex;align-items:center;justify-content:center;font-size:15px;text-decoration:none;position:relative;cursor:pointer;gap:6px}
+    .icon-btn{border:1px solid rgba(15,23,42,.8);background:rgba(15,23,42,.9);color:var(--text);border-radius:999px;height:32px;min-width:32px;padding:0 10px;display:flex;align-items:center;justify-content:center;font-size:15px;text-decoration:none;position:relative;cursor:pointer;gap:6px;transition:transform .2s ease}
+    .icon-btn:active{transform:scale(.96)}
     .icon-btn .label{font-size:11px;font-weight:700}
     @media(max-width:640px){.icon-btn .label{display:none}.icon-btn{padding:0;min-width:32px}}
     body.theme-light .icon-btn{background:#e5e7eb;border-color:rgba(148,163,184,.6)}
     .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .chat-dot{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:999px;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.8);opacity:0}
+    .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:999px;background:#ef4444;color:#f9fafb;font-size:10px;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 8px rgba(0,0,0,.6)}
 
-    /* MAIN */
+    .toast{position:fixed;left:50%;top:60px;transform:translateX(-50%);background:rgba(15,23,42,.97);color:#f9fafb;padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;z-index:60;max-width:90%;text-align:center}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(4px)}
+
     .main{flex:1;padding:4px 10px 80px}
     .mini-title{padding:8px 4px 4px;font-size:13px;font-weight:600;color:var(--text-dim)}
     .hero{padding:4px 4px 8px;font-size:13px;color:var(--text-dim);line-height:1.4}
     .hero b{color:var(--text)}
 
-    .map-card{background:var(--card);border-radius:var(--radius-xl);border:1px solid rgba(15,23,42,.9);box-shadow:0 18px 45px rgba(0,0,0,.6);padding:10px 10px 12px;margin-top:4px}
+    .map-card{
+      background:var(--card);border-radius:var(--radius-xl);
+      border:1px solid rgba(15,23,42,.9);box-shadow:0 18px 45px rgba(0,0,0,.6);
+      padding:10px 10px 12px;margin-top:4px;
+      /* intro */
+      transform:translateY(12px) scale(.98); opacity:0; filter:saturate(.9);
+      transition:transform .6s cubic-bezier(.2,.8,.2,1), opacity .6s ease, filter .6s ease;
+    }
     body.theme-light .map-card{border-color:rgba(209,213,219,.9);box-shadow:0 14px 30px rgba(15,23,42,.15)}
     .map-wrap{position:relative}
     #map{width:100%;height:70vh;min-height:420px;border-radius:16px;border:1px solid rgba(15,23,42,.9);background:var(--bg-soft);overflow:hidden}
     body.theme-light #map{border-color:rgba(17,24,39,.12)}
     .leaflet-pane,.leaflet-top,.leaflet-bottom{z-index:2}
 
-    .filters-fab{position:absolute;right:10px;top:10px;z-index:3100}
-    .btn{appearance:none;border:1px solid var(--border);background:rgba(15,23,42,.9);color:var(--text);border-radius:999px;padding:8px 14px;font:800 12px Outfit;cursor:pointer;white-space:nowrap}
+    /* ===== FABS & Chips ===== */
+    .filters-fab{position:absolute;right:10px;top:10px;z-index:3100;opacity:0;transform:translateY(-8px);transition:opacity .5s ease .4s, transform .5s ease .4s}
+    .btn{appearance:none;border:1px solid var(--border);background:rgba(15,23,42,.9);color:var(--text);border-radius:999px;padding:8px 14px;font:800 12px Outfit;cursor:pointer;white-space:nowrap;transition:transform .2s ease}
+    .btn:active{transform:scale(.97)}
     .btn.green{background:linear-gradient(180deg,var(--accent),#16a34a);color:#022c16;border:0;box-shadow:0 10px 22px rgba(0,0,0,.6)}
     body.theme-light .btn{background:#e5e7eb;border-color:rgba(148,163,184,.6);color:#111827}
     .filters-fab .btn{background:rgba(0,0,0,0.9)!important;border:1px solid #22c55e!important;box-shadow:0 0 10px rgba(34,197,94,.5)}
@@ -87,6 +105,7 @@
     body.show-filters .filters-wrap{display:block}
     .filters-card{background:rgba(0,0,0,.85);border:1px solid rgba(148,163,184,.6);border-radius:16px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.8);backdrop-filter:blur(8px);max-height:70vh;overflow:auto;color:#f9fafb}
     body.theme-light .filters-card{background:#fff;border-color:rgba(148,163,184,.6);box-shadow:0 16px 38px rgba(15,23,42,.18);color:#020617}
+
     .filters-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
     .chip{display:flex;align-items:center;gap:8px;background:rgba(15,23,42,.9);border:1px solid rgba(148,163,184,.7);padding:8px 10px;border-radius:10px;font:700 12px Outfit}
     body.theme-light .chip{background:#e5e7eb;border-color:rgba(148,163,184,.9)}
@@ -96,6 +115,31 @@
     .filters-foot{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
     #shareState{font:600 11px Outfit;color:var(--text-dim)}
 
+    /* Chips flottantes centrées */
+    .chips-row{
+      position:absolute;left:50%;top:16px;transform:translateX(-50%);
+      display:flex;gap:12px;z-index:3100;pointer-events:none;
+      opacity:0; filter:blur(4px); transform-origin:center;
+      transition:opacity .6s ease .6s, filter .6s ease .6s, transform .6s ease .6s;
+    }
+    .chip-float{pointer-events:auto;border-radius:14px;padding:8px 14px;font:800 14px Outfit;border:1px solid rgba(0,0,0,.18);box-shadow:0 6px 16px rgba(0,0,0,.35);transform:translateY(-6px);transition:transform .25s ease}
+    .chip-float:active{transform:translateY(-2px) scale(.98)}
+    .chip-blue{background:#e5f0ff;color:#0f3b82}
+    .chip-green{background:#e9fde9;color:#0d5b1f}
+    .chip-red{background:#ffe9e9;color:#7c1010}
+    .chip-orange{background:#fff2e6;color:#7a2e00;border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 16px rgba(0,0,0,.25)}
+
+    /* Bouton style de carte + tip */
+    .fab-style{
+      position:absolute;right:10px;top:70px;z-index:3200;width:46px;height:46px;border-radius:999px;cursor:pointer;border:1px solid rgba(0,0,0,.18);background:#ffffff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 26px rgba(0,0,0,.22);
+      opacity:0; transform:translateY(-8px); transition:opacity .5s ease .8s, transform .5s ease .8s;
+      animation: gentle-pulse 3s ease-in-out infinite;
+    }
+    body.theme-dark .fab-style{background:#0b1220;color:#fff;border-color:rgba(148,163,184,.35)}
+    .mapstyle-tip{position:absolute;left:50%;top:70px;transform:translateX(-50%);z-index:3200;background:#fff;color:#0f172a;border-radius:999px;padding:8px 12px;font:800 12px Outfit;border:1px solid rgba(15,23,42,.12);box-shadow:0 10px 30px rgba(0,0,0,.25);display:none}
+    body.theme-dark .mapstyle-tip{background:rgba(2,6,23,.98);color:#fff;border-color:rgba(148,163,184,.35)}
+
+    /* Popups */
     .leaflet-popup-content-wrapper{background:rgba(0,0,0,.9);border:1px solid rgba(34,197,94,.5);border-radius:14px;box-shadow:0 30px 60px rgba(0,0,0,.8);color:#fff}
     .leaflet-popup-tip{background:rgba(0,0,0,.9);border:1px solid rgba(34,197,94,.5)}
     .leaflet-popup-content{margin:10px;min-width:200px;max-width:240px}
@@ -104,6 +148,7 @@
     .rsl-pop-desc{color:#cdd6ff;font:500 12px/1.4 Outfit;margin-bottom:8px}
     .rsl-pop-btn{display:inline-block;font:800 12px/1.2 Outfit;padding:7px 10px;border-radius:8px;background:linear-gradient(180deg,#22c55e,#16a34a);color:#062312;text-decoration:none}
 
+    /* Modales */
     .modal{position:fixed;inset:0;z-index:40;display:none}
     .modal.show{display:block}
     .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
@@ -119,20 +164,57 @@
     #asMsg{font:700 12px;color:#7cffb0}
     #asMsg.error{color:#ff9f9f}
 
+    /* Tabbar */
     .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;border-top:1px solid var(--border);background:rgba(2,6,23,.97);backdrop-filter:blur(18px);display:flex;justify-content:space-around;align-items:center;padding:6px 8px 10px}
     body.theme-light .tabbar{background:rgba(244,244,245,.97)}
-    .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:var(--text-dim);font-size:9px;letter-spacing:.04em;text-transform:uppercase;padding:4px 0}
+    .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:var(--text-dim);font-size:9px;letter-spacing:.04em;text-transform:uppercase;padding:4px 0;transition:color .2s}
     .tab .ic{font-size:20px;line-height:1}
     .tab.active{color:var(--accent)}
+    @media(min-width:700px){nav.nav .row{padding-inline:20px}.main{padding-inline:14px}.tabbar{border-radius:22px 22px 0 0}}
 
-    @media(min-width:700px){
-      nav.nav .row{padding-inline:20px}
-      .main{padding-inline:14px}
-      .tabbar{border-radius:22px 22px 0 0}
+    /* Footer */
+    .site-footer{
+      max-width:900px;margin:16px auto 84px;padding:12px 14px;border-top:1px solid var(--border);
+      color:var(--text-dim);font-size:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+      background:rgba(2,6,23,.6);backdrop-filter:blur(8px);border-radius:14px
     }
+    body.theme-light .site-footer{background:rgba(255,255,255,.8)}
+    .site-footer a{color:var(--text-dim);text-decoration:none;font-weight:700}
+    .site-footer a:hover{color:var(--accent)}
+
+    /* ===== Effets “vivants” sur marqueurs riders ===== */
+    .rsl-marker div{
+      position:relative;
+      animation: marker-pop .6s cubic-bezier(.2,.8,.2,1) 1;
+    }
+    .rsl-marker div::after{
+      content:""; position:absolute; inset:-6px; border-radius:999px;
+      border:2px solid rgba(34,197,94,.0); transform:scale(.8);
+      animation: marker-ring 2.4s ease-out infinite;
+    }
+
+    /* ====== INTRO 3s ====== */
+    body.intro .brand img{transform:scale(0.6); box-shadow:0 0 0 rgba(34,197,94,0)}
+    body.intro .brand span{opacity:0; transform:translateY(-8px)}
+    body.intro .map-card{opacity:0; transform:translateY(22px) scale(.96); filter:saturate(.8)}
+    body.intro .chips-row, body.intro .filters-fab, body.intro .fab-style{opacity:0; transform:translateY(-12px)}
+    body.intro .rsl-bg-dim{animation: dim-in 1.2s ease forwards}
+
+    body.intro-done .brand img{transform:scale(1); box-shadow:0 0 18px rgba(34,197,94,.55)}
+    body.intro-done .brand span{opacity:1; transform:none}
+    body.intro-done .map-card{opacity:1; transform:none; filter:none}
+    body.intro-done .chips-row{opacity:1; filter:blur(0); transform:translateX(-50%)}
+    body.intro-done .filters-fab{opacity:1; transform:none}
+    body.intro-done .fab-style{opacity:1; transform:none}
+
+    /* ===== KEYFRAMES ===== */
+    @keyframes marker-pop{0%{transform:scale(.6);opacity:.0}100%{transform:scale(1);opacity:1}}
+    @keyframes marker-ring{0%{opacity:.5;transform:scale(.8)}100%{opacity:0;transform:scale(1.3)}}
+    @keyframes gentle-pulse{0%,100%{box-shadow:0 12px 26px rgba(0,0,0,.22)}50%{box-shadow:0 18px 38px rgba(0,0,0,.32)}}
+    @keyframes dim-in{0%{opacity:0}100%{opacity:1}}
   </style>
 </head>
-<body class="theme-dark">
+<body class="theme-dark intro"><!-- intro class ajoutée -->
 
 <!-- BG vidéo -->
 <div class="rsl-bg-wrap" aria-hidden="true">
@@ -155,8 +237,8 @@
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
         <button type="button" class="icon-btn" id="btnPwa" title="Installer l'app RIDLY">📲 <span class="label">App</span></button>
-        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">💌<span class="label">MP</span><span class="badge" id="badge1v1"></span></a>
-        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">💬 <span class="label">Chat</span></a>
+        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">💌<span class="badge" id="badge1v1"></span></a>
+        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">💬</a>
       </div>
     </div>
   </nav>
@@ -171,8 +253,11 @@
 
     <section class="map-card">
       <div class="map-wrap">
+
+        <!-- bouton filtres -->
         <div class="filters-fab"><button id="btnToggleFilters" class="btn">Filtres</button></div>
 
+        <!-- panneau filtres -->
         <div class="filters-wrap" id="filtersWrap">
           <div class="filters-card">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
@@ -219,13 +304,35 @@
           </div>
         </div>
 
+        <!-- Chips + bouton style -->
+        <div class="chips-row">
+          <button class="chip-float chip-blue"  id="chipSkate">Skateparks</button>
+          <button class="chip-float chip-green" id="chipPump">Pumptracks</button>
+          <button class="chip-float chip-red"   id="chipIndoor">Indoors</button>
+          <button class="chip-float chip-orange" id="chipStreet">Street</button>
+        </div>
+        <button class="fab-style" id="fabStyle" title="Changer le style">🌐</button>
+        <div id="mapStyleTip" class="mapstyle-tip"></div>
+
         <div id="map"></div>
       </div>
     </section>
   </main>
+
+  <!-- PIED DE PAGE -->
+  <footer class="site-footer">
+    <div>© RIDLY 2025 — Tous droits réservés</div>
+    <nav style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="conditions.html">Conditions générales</a>
+      <a href="confidentialite.html">Confidentialité</a>
+      <a href="aide.html">Aide</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </footer>
+
 </div>
 
-<!-- Modale Ajouter un spot -->
+<!-- Modales (inchangées) -->
 <div class="modal" id="addSpotModal">
   <div class="modal-bg"></div>
   <div class="modal-card">
@@ -308,7 +415,6 @@
   </div>
 </div>
 
-<!-- Modale petite carte pour choisir lat/lng -->
 <div class="modal" id="pickMapModal">
   <div class="modal-bg"></div>
   <div class="modal-card" style="max-width:min(92vw,500px);">
@@ -342,13 +448,12 @@
 <div id="toast" class="toast"></div>
 
 <script>
-/* Thème clair/sombre */
+/* Thème */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
   document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
-
   const btnTheme = document.getElementById('btnTheme');
   const updateIcon = () => { btnTheme.textContent = document.body.classList.contains('theme-light') ? '☀️' : '🌙'; };
   updateIcon();
@@ -363,231 +468,154 @@
 </script>
 
 <script>
-/* Supabase init + Auth (retour OAuth) */
+/* Supabase init */
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
 let currentUser = null;
-
-/* Échange code OAuth (si présent), nettoyage d’URL, puis contrôle user */
-(async function handleOAuthAndUser(){
-  // Gestion d'une éventuelle erreur renvoyée par Google
-  const params = new URLSearchParams(window.location.search);
-  const oauthError = params.get('error') || params.get('error_description');
-
-  if (location.search.includes('code=') || location.hash.includes('access_token=')) {
-    try { await supa.auth.exchangeCodeForSession(); } catch(e){ console.warn('exchangeCodeForSession:', e); }
-    // Nettoie l'URL
-    history.replaceState({}, document.title, location.pathname);
-  }
-
-  if (oauthError) {
-    alert("Erreur lors de la connexion Google. Réessaie depuis la page de connexion.");
-  }
-
-  try{
-    const { data:{ user } } = await supa.auth.getUser();
-    if(!user){
-      // pas connecté → aller sur la page de login
-      window.location.href = 'compte.html';
-      return;
-    }
-    currentUser = user;
-  }catch(e){
-    console.error(e);
-    window.location.href = 'compte.html';
-  }
-})();
 </script>
 
 <script>
-/* Toast + notifs 1v1 (opcional) */
-const toastDiv = document.getElementById('toast');
-const badge1v1 = document.getElementById('badge1v1');
-const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
-let unreadToastShown = false;
+/* Toast + notifs 1v1 */
+const toastDiv=document.getElementById('toast');const badge1v1=document.getElementById('badge1v1');
+const notifAudio=new Audio('https://ridly.ch/sons/sonsnotif.mp3');let unreadToastShown=false;
+function showToast(msg){if(!toastDiv)return;toastDiv.textContent=msg;toastDiv.classList.add('show');clearTimeout(showToast._t);showToast._t=setTimeout(()=>toastDiv.classList.remove('show'),4000);}
+function playNotifSound(){try{notifAudio.currentTime=0;notifAudio.play().catch(()=>{});}catch(e){}}
+function update1v1Badge(count){if(!badge1v1)return;if(count>0){badge1v1.style.display='flex';badge1v1.textContent=count>9?'9+':String(count);}else{badge1v1.style.display='none';}}
+async function checkPrivateUnread(me){if(!me) return;try{const{data,error}=await supa.from('ridly_private_unread_counts').select('unread_count').eq('user_id',me.id);if(error)return;const total=(data||[]).reduce((s,r)=>s+(r.unread_count||0),0);update1v1Badge(total);if(total>0&&!unreadToastShown){unreadToastShown=true;showToast(`Tu as ${total} message${total>1?'s':''} privé${total>1?'s':''} non lu${total>1?'s':''}.`);playNotifSound();}}catch(e){}}
+function subscribePrivateAlerts(me){if(!me)return;supa.channel('ridly_private_alert_'+me.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'ridly_private_messages'},async payload=>{const m=payload.new;if(m.to_id!==me.id) return;let senderName='Rider';try{const{data:p}=await supa.from('profiles').select('pseudo,full_name').eq('id',m.from_id).maybeSingle();if(p) senderName=p.pseudo||p.full_name||'Rider';}catch(e){}playNotifSound();showToast('Nouveau message privé de '+senderName);checkPrivateUnread(me);}).subscribe();}
+</script>
 
-function showToast(msg){
-  if(!toastDiv) return;
-  toastDiv.textContent = msg;
-  toastDiv.classList.add('show');
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
-}
-function playNotifSound(){ try{ notifAudio.currentTime = 0; notifAudio.play().catch(()=>{});}catch(e){} }
-function update1v1Badge(count){
-  if(!badge1v1) return;
-  if(count>0){ badge1v1.style.display='flex'; badge1v1.textContent = count>9 ? '9+' : String(count); }
-  else{ badge1v1.style.display='none'; }
-}
-async function checkPrivateUnread(me){
-  if(!me) return;
-  try{
-    const { data, error } = await supa.from('ridly_private_unread_counts').select('unread_count').eq('user_id', me.id);
-    if(error) return;
-    const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
-    update1v1Badge(total);
-    if(total>0 && !unreadToastShown){
-      unreadToastShown = true;
-      showToast(`Tu as ${total} message${total>1?'s':''} privé${total>1?'s':''} non lu${total>1?'s':''}.`);
-      playNotifSound();
-    }
-  }catch(e){}
-}
-function subscribePrivateAlerts(me){
-  if(!me) return;
-  supa.channel('ridly_private_alert_'+me.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ridly_private_messages'}, async payload => {
-      const m = payload.new;
-      if(m.to_id !== me.id) return;
-      let senderName = 'Rider';
-      try{
-        const { data:p } = await supa.from('profiles').select('pseudo,full_name').eq('id', m.from_id).maybeSingle();
-        if(p) senderName = p.pseudo || p.full_name || 'Rider';
-      }catch(e){}
-      playNotifSound();
-      showToast('Nouveau message privé de ' + senderName);
-      checkPrivateUnread(me);
-    })
-    .subscribe();
-}
+<script>
+/* Auth minimal */
+(async function(){
+  const params=new URLSearchParams(window.location.search);
+  if (location.search.includes('code=') || location.hash.includes('access_token=')) {
+    try{ await supa.auth.exchangeCodeForSession(); }catch(e){}
+    history.replaceState({}, document.title, location.pathname);
+  }
+  const { data:{ user } } = await supa.auth.getUser();
+  if(!user){ window.location.href='compte.html'; return; }
+  currentUser=user; checkPrivateUnread(user); subscribePrivateAlerts(user);
+})();
 </script>
 
 <script>
 /* BG vidéo */
 (function(){
-  const v = document.getElementById('rslBg');
-  if(!v) return;
-  const s = document.createElement('source');
-  s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
-  s.type = "video/mp4";
-  v.appendChild(s);
-  const play = ()=>{ try{ v.playbackRate = 0.6; const p=v.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){} };
-  play();
-  document.addEventListener('visibilitychange',()=>{ document.hidden ? v.pause() : play(); });
+  const v=document.getElementById('rslBg'); if(!v) return;
+  const s=document.createElement('source'); s.src=SUPABASE_URL+"/storage/v1/object/public/ridly/ridly.mp4"; s.type="video/mp4"; v.appendChild(s);
+  const play=()=>{try{v.playbackRate=0.6;const p=v.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}}; play();
+  document.addEventListener('visibilitychange',()=>{document.hidden?v.pause():play();});
 })();
 </script>
 
 <script>
 /* PWA */
-let deferredInstallPrompt = null;
-window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredInstallPrompt = e; });
-const btnPwa = document.getElementById('btnPwa');
-if(btnPwa){
-  btnPwa.addEventListener('click', async ()=>{
-    if(deferredInstallPrompt){
-      deferredInstallPrompt.prompt();
-      try{ await deferredInstallPrompt.userChoice; }catch(e){}
-      deferredInstallPrompt = null;
-    }else{
-      alert("Pour installer RIDLY, utilise « Ajouter à l'écran d'accueil » dans ton navigateur.");
-    }
-  });
-}
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredInstallPrompt=e;});
+document.getElementById('btnPwa').addEventListener('click',async()=>{
+  if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;}
+  else{alert("Pour installer RIDLY, utilise « Ajouter à l'écran d'accueil » dans ton navigateur.");}
+});
 </script>
 
 <script>
-/* Carte / filtres / données / partage riders / ajout spot */
+/* ===== CARTE + STYLES ===== */
+const MAPTILER_KEY = window.env?.MAPTILER_KEY || ""; // optionnel
 let map = L.map('map').setView([46.8, 8.2], 8);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
 
-const mk = (bg, emoji='🛹') => L.divIcon({
-  className:'rsl-marker',
-  html:`<div style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${bg};border:2px solid #fff;color:#fff;font-size:18px">${emoji}</div>`,
-  iconSize:[34,34], iconAnchor:[17,17]
+const baseDefs = [
+  { id:'positron',  label:'Clair',     url:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',  attr:'© OpenStreetMap © CARTO' },
+  { id:'dark',      label:'Noir',      url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',   attr:'© OpenStreetMap © CARTO' },
+  { id:'toon',      label:'Cartoon',   url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', attr:'© OpenStreetMap © CARTO' },
+  { id:'watercolor',label:'Watercolor',url:'https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', attr:'Map tiles by Stamen' },
+  { id:'sat',       label:'Satellite', url: MAPTILER_KEY ? `https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}` : null, attr:'© MapTiler' }
+].filter(d=>!!d.url);
+
+const baseLayers={}; baseDefs.forEach(d=> baseLayers[d.id]=L.tileLayer(d.url,{maxZoom:20,attribution:d.attr}) );
+baseLayers['positron'].addTo(map);
+
+let baseOrder=baseDefs.map(d=>d.id), baseIndex=0;
+const styleTip=document.getElementById('mapStyleTip');
+document.getElementById('fabStyle').addEventListener('click', ()=>{
+  baseIndex=(baseIndex+1)%baseOrder.length;
+  const id=baseOrder[baseIndex];
+  Object.values(baseLayers).forEach(l=>{ if(map.hasLayer(l)) map.removeLayer(l); });
+  baseLayers[id].addTo(map);
+  const def=baseDefs.find(x=>x.id===id);
+  if(def){ styleTip.textContent=def.label; styleTip.style.display='block'; clearTimeout(document.getElementById('fabStyle')._t); document.getElementById('fabStyle')._t=setTimeout(()=>styleTip.style.display='none',1500); }
 });
-const icons = {
-  park:  mk('#7c3aed','🛹'),
-  street:mk('#f97316','🧱'),
-  shop:  mk('#ef4444','🏪'),
-  int:   mk('#16a34a','🏫'),
-  ext:   mk('#0ea5e9','🛼'),
-  rider: mk('#06b6d4','👤')
-};
 
-const layers = {
-  park:L.layerGroup().addTo(map),
-  street:L.layerGroup().addTo(map),
-  shop:L.layerGroup().addTo(map),
-  int:L.layerGroup().addTo(map),
-  ext:L.layerGroup().addTo(map),
-  riders:L.layerGroup().addTo(map)
-};
+/* Icônes & calques */
+const mk=(bg,emoji='🛹')=>L.divIcon({className:'rsl-marker',html:`<div style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:${bg};border:2px solid #fff;color:#fff;font-size:18px">${emoji}</div>`,iconSize:[34,34],iconAnchor:[17,17]});
+const icons={park:mk('#7c3aed','🛹'),street:mk('#f97316','🧱'),shop:mk('#ef4444','🏪'),int:mk('#16a34a','🏫'),ext:mk('#0ea5e9','🛼'),rider:mk('#06b6d4','👤')};
+const layers={park:L.layerGroup().addTo(map),street:L.layerGroup().addTo(map),shop:L.layerGroup().addTo(map),int:L.layerGroup().addTo(map),ext:L.layerGroup().addTo(map),riders:L.layerGroup().addTo(map)};
+const ALL_MARKERS=[];
+</script>
 
-const ALL_MARKERS = []; // {marker, group, canton, country, text}
-
+<script>
 /* Filtres UI */
-const bodyEl = document.body;
-document.getElementById('btnToggleFilters').onclick = ()=> bodyEl.classList.toggle('show-filters');
-document.getElementById('btnCloseFilters').onclick  = ()=> bodyEl.classList.remove('show-filters');
+const bodyEl=document.body;
+document.getElementById('btnToggleFilters').onclick=()=> bodyEl.classList.toggle('show-filters');
+document.getElementById('btnCloseFilters').onclick =()=> bodyEl.classList.remove('show-filters');
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') bodyEl.classList.remove('show-filters'); });
 
-const F = {
-  park:document.getElementById('f-park'),
-  street:document.getElementById('f-street'),
-  shop:document.getElementById('f-shop'),
-  cours:document.getElementById('f-cours'),
-  country:document.getElementById('f-country'),
-  countrySearch:document.getElementById('f-country-search'),
-  type:document.getElementById('f-type'),
-  reset:document.getElementById('btnReset'),
-  locate:document.getElementById('btnLocate')
-};
+const F={park:document.getElementById('f-park'),street:document.getElementById('f-street'),shop:document.getElementById('f-shop'),cours:document.getElementById('f-cours'),country:document.getElementById('f-country'),countrySearch:document.getElementById('f-country-search'),type:document.getElementById('f-type'),reset:document.getElementById('btnReset'),locate:document.getElementById('btnLocate')};
 
 function applyFilters(){
-  const show = { park:F.park.checked, street:F.street.checked, shop:F.shop.checked, int:F.cours.checked, ext:F.cours.checked };
-  const countrySel = (F.country.value||'').trim();
-  const txt = (F.type.value||'').trim().toLowerCase();
-
+  const show={park:F.park.checked,street:F.street.checked,shop:F.shop.checked,int:F.cours.checked,ext:F.cours.checked};
+  const countrySel=(F.country.value||'').trim();
+  const txt=(F.type.value||'').trim().toLowerCase();
   ALL_MARKERS.forEach(o=>{
-    let vis = !!show[o.group] || o.group==='riders';
-    if(vis && countrySel && o.group!=='riders') vis = (o.country||'')===countrySel;
-    if(vis && txt && o.group!=='riders') vis = (o.text||'').includes(txt);
-
+    let vis=!!show[o.group] || o.group==='riders';
+    if(vis && countrySel && o.group!=='riders') vis=(o.country||'')===countrySel;
+    if(vis && txt && o.group!=='riders') vis=(o.text||'').includes(txt);
     if(vis){ if(!map.hasLayer(o.marker)) o.marker.addTo(layers[o.group]); }
-    else   { if(map.hasLayer(o.marker)) layers[o.group].removeLayer(o.marker); }
+    else{ if(map.hasLayer(o.marker)) layers[o.group].removeLayer(o.marker); }
   });
 }
 
 /* Recherche pays */
 if(F.countrySearch){
   F.countrySearch.addEventListener('input', ()=>{
-    const q = (F.countrySearch.value||'').trim().toLowerCase();
-    const sel = F.country;
+    const q=(F.countrySearch.value||'').trim().toLowerCase();
+    const sel=F.country;
     Array.from(sel.options).forEach(opt=>{
       if(!opt.value){ opt.style.display=''; return; }
-      const label = (opt.textContent||'').toLowerCase();
+      const label=(opt.textContent||'').toLowerCase();
       opt.style.display = label.includes(q) ? '' : 'none';
     });
   });
 }
-['change','input'].forEach(ev=>{
-  [F.park,F.street,F.shop,F.cours,F.country,F.type].forEach(el=> el.addEventListener(ev,applyFilters));
-});
-F.reset.onclick = ()=>{ F.park.checked = F.street.checked = F.shop.checked = F.cours.checked = true; F.country.value = ''; F.type.value=''; applyFilters(); };
-F.locate.onclick = ()=>{
-  if(!navigator.geolocation){ alert('Géolocalisation indisponible.'); return; }
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const {latitude,longitude} = pos.coords;
-    L.circleMarker([latitude,longitude],{radius:6,color:'#38bdf8',fillColor:'#38bdf8',fillOpacity:.9,weight:2}).addTo(map);
-    map.setView([latitude,longitude],14);
-  },()=>alert("Impossible d'obtenir ta position."));
-};
+['change','input'].forEach(ev=>{ [F.park,F.street,F.shop,F.cours,F.country,F.type].forEach(el=> el.addEventListener(ev,applyFilters)); });
+F.reset.onclick=()=>{F.park.checked=F.street.checked=F.shop.checked=F.cours.checked=true;F.country.value='';F.type.value='';applyFilters();};
+F.locate.onclick=()=>{ if(!navigator.geolocation){alert('Géolocalisation indisponible.');return;} navigator.geolocation.getCurrentPosition(pos=>{const{latitude,longitude}=pos.coords;L.circleMarker([latitude,longitude],{radius:6,color:'#38bdf8',fillColor:'#38bdf8',fillOpacity:.9,weight:2}).addTo(map);map.setView([latitude,longitude],14);},()=>alert("Impossible d'obtenir ta position.")); };
 
-/* Chargement données */
+/* Chips -> filtres rapides */
+(function(){
+  const chipSkate=document.getElementById('chipSkate');
+  const chipPump=document.getElementById('chipPump');
+  const chipIndoor=document.getElementById('chipIndoor');
+  const chipStreet=document.getElementById('chipStreet');
+  let exclusive=null;
+  function resetAll(){F.park.checked=F.street.checked=F.shop.checked=F.cours.checked=true;F.country.value='';F.type.value='';[chipSkate,chipPump,chipIndoor,chipStreet].forEach(el=>el.style.opacity='1');exclusive=null;applyFilters();}
+  function setOpacity(el){[chipSkate,chipPump,chipIndoor,chipStreet].forEach(x=>x.style.opacity=(x===el?'0.6':'1'));}
+  chipSkate.addEventListener('click',()=>{if(exclusive==='skate'){resetAll();return;}F.park.checked=true;F.street.checked=F.shop.checked=F.cours.checked=false;F.type.value='';setOpacity(chipSkate);exclusive='skate';applyFilters();});
+  chipPump.addEventListener('click', ()=>{if(exclusive==='pump'){resetAll();return;}F.park.checked=true;F.street.checked=F.shop.checked=F.cours.checked=false;F.type.value='pump';setOpacity(chipPump);exclusive='pump';applyFilters();});
+  chipIndoor.addEventListener('click',()=>{if(exclusive==='indoor'){resetAll();return;}F.cours.checked=true;F.park.checked=F.street.checked=F.shop.checked=false;F.type.value='';setOpacity(chipIndoor);exclusive='indoor';applyFilters();});
+  chipStreet.addEventListener('click',()=>{if(exclusive==='street'){resetAll();return;}F.street.checked=true;F.park.checked=F.shop.checked=F.cours.checked=false;F.type.value='';setOpacity(chipStreet);exclusive='street';applyFilters();});
+})();
+</script>
+
+<script>
+/* Données Supabase */
 (async function loadData(){
   // shops
   let { data: shops } = await supa.from('shops').select('*');
   (shops||[]).forEach(s=>{
     if(!s.lat||!s.lng) return;
-    const html = `
-      <div class="rsl-pop">
-        <div class="rsl-pop-title">${s.nom||'Shop'}</div>
-        <div class="rsl-pop-loc">${s.ville||''} (${s.canton||''})</div>
-        <div class="rsl-pop-desc">${s.description||''}</div>
-        ${s.site?`<a class="rsl-pop-btn" href="${s.site}" target="_blank" rel="noopener">Site du shop →</a>`:''}
-      </div>`;
+    const html = `<div class="rsl-pop"><div class="rsl-pop-title">${s.nom||'Shop'}</div><div class="rsl-pop-loc">${s.ville||''} (${s.canton||''})</div><div class="rsl-pop-desc">${s.description||''}</div>${s.site?`<a class="rsl-pop-btn" href="${s.site}" target="_blank" rel="noopener">Site du shop →</a>`:''}</div>`;
     const m = L.marker([s.lat,s.lng],{icon:icons.shop}).bindPopup(html,{closeButton:true,autoClose:false,closeOnClick:true});
     ALL_MARKERS.push({ marker:m, group:'shop', canton:s.canton||'', country:s.country||'CH', text:`${s.nom||''} ${s.ville||''} ${s.description||''}`.toLowerCase() });
     m.addTo(layers.shop);
@@ -597,13 +625,7 @@ F.locate.onclick = ()=>{
   let { data: parks } = await supa.from('spots').select('*');
   (parks||[]).forEach(p=>{
     if(!p.lat||!p.lng) return;
-    const html = `
-      <div class="rsl-pop">
-        <div class="rsl-pop-title">${p.nom||'Spot'}</div>
-        <div class="rsl-pop-loc">${p.ville||''} (${p.canton||''})</div>
-        <div class="rsl-pop-desc">${p.description ? p.description : (p.type||'')}</div>
-        <a class="rsl-pop-btn" href="spot.html?id=${p.id}" onclick="window.location.href='spot.html?id=${p.id}';return false;">Voir le spot →</a>
-      </div>`;
+    const html = `<div class="rsl-pop"><div class="rsl-pop-title">${p.nom||'Spot'}</div><div class="rsl-pop-loc">${p.ville||''} (${p.canton||''})</div><div class="rsl-pop-desc">${p.description ? p.description : (p.type||'')}</div><a class="rsl-pop-btn" href="spot.html?id=${p.id}" onclick="window.location.href='spot.html?id=${p.id}';return false;">Voir le spot →</a></div>`;
     const m = L.marker([p.lat,p.lng],{icon:icons.park}).bindPopup(html,{closeButton:true,autoClose:false,closeOnClick:true});
     const text = `${p.nom||''} ${p.ville||''} ${p.canton||''} ${p.type||''} ${p.description||''}`.toLowerCase();
     ALL_MARKERS.push({ marker:m, group:'park', canton:p.canton||'', country:p.country||'CH', text });
@@ -614,20 +636,14 @@ F.locate.onclick = ()=>{
   let { data: streets } = await supa.from('bunny').select('*');
   (streets||[]).forEach(s=>{
     if(!s.lat||!s.lng) return;
-    const html = `
-      <div class="rsl-pop">
-        <div class="rsl-pop-title">${s.nom||'Street spot'}</div>
-        <div class="rsl-pop-loc">${s.ville||''} (${s.canton||''})</div>
-        <div class="rsl-pop-desc">${s.description ? s.description : (s.type||'')}</div>
-        <a class="rsl-pop-btn" href="spot.html?id=${s.id}&street=1" onclick="window.location.href='spot.html?id=${s.id}&street=1';return false;">Voir le spot →</a>
-      </div>`;
+    const html = `<div class="rsl-pop"><div class="rsl-pop-title">${s.nom||'Street spot'}</div><div class="rsl-pop-loc">${s.ville||''} (${s.canton||''})</div><div class="rsl-pop-desc">${s.description ? s.description : (s.type||'')}</div><a class="rsl-pop-btn" href="spot.html?id=${s.id}&street=1" onclick="window.location.href='spot.html?id=${s.id}&street=1';return false;">Voir le spot →</a></div>`;
     const m = L.marker([s.lat,s.lng],{icon:icons.street}).bindPopup(html,{closeButton:true,autoClose:false,closeOnClick:true});
     const text = `${s.nom||''} ${s.ville||''} ${s.canton||''} ${s.type||''} ${s.description||''}`.toLowerCase();
     ALL_MARKERS.push({ marker:m, group:'street', canton:s.canton||'', country:s.country||'CH', text });
     m.addTo(layers.street);
   });
 
-  // lieux de cours (exemple)
+  // lieux de cours (exemples)
   [
     {group:'int', n:'Cours RSL — Montreux (indoor)', lat:46.433, lng:6.910, desc:'Session encadrée en intérieur'},
     {group:'int', n:'Cours RSL — Lausanne (La Fièvre)', lat:46.536, lng:6.626, desc:'Cours en salle / rampes / park'},
@@ -644,24 +660,23 @@ F.locate.onclick = ()=>{
 </script>
 
 <script>
-/* Partage position riders + suivi */
-let watchId = null;
-const shareBtn   = document.getElementById('btnShare');
-const shareState = document.getElementById('shareState');
+/* Partage position riders */
+let watchId=null;
+const shareBtn=document.getElementById('btnShare');
+const shareState=document.getElementById('shareState');
 
-function updateShareUi(active, hint){
+function updateShareUi(active,hint){
   if(!shareBtn) return;
-  if(active){ shareBtn.classList.remove('green'); shareBtn.textContent = 'Stop partage'; }
-  else      { shareBtn.classList.add('green');    shareBtn.textContent = 'Partage riders'; }
-  if(hint!==undefined && shareState) shareState.textContent = hint || "";
+  if(active){ shareBtn.classList.remove('green'); shareBtn.textContent='Stop partage'; }
+  else{ shareBtn.classList.add('green'); shareBtn.textContent='Partage riders'; }
+  if(hint!==undefined && shareState) shareState.textContent=hint||"";
 }
-
 async function upsertMyLocation(lat,lng){
   if(!currentUser) return;
   await supa.from('rider_locations').upsert({
     user_id: currentUser.id, lat, lng,
     updated_at: new Date().toISOString(),
-    expires_at: new Date(Date.now() + 60*60*1000).toISOString()
+    expires_at: new Date(Date.now()+60*60*1000).toISOString()
   }, { onConflict:'user_id' });
 }
 async function removeMyLocation(){ if(currentUser) await supa.from('rider_locations').delete().eq('user_id', currentUser.id); }
@@ -677,11 +692,11 @@ async function loadRiders(){
     L.marker([r.lat,r.lng],{icon:icons.rider}).bindPopup(popup,{closeButton:true}).addTo(layers.riders);
   });
 }
-if(document.getElementById('btnShare')){
-  document.getElementById('btnShare').addEventListener('click', async ()=>{
+if(shareBtn){
+  shareBtn.addEventListener('click', async ()=>{
     if(!currentUser){ alert("Connecte-toi pour partager ta position."); return; }
     if(watchId!==null){
-      navigator.geolocation.clearWatch(watchId); watchId = null;
+      navigator.geolocation.clearWatch(watchId); watchId=null;
       updateShareUi(false,"Partage coupé"); await removeMyLocation(); return;
     }
     if(!navigator.geolocation){ alert("Géolocalisation indisponible."); return; }
@@ -690,7 +705,7 @@ if(document.getElementById('btnShare')){
       await upsertMyLocation(pos.coords.latitude, pos.coords.longitude);
     }, err=>{
       console.warn(err);
-      updateShareUi(false,"Autorise la géoloc"); watchId = null;
+      updateShareUi(false,"Autorise la géoloc"); watchId=null;
     }, { enableHighAccuracy:true, maximumAge:8000, timeout:15000 });
   });
 }
@@ -704,7 +719,7 @@ window.addEventListener('beforeunload', async ()=>{
 </script>
 
 <script>
-/* Modale Ajouter un spot + pick map */
+/* Petite carte + recherche (inchangé) */
 const addModal  = document.getElementById('addSpotModal');
 const asType    = document.getElementById('asType');
 const asCountry = document.getElementById('asCountry');
@@ -721,14 +736,8 @@ document.querySelector('#addSpotModal .modal-bg').addEventListener('click',()=>a
 document.getElementById('asCancel').onclick = ()=>addModal.classList.remove('show');
 
 function openAddModal(){ addModal.classList.add('show'); asMsg.classList.remove('error'); asMsg.textContent='📍 Utilise la petite carte ou clique la grande carte.'; updateAsSaveState(); }
-
-function updateAsSaveState(){
-  const ok = (asNom.value.trim().length>1 && !!parseFloat(asLat.value) && !!parseFloat(asLng.value));
-  asSaveBtn.disabled = !ok; asSaveBtn.style.opacity = ok ? '1' : '.6';
-}
-['input','change'].forEach(ev=>{
-  [asNom,asLat,asLng,asCountry,asType,asVille,asDesc].forEach(el=> el.addEventListener(ev,updateAsSaveState));
-});
+function updateAsSaveState(){ const ok = (asNom.value.trim().length>1 && !!parseFloat(asLat.value) && !!parseFloat(asLng.value)); asSaveBtn.disabled = !ok; asSaveBtn.style.opacity = ok ? '1' : '.6'; }
+['input','change'].forEach(ev=>{ [asNom,asLat,asLng,asCountry,asType,asVille,asDesc].forEach(el=> el.addEventListener(ev,updateAsSaveState)); });
 
 async function autoFillCityCountry(lat, lng){
   if(!lat || !lng) return;
@@ -749,20 +758,11 @@ async function autoFillCityCountry(lat, lng){
   }catch(e){}
 }
 
-/* Clic sur la grande carte -> lat/lng */
-map.on('click',e=>{
-  if(!addModal.classList.contains('show')) return;
-  const lat = e.latlng.lat, lng = e.latlng.lng;
-  asLat.value = lat.toFixed(6); asLng.value = lng.toFixed(6);
-  updateAsSaveState(); autoFillCityCountry(lat, lng);
-});
-
-/* Petite carte + recherche */
+let pickMap = null, pickMarker = null;
 const pickModal      = document.getElementById('pickMapModal');
 const btnPickLatLng  = document.getElementById('btnPickLatLng');
-let pickMap = null, pickMarker = null;
-const pickSearch    = document.getElementById('pickSearch');
-const pickSearchBtn = document.getElementById('pickSearchBtn');
+const pickSearch     = document.getElementById('pickSearch');
+const pickSearchBtn  = document.getElementById('pickSearchBtn');
 
 btnPickLatLng.addEventListener('click', ()=>{
   pickModal.classList.add('show');
@@ -809,6 +809,14 @@ pickSearch.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefa
 document.getElementById('pickMapCancel').onclick = ()=> pickModal.classList.remove('show');
 document.getElementById('pickMapOk').onclick     = ()=> pickModal.classList.remove('show');
 
+/* Clic sur grande carte -> lat/lng quand modale ouverte */
+map.on('click',e=>{
+  if(!addModal.classList.contains('show')) return;
+  const lat = e.latlng.lat, lng = e.latlng.lng;
+  asLat.value = lat.toFixed(6); asLng.value = lng.toFixed(6);
+  updateAsSaveState(); autoFillCityCountry(lat, lng);
+});
+
 /* Envoi du spot */
 document.getElementById('asSave').onclick = async ()=>{
   asMsg.classList.remove('error'); asMsg.textContent = "Envoi…";
@@ -844,9 +852,15 @@ document.getElementById('asSave').onclick = async ()=>{
 
 <script>
 /* Service worker */
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js').catch(console.error);
-}
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js').catch(console.error); }
+
+/* ===== Déroulé d’intro 3 secondes ===== */
+window.addEventListener('load', ()=>{
+  // Séquence simple : 0–3000ms
+  document.body.classList.add('intro');
+  setTimeout(()=>{ document.body.classList.add('intro-done'); }, 200);   // démarre l’apparition
+  setTimeout(()=>{ document.body.classList.remove('intro'); }, 3000);    // fin de l’état "intro"
+});
 </script>
 
 </body>
