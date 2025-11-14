@@ -10,7 +10,6 @@
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/env.js"></script>
 
   <style>
     :root{
@@ -364,24 +363,10 @@
 </footer>
 
 <script>
+  // Année
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  const supabaseUrl = window.SUPABASE_URL;
-  const supabaseAnonKey = window.SUPABASE_ANON_KEY;
-  const sb = supabase.createClient(supabaseUrl, supabaseAnonKey);
-
-  // Si déjà connecté → direct sur la carte
-  (async () => {
-    try {
-      const { data } = await sb.auth.getSession();
-      if (data && data.session) {
-        window.location.href = "ou_rider.html";
-      }
-    } catch (e) {
-      console.error("Erreur getSession", e);
-    }
-  })();
-
+  // DOM
   const emailExisting = document.getElementById("email-existing");
   const passwordExisting = document.getElementById("password-existing");
   const btnMagic = document.getElementById("btn-magic");
@@ -397,121 +382,153 @@
     el.className = "status";
   }
 
-  // Lien magique
-  btnMagic.addEventListener("click", async () => {
-    const email = emailExisting.value.trim();
-    if (!email){
-      resetStatus(statusExisting);
-      statusExisting.textContent = "Entre ton e-mail pour recevoir le lien.";
-      return;
-    }
-    btnMagic.disabled = true;
+  // === CONFIG SUPABASE (avec TES données) ===
+  const supabaseUrl = "https://jynxifufaauoxwzjapzq.supabase.co";
+  const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+  // =========================================
+
+  if (!window.supabase) {
+    console.error("Supabase JS non chargé");
     resetStatus(statusExisting);
-    statusExisting.textContent = "Envoi du lien magique…";
-
-    try {
-      const { error } = await sb.auth.signInWithOtp({
-        email,
-        options:{
-          emailRedirectTo: window.location.origin + "/ou_rider.html"
-        }
-      });
-      if (error){
-        console.error(error);
-        statusExisting.textContent = "Erreur : " + (error.message || "impossible d'envoyer le lien.");
-        statusExisting.classList.add("err");
-      } else {
-        statusExisting.textContent = "Lien envoyé ! Vérifie ta boîte mail pour ouvrir la carte RIDLY.";
-        statusExisting.classList.add("ok");
-      }
-    } catch(err){
-      console.error(err);
-      statusExisting.textContent = "Une erreur est survenue. Réessaie.";
-      statusExisting.classList.add("err");
-    } finally {
-      btnMagic.disabled = false;
-    }
-  });
-
-  // Connexion classique
-  btnLogin.addEventListener("click", async () => {
-    const email = emailExisting.value.trim();
-    const password = passwordExisting.value;
-    if (!email || !password){
-      resetStatus(statusExisting);
-      statusExisting.textContent = "Entre ton e-mail ET ton mot de passe.";
-      return;
-    }
-    btnLogin.disabled = true;
-    resetStatus(statusExisting);
-    statusExisting.textContent = "Connexion en cours…";
-
-    try {
-      const { data, error } = await sb.auth.signInWithPassword({
-        email,
-        password
-      });
-      if (error){
-        console.error(error);
-        statusExisting.textContent = "Erreur : " + (error.message || "connexion impossible.");
-        statusExisting.classList.add("err");
-      } else {
-        statusExisting.textContent = "Connecté ! Redirection vers la carte…";
-        statusExisting.classList.add("ok");
-        window.location.href = "ou_rider.html";
-      }
-    } catch(err){
-      console.error(err);
-      statusExisting.textContent = "Une erreur est survenue. Réessaie.";
-      statusExisting.classList.add("err");
-    } finally {
-      btnLogin.disabled = false;
-    }
-  });
-
-  // Création de compte
-  btnSignup.addEventListener("click", async () => {
-    const email = emailSignup.value.trim();
-    const password = passwordSignup.value;
-    if (!email || !password){
-      resetStatus(statusSignup);
-      statusSignup.textContent = "Entre un e-mail et un mot de passe.";
-      return;
-    }
-    btnSignup.disabled = true;
+    statusExisting.textContent = "Erreur de configuration (Supabase JS).";
+    statusExisting.classList.add("err");
     resetStatus(statusSignup);
-    statusSignup.textContent = "Création du compte…";
+    statusSignup.textContent = "Erreur de configuration (Supabase JS).";
+    statusSignup.classList.add("err");
+    btnMagic.disabled = true;
+    btnLogin.disabled = true;
+    btnSignup.disabled = true;
+  } else {
+    const sb = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-    try {
-      const { data, error } = await sb.auth.signUp({
-        email,
-        password,
-        options:{
-          emailRedirectTo: window.location.origin + "/ou_rider.html"
-        }
-      });
-      if (error){
-        console.error(error);
-        statusSignup.textContent = "Erreur : " + (error.message || "création impossible.");
-        statusSignup.classList.add("err");
-      } else {
-        if (data.session){
-          statusSignup.textContent = "Compte créé ! Redirection vers la carte…";
-          statusSignup.classList.add("ok");
+    // Si déjà connecté → direct sur la carte
+    (async () => {
+      try {
+        const { data } = await sb.auth.getSession();
+        if (data && data.session) {
           window.location.href = "ou_rider.html";
-        } else {
-          statusSignup.textContent = "Compte créé ! Vérifie ton e-mail pour confirmer ton compte.";
-          statusSignup.classList.add("ok");
         }
+      } catch (e) {
+        console.error("Erreur getSession", e);
       }
-    } catch(err){
-      console.error(err);
-      statusSignup.textContent = "Une erreur est survenue. Réessaie.";
-      statusSignup.classList.add("err");
-    } finally {
-      btnSignup.disabled = false;
-    }
-  });
+    })();
+
+    // Lien magique
+    btnMagic.addEventListener("click", async () => {
+      const email = emailExisting.value.trim();
+      if (!email){
+        resetStatus(statusExisting);
+        statusExisting.textContent = "Entre ton e-mail pour recevoir le lien.";
+        return;
+      }
+      btnMagic.disabled = true;
+      resetStatus(statusExisting);
+      statusExisting.textContent = "Envoi du lien magique…";
+
+      try {
+        const { error } = await sb.auth.signInWithOtp({
+          email,
+          options:{
+            emailRedirectTo: window.location.origin + "/ou_rider.html"
+          }
+        });
+        if (error){
+          console.error(error);
+          statusExisting.textContent = "Erreur : " + (error.message || "impossible d'envoyer le lien.");
+          statusExisting.classList.add("err");
+        } else {
+          statusExisting.textContent = "Lien envoyé ! Vérifie ta boîte mail pour ouvrir la carte RIDLY.";
+          statusExisting.classList.add("ok");
+        }
+      } catch(err){
+        console.error(err);
+        statusExisting.textContent = "Une erreur est survenue. Réessaie.";
+        statusExisting.classList.add("err");
+      } finally {
+        btnMagic.disabled = false;
+      }
+    });
+
+    // Connexion classique
+    btnLogin.addEventListener("click", async () => {
+      const email = emailExisting.value.trim();
+      const password = passwordExisting.value;
+      if (!email || !password){
+        resetStatus(statusExisting);
+        statusExisting.textContent = "Entre ton e-mail ET ton mot de passe.";
+        return;
+      }
+      btnLogin.disabled = true;
+      resetStatus(statusExisting);
+      statusExisting.textContent = "Connexion en cours…";
+
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error){
+          console.error(error);
+          statusExisting.textContent = "Erreur : " + (error.message || "connexion impossible.");
+          statusExisting.classList.add("err");
+        } else {
+          statusExisting.textContent = "Connecté ! Redirection vers la carte…";
+          statusExisting.classList.add("ok");
+          window.location.href = "ou_rider.html";
+        }
+      } catch(err){
+        console.error(err);
+        statusExisting.textContent = "Une erreur est survenue. Réessaie.";
+        statusExisting.classList.add("err");
+      } finally {
+        btnLogin.disabled = false;
+      }
+    });
+
+    // Création de compte
+    btnSignup.addEventListener("click", async () => {
+      const email = emailSignup.value.trim();
+      const password = passwordSignup.value;
+      if (!email || !password){
+        resetStatus(statusSignup);
+        statusSignup.textContent = "Entre un e-mail et un mot de passe.";
+        return;
+      }
+      btnSignup.disabled = true;
+      resetStatus(statusSignup);
+      statusSignup.textContent = "Création du compte…";
+
+      try {
+        const { data, error } = await sb.auth.signUp({
+          email,
+          password,
+          options:{
+            emailRedirectTo: window.location.origin + "/ou_rider.html"
+          }
+        });
+        if (error){
+          console.error(error);
+          statusSignup.textContent = "Erreur : " + (error.message || "création impossible.");
+          statusSignup.classList.add("err");
+        } else {
+          if (data.session){
+            statusSignup.textContent = "Compte créé ! Redirection vers la carte…";
+            statusSignup.classList.add("ok");
+            window.location.href = "ou_rider.html";
+          } else {
+            statusSignup.textContent = "Compte créé ! Vérifie ton e-mail pour confirmer ton compte.";
+            statusSignup.classList.add("ok");
+          }
+        }
+      } catch(err){
+        console.error(err);
+        statusSignup.textContent = "Une erreur est survenue. Réessaie.";
+        statusSignup.classList.add("err");
+      } finally {
+        btnSignup.disabled = false;
+      }
+    });
+  }
 </script>
 
 </body>

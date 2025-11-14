@@ -317,6 +317,21 @@
     .chip-green{background:#e9fde9;color:#0d5b1f}
     .chip-red{background:#ffe9e9;color:#7c1010}
     .chip-orange{background:#fff2e6;color:#7a2e00;border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 16px rgba(0,0,0,.25)}
+/* Version mobile : les chips restent sur la carte mais s’adaptent */
+@media (max-width:600px){
+  .chips-row{
+    top:10px;
+    gap:6px;
+    padding:0 8px;
+    max-width:100%;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .chip-float{
+    padding:6px 10px;
+    font-size:12px;
+  }
+}
 
     /* Bouton style de carte + tip */
     .fab-style{
