@@ -177,17 +177,6 @@
       border-color:var(--green);
       color:var(--green);
     }
-    .chat-dot{
-      position:absolute;
-      top:5px;
-      right:5px;
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:#22c55e;
-      box-shadow:0 0 8px rgba(34,197,94,.9);
-      opacity:0;
-    }
 
     .nav-badge{
       position:absolute;
@@ -274,7 +263,7 @@
     .p-main{
       display:flex;
       flex-direction:column;
-      gap:6px;
+      gap:4px;
       padding-top:2px;
     }
     @media(max-width:720px){
@@ -513,6 +502,56 @@
       font-size:13px;
     }
 
+    /* Stats spots RIDLY */
+    .spotstats-body{
+      margin-top:4px;
+    }
+    .spotstats-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-top:4px;
+      font-size:13px;
+    }
+    .spotstats-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:10px;
+      background:var(--panel-soft);
+      border:1px solid rgba(148,163,184,.25);
+    }
+    body.theme-light .spotstats-row{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.4);
+    }
+    .spotstats-main{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .spotstats-title{
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .spotstats-sub{
+      font-size:11px;
+      color:var(--dim);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .spotstats-points{
+      font-size:13px;
+      font-weight:700;
+      margin-left:10px;
+      white-space:nowrap;
+    }
+
     /* Tabbar */
     .tabbar{
       position:fixed;
@@ -619,7 +658,7 @@
     .modal-close{
       border:0;
       background:transparent;
-      color:var(--dim);
+      color:#e5e7eb;
       font-size:18px;
       cursor:pointer;
       padding:0 2px;
@@ -718,10 +757,8 @@
           <span class="nav-badge" id="badge1v1"></span>
         </a>
 
-        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
-          <span class="chat-dot" id="chatDot"></span>
-          💬
-        </a>
+        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">💬</a>
+
         <!-- Déconnexion discrète en haut -->
         <button type="button" class="icon-btn" id="btnLogout" title="Déconnexion" style="display:none">⏻</button>
       </div>
@@ -731,7 +768,7 @@
   <!-- Mini hero style feed -->
   <div class="mini-title">Profil rider</div>
   <p class="page-intro">
-    Gère ton profil RIDLY, tes stories (flashs) et tes posts dans le feed.
+    Gère ton profil RIDLY, tes stories (flashs), tes posts dans le feed et tes stats de spots.
   </p>
 
   <main class="main">
@@ -744,6 +781,8 @@
           <h1 class="name" id="pName">—</h1>
           <div class="loc-line" id="pSub">—</div>
           <div class="meta-line" id="pStats">0 posts • 0 flashs • 0 abonnés • Moyenne compte : —</div>
+          <!-- Option A : ligne spot local -->
+          <div class="meta-line" id="pLocalPark">Skatepark local : —</div>
           <div class="cgu-row">
             <button type="button" class="chip-link cgu-btn" id="btnCgu">
               Conditions RIDLY
@@ -820,6 +859,17 @@
       <div id="postGrid" class="post-grid"></div>
       <p id="postsEmpty" class="empty" style="display:none">Aucun post pour l’instant.</p>
     </section>
+
+    <!-- Option B : card complète de stats spots -->
+    <section class="card" style="margin-top:14px" id="spotStatsCard">
+      <div class="posts-header">
+        <h2>Statistiques RIDLY — Spots</h2>
+      </div>
+      <div class="spotstats-body">
+        <p class="empty" id="spotStatsEmpty">Pas encore de sessions enregistrées.</p>
+        <div id="spotStatsList" class="spotstats-list"></div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -887,7 +937,7 @@
 })();
 </script>
 
-<!-- Supabase init + BG vidéo + Profil logic + notifs 1v1 + bouton conditions -->
+<!-- Supabase init + BG vidéo + Profil logic + notifs 1v1 + bouton conditions + stats spots -->
 <script>
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
@@ -995,6 +1045,7 @@ const avatarImg   = document.getElementById('avatarImg');
 const pName       = document.getElementById('pName');
 const pSub        = document.getElementById('pSub');
 const pStats      = document.getElementById('pStats');
+const pLocalPark  = document.getElementById('pLocalPark');
 const actionsBox  = document.getElementById('actionsBox');
 const editForm    = document.getElementById('editForm');
 const saveMsg     = document.getElementById('saveMsg');
@@ -1002,9 +1053,13 @@ const flashStrip  = document.getElementById('flashStrip');
 const postGrid    = document.getElementById('postGrid');
 const postsEmpty  = document.getElementById('postsEmpty');
 const btnNewPost  = document.getElementById('btnNewPost');
-const chatDot     = document.getElementById('chatDot');
 const btnLogout   = document.getElementById('btnLogout');
 const btnCgu      = document.getElementById('btnCgu');
+
+/* Stats spots DOM */
+const spotStatsCard  = document.getElementById('spotStatsCard');
+const spotStatsEmpty = document.getElementById('spotStatsEmpty');
+const spotStatsList  = document.getElementById('spotStatsList');
 
 const avatarInput = document.getElementById('fAvatar');
 const fPseudo     = document.getElementById('fPseudo');
@@ -1025,15 +1080,6 @@ const followModalClose = document.getElementById('followModalClose');
 
 let sessionUser   = null;
 let profileUserId = null;
-let isOwn         = false;
-let isAdmin       = false;
-
-let countPosts = 0;
-let countFlashes = 0;
-let accountAvg = null;
-let followersCount = 0;
-let followingCount = 0;
-let isFollowing    = false;
 
 /* Bouton Conditions RIDLY */
 btnCgu?.addEventListener('click', ()=>{
@@ -1042,7 +1088,8 @@ btnCgu?.addEventListener('click', ()=>{
 
 /* Ouvre le modal avec la liste */
 async function openFollowModal(mode){
-  if(!profileUserId) return;
+  if(!window._ridlyProfile?.profileUserId) return;
+  const profileUserId = window._ridlyProfile.profileUserId;
 
   followModalTitle.textContent = (mode === 'followers') ? 'Abonnés' : 'Abonnements';
   followModalList.innerHTML = '';
@@ -1140,15 +1187,17 @@ followModal?.addEventListener('click', (e)=>{
   }
 });
 
+/* Profil + stats counters dans window._ridlyProfile */
 function updateStatsLine(){
-  const avgTxt = (accountAvg != null)
-    ? `Moyenne compte : ${accountAvg.toFixed(1)} / 5`
+  const avgTxt = (window._ridlyProfile?.accountAvg != null)
+    ? `Moyenne compte : ${window._ridlyProfile.accountAvg.toFixed(1)} / 5`
     : `Moyenne compte : —`;
 
   const html = `
-    ${countPosts} posts • ${countFlashes} flashs •
-    <button type="button" class="chip-link" id="followersBtn">${followersCount} abonnés</button> •
-    <button type="button" class="chip-link" id="followingBtn">${followingCount} abonnements</button> •
+    ${window._ridlyProfile?.countPosts || 0} posts •
+    ${window._ridlyProfile?.countFlashes || 0} flashs •
+    <button type="button" class="chip-link" id="followersBtn">${window._ridlyProfile?.followersCount || 0} abonnés</button> •
+    <button type="button" class="chip-link" id="followingBtn">${window._ridlyProfile?.followingCount || 0} abonnements</button> •
     ${avgTxt}
   `;
   pStats.innerHTML = html;
@@ -1166,7 +1215,6 @@ function updateStatsLine(){
 (async function init(){
   const { data:{ user } } = await supa.auth.getUser();
   sessionUser = user || null;
-  if(sessionUser && chatDot) chatDot.style.opacity = 1;
 
   if(sessionUser){
     if(btnLogout){
@@ -1200,16 +1248,32 @@ function updateStatsLine(){
     return;
   }
 
-  isOwn = !!(sessionUser && sessionUser.id === profileUserId);
+  window._ridlyProfile = {
+    sessionUser,
+    profileUserId,
+    isOwn: !!(sessionUser && sessionUser.id === profileUserId),
+    isAdmin:false,
+    countPosts:0,
+    countFlashes:0,
+    followersCount:0,
+    followingCount:0,
+    isFollowing:false,
+    accountAvg:null,
+    spotStats:[],
+    localSpot:null,
+    totalSecondsAll:0
+  };
 
   await loadProfile();
   await loadFlashes();
   await loadPosts();
   await loadFollowState();
+  await loadSpotStats();
   buildActions();
 })();
 
 async function loadProfile(){
+  const { sessionUser, profileUserId } = window._ridlyProfile;
   const { data:prof } = await supa
     .from('profiles')
     .select('*')
@@ -1221,7 +1285,7 @@ async function loadProfile(){
     return;
   }
 
-  isAdmin = !!prof.is_admin;
+  window._ridlyProfile.isAdmin = !!prof.is_admin;
 
   const displayName =
     prof.pseudo ||
@@ -1241,7 +1305,7 @@ async function loadProfile(){
 
   avatarImg.src = prof.avatar_url || "image/logo_pn360.png";
 
-  if(isOwn){
+  if(window._ridlyProfile.isOwn){
     fPseudo.value   = prof.pseudo || prof.username || "";
     fFullname.value = prof.full_name || "";
     fCity.value     = prof.city || "";
@@ -1255,26 +1319,24 @@ async function loadProfile(){
 
 /* Charge nb d'abonnés + nb d'abonnements + si moi je suis abonné */
 async function loadFollowState(){
-  followersCount = 0;
-  followingCount = 0;
-  isFollowing = false;
+  const { profileUserId, sessionUser } = window._ridlyProfile;
+  window._ridlyProfile.followersCount = 0;
+  window._ridlyProfile.followingCount = 0;
+  window._ridlyProfile.isFollowing    = false;
 
-  if(!profileUserId){
-    updateStatsLine();
-    return;
-  }
+  if(!profileUserId){ updateStatsLine(); return; }
   try{
     const { count:followers } = await supa
       .from('rider_follows')
       .select('*', { count:'exact', head:true })
       .eq('followed_id', profileUserId);
-    followersCount = followers || 0;
+    window._ridlyProfile.followersCount = followers || 0;
 
     const { count:following } = await supa
       .from('rider_follows')
       .select('*', { count:'exact', head:true })
       .eq('follower_id', profileUserId);
-    followingCount = following || 0;
+    window._ridlyProfile.followingCount = following || 0;
 
     if(sessionUser){
       const { data:rows } = await supa
@@ -1283,9 +1345,9 @@ async function loadFollowState(){
         .eq('follower_id', sessionUser.id)
         .eq('followed_id', profileUserId)
         .limit(1);
-      isFollowing = !!(rows && rows.length);
+      window._ridlyProfile.isFollowing = !!(rows && rows.length);
     }else{
-      isFollowing = false;
+      window._ridlyProfile.isFollowing = false;
     }
     updateStatsLine();
   }catch(e){
@@ -1295,6 +1357,7 @@ async function loadFollowState(){
 }
 
 function buildActions(){
+  const { isOwn, isAdmin, profileUserId, sessionUser, isFollowing } = window._ridlyProfile;
   actionsBox.innerHTML = "";
   if(isOwn){
     if(isAdmin){
@@ -1338,6 +1401,7 @@ function makeBtn(txt, fn){
 
 /* Suivre / se désabonner */
 async function toggleFollow(){
+  const { sessionUser, profileUserId } = window._ridlyProfile;
   if(!sessionUser){
     window.location.href = "compte.html";
     return;
@@ -1347,23 +1411,23 @@ async function toggleFollow(){
   btn.disabled = true;
 
   try{
-    if(isFollowing){
+    if(window._ridlyProfile.isFollowing){
       const { error } = await supa
         .from('rider_follows')
         .delete()
         .eq('follower_id', sessionUser.id)
         .eq('followed_id', profileUserId);
       if(!error){
-        isFollowing = false;
-        followersCount = Math.max(0, followersCount - 1);
+        window._ridlyProfile.isFollowing = false;
+        window._ridlyProfile.followersCount = Math.max(0, window._ridlyProfile.followersCount - 1);
       }
     }else{
       const { error } = await supa
         .from('rider_follows')
         .insert([{ follower_id: sessionUser.id, followed_id: profileUserId }]);
       if(!error){
-        isFollowing = true;
-        followersCount = followersCount + 1;
+        window._ridlyProfile.isFollowing = true;
+        window._ridlyProfile.followersCount = window._ridlyProfile.followersCount + 1;
       }
     }
   }catch(e){
@@ -1371,7 +1435,7 @@ async function toggleFollow(){
   }finally{
     btn.disabled = false;
     updateStatsLine();
-    if(isFollowing){
+    if(window._ridlyProfile.isFollowing){
       btn.textContent = "Se désabonner";
       btn.classList.add('green');
     }else{
@@ -1387,6 +1451,7 @@ function toggleEdit(){
 
 editForm?.addEventListener('submit', async e=>{
   e.preventDefault();
+  const { profileUserId } = window._ridlyProfile;
   saveMsg.textContent = "Enregistrement…";
 
   const up = {
@@ -1411,6 +1476,7 @@ editForm?.addEventListener('submit', async e=>{
 });
 
 avatarInput?.addEventListener('change', async ()=>{
+  const { profileUserId } = window._ridlyProfile;
   if(!avatarInput.files?.length) return;
   const f = avatarInput.files[0];
   const safeName = f.name.replace(/[^\w.\-]+/g,'_');
@@ -1432,6 +1498,7 @@ avatarInput?.addEventListener('change', async ()=>{
 
 /* Flashes */
 async function loadFlashes(){
+  const { profileUserId } = window._ridlyProfile;
   const { data:fl } = await supa
     .from('flashes')
     .select('id,media_url,caption,created_at,expires_at')
@@ -1442,7 +1509,7 @@ async function loadFlashes(){
 
   const list = fl || [];
   flashStrip.innerHTML = "";
-  countFlashes = list.length;
+  window._ridlyProfile.countFlashes = list.length;
   updateStatsLine();
 
   list.forEach(f=>{
@@ -1458,7 +1525,7 @@ async function loadFlashes(){
         </div>
       </div>
       <div class="cap">${(f.caption||"").slice(0,18)}</div>
-      ${isOwn ? `
+      ${window._ridlyProfile.isOwn ? `
         <div class="flash-actions">
           <button type="button" data-id="${f.id}" data-act="repost" title="Repartager">↺</button>
           <button type="button" data-id="${f.id}" data-act="delete" title="Supprimer">✕</button>
@@ -1468,7 +1535,7 @@ async function loadFlashes(){
     flashStrip.appendChild(d);
   });
 
-  if(isOwn){
+  if(window._ridlyProfile.isOwn){
     flashStrip.querySelectorAll('.flash-actions button').forEach(btn=>{
       btn.addEventListener('click', async ev=>{
         ev.stopPropagation();
@@ -1491,6 +1558,7 @@ async function loadFlashes(){
 
 /* Posts */
 async function loadPosts(){
+  const { profileUserId } = window._ridlyProfile;
   const { data:posts } = await supa
     .from('spot_posts')
     .select('id,media_url,caption,spot_type,created_at')
@@ -1500,7 +1568,7 @@ async function loadPosts(){
 
   const list = posts || [];
   postGrid.innerHTML = "";
-  countPosts = list.length;
+  window._ridlyProfile.countPosts = list.length;
   updateStatsLine();
 
   if(!list.length){
@@ -1520,12 +1588,12 @@ async function loadPosts(){
         ? `<video src="${p.media_url}" muted playsinline></video>`
         : `<img src="${p.media_url}" alt="">`}
       <span class="tag">${p.spot_type==='street'?'Street':'Park'}</span>
-      ${isOwn ? `<button type="button" class="thumb-del" data-id="${p.id}" title="Supprimer">✕</button>` : ``}
+      ${window._ridlyProfile.isOwn ? `<button type="button" class="thumb-del" data-id="${p.id}" title="Supprimer">✕</button>` : ``}
     `;
     postGrid.appendChild(a);
   });
 
-  if(isOwn){
+  if(window._ridlyProfile.isOwn){
     postGrid.querySelectorAll('.thumb-del').forEach(btn=>{
       btn.addEventListener('click', async ev=>{
         ev.preventDefault();
@@ -1539,18 +1607,128 @@ async function loadPosts(){
 
   try{
     const ids = list.map(p=>p.id);
-    if(!ids.length){ accountAvg = null; updateStatsLine(); return; }
+    if(!ids.length){ window._ridlyProfile.accountAvg = null; updateStatsLine(); return; }
     const { data:likes } = await supa
       .from('post_likes')
       .select('post_id,rating')
       .in('post_id', ids);
     if(likes && likes.length){
       const sum = likes.reduce((a,b)=> a + (b.rating || 0), 0);
-      accountAvg = sum / likes.length;
+      window._ridlyProfile.accountAvg = sum / likes.length;
     }else{
-      accountAvg = null;
+      window._ridlyProfile.accountAvg = null;
     }
     updateStatsLine();
+  }catch(e){
+    console.error(e);
+  }
+}
+
+/* Stats spots RIDLY (sessions) */
+async function loadSpotStats(){
+  const { profileUserId } = window._ridlyProfile;
+  if(!profileUserId) return;
+
+  try{
+    const { data:rows, error } = await supa
+      .from('rider_spot_stats')
+      .select('spot_id,total_seconds,points')
+      .eq('user_id', profileUserId)
+      .order('total_seconds',{ascending:false});
+
+    if(error){
+      console.error(error);
+      return;
+    }
+
+    const stats = rows || [];
+    window._ridlyProfile.spotStats = stats;
+
+    if(!stats.length){
+      if(spotStatsEmpty) spotStatsEmpty.style.display = 'block';
+      if(spotStatsList)  spotStatsList.innerHTML = '';
+      if(pLocalPark)     pLocalPark.textContent = "Skatepark local : —";
+      return;
+    }
+
+    const spotIds = stats.map(r=>r.spot_id);
+    const { data:spots, error:err2 } = await supa
+      .from('spots')
+      .select('id,nom,ville,canton,country')
+      .in('id', spotIds);
+
+    if(err2){
+      console.error(err2);
+    }
+
+    const spotMap = {};
+    (spots || []).forEach(s=>{ spotMap[s.id] = s; });
+
+    const totalSecondsAll = stats.reduce((s,r)=>s + (r.total_seconds || 0), 0);
+    window._ridlyProfile.totalSecondsAll = totalSecondsAll;
+
+    // Park local = le plus gros total_seconds
+    const top = stats[0];
+    const topSpot = spotMap[top.spot_id];
+    window._ridlyProfile.localSpot = { stat:top, spot:topSpot };
+
+    if(pLocalPark){
+      const hoursTop  = Math.round((top.total_seconds || 0) / 3600);
+      const hoursAll  = Math.round(totalSecondsAll / 3600);
+      const pts       = (top.points != null) ? top.points : Math.floor((top.total_seconds || 0) / 3600);
+      const txtPark   = topSpot ? (topSpot.nom || "Skatepark") : "Skatepark";
+      const locParts  = [];
+      if(topSpot?.ville)   locParts.push(topSpot.ville);
+      if(topSpot?.canton)  locParts.push(topSpot.canton);
+      const loc = locParts.join(' • ');
+      pLocalPark.textContent =
+        `Skatepark local : ${txtPark}${loc ? ' • '+loc : ''} • ${hoursTop}h ici • ${pts} pts`;
+    }
+
+    if(spotStatsEmpty) spotStatsEmpty.style.display = 'none';
+    if(spotStatsList){
+      spotStatsList.innerHTML = '';
+
+      // Ligne total globale au début
+      if(totalSecondsAll && totalSecondsAll > 0){
+        const totalHours = (totalSecondsAll/3600).toFixed(1).replace('.0','');
+        const totalDiv = document.createElement('div');
+        totalDiv.className = 'spotstats-row';
+        totalDiv.innerHTML = `
+          <div class="spotstats-main">
+            <div class="spotstats-title">Total RIDLY</div>
+            <div class="spotstats-sub">${totalHours} h sur les spots</div>
+          </div>
+          <div class="spotstats-points">${Math.floor(totalSecondsAll/3600)} pts</div>
+        `;
+        spotStatsList.appendChild(totalDiv);
+      }
+
+      // Puis toutes les entrées par park
+      stats.forEach(row=>{
+        const s = spotMap[row.spot_id];
+        const title = s?.nom || "Skatepark";
+        const locParts = [];
+        if(s?.ville)  locParts.push(s.ville);
+        if(s?.canton) locParts.push(s.canton);
+        const loc = locParts.join(' • ');
+        const hours = (row.total_seconds || 0) / 3600;
+        const hoursStr = hours.toFixed(1).replace('.0','');
+        const pts = (row.points != null) ? row.points : Math.floor((row.total_seconds || 0)/3600);
+
+        const div = document.createElement('div');
+        div.className = 'spotstats-row';
+        div.innerHTML = `
+          <div class="spotstats-main">
+            <div class="spotstats-title">${title}</div>
+            <div class="spotstats-sub">${loc || '—'} • ${hoursStr} h</div>
+          </div>
+          <div class="spotstats-points">${pts} pts</div>
+        `;
+        spotStatsList.appendChild(div);
+      });
+    }
+
   }catch(e){
     console.error(e);
   }

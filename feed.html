@@ -476,6 +476,74 @@
       margin:6px 2px 0;
     }
 
+    /* COMMENTS */
+    .post-comments{
+      padding:4px 10px 10px;
+      border-top:1px solid rgba(148,163,184,.25);
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:12px;
+      color:var(--text-dim);
+    }
+    .comment-line{
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+    }
+    .comment-author{
+      font-weight:600;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .comment-author:hover{
+      color:var(--accent);
+    }
+    .comment-text{
+      white-space:pre-wrap;
+      word-wrap:break-word;
+    }
+    .comment-form{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      margin-top:4px;
+    }
+    .comment-input{
+      flex:1;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.5);
+      background:rgba(15,23,42,.7);
+      color:var(--text);
+      font-size:12px;
+      padding:6px 10px;
+      outline:none;
+    }
+    body.theme-light .comment-input{
+      background:#f9fafb;
+      border-color:rgba(148,163,184,.6);
+    }
+    .comment-input::placeholder{
+      color:var(--text-dim);
+    }
+    .comment-submit{
+      border:none;
+      background:var(--accent-soft);
+      color:var(--accent);
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:11px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      cursor:pointer;
+    }
+    .comment-counter{
+      font-size:10px;
+      color:var(--text-dim);
+      margin-left:4px;
+    }
+
     /* BOTTOM NAV */
     .tabbar{
       position:fixed;
@@ -517,7 +585,7 @@
       color:var(--accent);
     }
 
-    /* Toast en haut (pour notifs 1v1) */
+    /* Toast en haut (pour notifs 1v1 + commentaires) */
     .toast{
       position:fixed;
       left:50%;
@@ -589,9 +657,9 @@
 
         <!-- Chat global -->
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
-          <span class="chat-dot" id="chatDot"></span>
           💬
         </a>
+        
       </div>
     </div>
   </nav>
@@ -694,11 +762,20 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Toast + notifs 1v1 ===== */
+/* ===== Toast + notifs 1v1 + commentaires ===== */
 const toastDiv  = document.getElementById('toast');
 const badge1v1  = document.getElementById('badge1v1');
 const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
 let unreadToastShown = false;
+
+// compte global : privés + commentaires
+let globalUnreadPrivate = 0;
+let globalUnreadComments = 0;
+
+function refresh1v1Badge(){
+  const total = globalUnreadPrivate + globalUnreadComments;
+  update1v1Badge(total);
+}
 
 function showToast(msg){
   if(!toastDiv) return;
@@ -735,7 +812,8 @@ async function checkPrivateUnread(me){
       return;
     }
     const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
-    update1v1Badge(total);
+    globalUnreadPrivate = total;
+    refresh1v1Badge();
     if(total>0 && !unreadToastShown){
       unreadToastShown = true;
       const s = total>1 ? 's' : '';
@@ -773,13 +851,92 @@ function subscribePrivateAlerts(me){
     })
     .subscribe();
 }
+
+/* ===== Unread commentaires sur MES posts ===== */
+async function checkCommentUnread(me){
+  if(!me) return;
+  try{
+    const { data: myPosts, error: errPosts } = await supa
+      .from('spot_posts')
+      .select('id')
+      .eq('user_id', me.id);
+
+    if(errPosts){
+      console.error('comment unread posts error', errPosts);
+      return;
+    }
+
+    const ids = (myPosts || []).map(p=>p.id);
+    if(!ids.length){
+      globalUnreadComments = 0;
+      refresh1v1Badge();
+      return;
+    }
+
+    const { data: comments, error: errCom } = await supa
+      .from('post_comments')
+      .select('id')
+      .in('post_id', ids)
+      .eq('is_read', false);
+
+    if(errCom){
+      console.error('comment unread error', errCom);
+      return;
+    }
+
+    const total = (comments || []).length;
+    globalUnreadComments = total;
+    refresh1v1Badge();
+  }catch(e){
+    console.error('checkCommentUnread error', e);
+  }
+}
+
+function subscribeCommentAlerts(me){
+  if(!me) return;
+  supa.channel('post_comments_alert_'+me.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'post_comments'
+    }, async payload=>{
+      const c = payload.new;
+      if(!c) return;
+
+      // pas de notif si c'est moi qui commente
+      if(c.user_id === me.id) return;
+
+      const post = FEED_POSTS.find(p=>p.id === c.post_id);
+      if(!post) return;
+      if(post.user_id !== me.id) return; // pas mon post → pas de notif
+
+      let senderName = 'Rider';
+      try{
+        const prof = PROFILES_BY_ID[c.user_id];
+        if(prof){
+          senderName = prof.pseudo || prof.full_name || 'Rider';
+        }else{
+          const { data:p } = await supa
+            .from('profiles')
+            .select('pseudo,full_name')
+            .eq('id', c.user_id)
+            .maybeSingle();
+          if(p) senderName = p.pseudo || p.full_name || 'Rider';
+        }
+      }catch(e){}
+
+      playNotifSound();
+      showToast(`Nouveau commentaire sur ton post par ${senderName}`);
+      checkCommentUnread(me);
+    })
+    .subscribe();
+}
 </script>
 
 <script>
 /* ===== Utils ===== */
 let me = null;
 let displayName = null;
-const chatDot = document.getElementById('chatDot');
 const DEFAULT_AVATAR = 'image/1logo_ridly.png';
 const STORY_SLOTS = 300;
 
@@ -815,10 +972,11 @@ function timeAgo(iso){
     }
     me = user;
     displayName = user.user_metadata?.full_name || user.email || "Rider";
-    if(chatDot) chatDot.style.opacity = 1;
 
     await checkPrivateUnread(me);
+    await checkCommentUnread(me);
     subscribePrivateAlerts(me);
+    subscribeCommentAlerts(me);
 
     await Promise.all([
       loadStories(),
@@ -951,9 +1109,11 @@ function addStoryPlaceholders(n){
 </script>
 
 <script>
-/* ===== Feed + roues 1–5 ===== */
+/* ===== Feed + roues 1–5 + commentaires ===== */
 const feedList = document.getElementById('feedList');
 let FEED_POSTS = [];
+let PROFILES_BY_ID = {};
+const MAX_COMMENT_LEN = 2199;
 
 async function loadFeed(){
   feedList.innerHTML = '';
@@ -977,17 +1137,43 @@ async function loadFeed(){
       return;
     }
 
-    const userIds = [...new Set(list.map(p=>p.user_id).filter(Boolean))];
+    const postIds = list.map(p=>p.id);
+
+    // ===== Commentaires reliés aux posts =====
+    let commentsByPost = {};
+    let commentUserIds = [];
+    if(postIds.length){
+      const { data:comments, error:errCom } = await supa
+        .from('post_comments')
+        .select('id,post_id,user_id,content,created_at')
+        .in('post_id', postIds)
+        .order('created_at',{ascending:true});
+      if(errCom){
+        console.error('comments error', errCom);
+      }else{
+        (comments || []).forEach(c=>{
+          if(!commentsByPost[c.post_id]) commentsByPost[c.post_id] = [];
+          commentsByPost[c.post_id].push(c);
+          if(c.user_id) commentUserIds.push(c.user_id);
+        });
+      }
+    }
+
+    const userIds = [
+      ...list.map(p=>p.user_id).filter(Boolean),
+      ...commentUserIds.filter(Boolean)
+    ];
+    const uniqueUserIds = [...new Set(userIds)];
     const spotIds = [...new Set(list.map(p=>p.spot_id).filter(Boolean))];
 
     // Profils
-    let profById = {};
-    if(userIds.length){
+    PROFILES_BY_ID = {};
+    if(uniqueUserIds.length){
       const { data:profs } = await supa
         .from('profiles')
         .select('id,pseudo,full_name,avatar_url')
-        .in('id', userIds);
-      (profs || []).forEach(p=>{ profById[p.id] = p; });
+        .in('id', uniqueUserIds);
+      (profs || []).forEach(p=>{ PROFILES_BY_ID[p.id] = p; });
     }
 
     // Spots
@@ -1008,7 +1194,6 @@ async function loadFeed(){
     }
 
     // Likes / roues
-    const postIds = list.map(p=>p.id);
     let likesByPost = {};
     if(postIds.length){
       const { data:likes } = await supa
@@ -1022,7 +1207,7 @@ async function loadFeed(){
     }
 
     FEED_POSTS = list.map(p=>{
-      const prof = profById[p.user_id] || {};
+      const prof = PROFILES_BY_ID[p.user_id] || {};
       const pseudo =
         (prof.pseudo && String(prof.pseudo)) ||
         (prof.full_name && String(prof.full_name)) ||
@@ -1060,6 +1245,15 @@ async function loadFeed(){
         }
       }
 
+      const comments = (commentsByPost[p.id] || []).map(c=>{
+        const u = PROFILES_BY_ID[c.user_id] || {};
+        const cpseudo =
+          (u.pseudo && String(u.pseudo)) ||
+          (u.full_name && String(u.full_name)) ||
+          'Rider';
+        return { ...c, pseudo: cpseudo };
+      });
+
       return {
         ...p,
         pseudo,
@@ -1068,7 +1262,9 @@ async function loadFeed(){
         spotLink,
         avgRating,
         likesCount:count,
-        myRating
+        myRating,
+        comments,
+        commentsCount: comments.length
       };
     });
 
@@ -1185,7 +1381,72 @@ function renderFeed(){
 
     art.appendChild(ratingRow);
 
+    /* Commentaires */
+    const commentsWrap = document.createElement('div');
+    commentsWrap.className = 'post-comments';
+
+    if(post.comments && post.comments.length){
+      post.comments.forEach(c=>{
+        const line = document.createElement('div');
+        line.className = 'comment-line';
+
+        const authorLink = document.createElement('a');
+        authorLink.className = 'comment-author';
+        authorLink.href = 'profil_ou_rider.html?id=' + encodeURIComponent(c.user_id);
+        authorLink.textContent = c.pseudo || 'Rider';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'comment-text';
+        textSpan.textContent = c.content || '';
+
+        line.appendChild(authorLink);
+        line.appendChild(document.createTextNode(' '));
+        line.appendChild(textSpan);
+
+        commentsWrap.appendChild(line);
+      });
+    }
+
+    const form = document.createElement('form');
+    form.className = 'comment-form';
+    form.addEventListener('submit',(evt)=>{
+      evt.preventDefault();
+      submitComment(post.id, post.user_id, form, commentsWrap);
+    });
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'comment-input';
+    input.placeholder = 'Ajouter un commentaire...';
+    input.maxLength = MAX_COMMENT_LEN;
+
+    const counter = document.createElement('span');
+    counter.className = 'comment-counter';
+    counter.textContent = `0/${MAX_COMMENT_LEN}`;
+
+    input.addEventListener('input', ()=>{
+      const len = input.value.length;
+      counter.textContent = `${len}/${MAX_COMMENT_LEN}`;
+    });
+
+    const btnSend = document.createElement('button');
+    btnSend.type = 'submit';
+    btnSend.className = 'comment-submit';
+    btnSend.textContent = 'Envoyer';
+
+    form.appendChild(input);
+    form.appendChild(btnSend);
+    form.appendChild(counter);
+
+    commentsWrap.appendChild(form);
+    art.appendChild(commentsWrap);
+
     feedList.appendChild(art);
+
+    // si c'est MON post et qu'il y a des commentaires, on les marque lus
+    if(me && post.user_id === me.id && post.comments && post.comments.length){
+      markCommentsReadForPost(post.id);
+    }
   });
 }
 
@@ -1239,6 +1500,115 @@ async function setPostRating(postId, wheels){
   }catch(e){
     console.error('Erreur MAJ rating', e);
   }
+}
+
+async function submitComment(postId, postOwnerId, form, commentsWrap){
+  if(!me) return;
+  const input = form.querySelector('.comment-input');
+  if(!input) return;
+
+  const raw = input.value || '';
+  const content = raw.trim();
+  if(!content) return;
+
+  if(content.length > MAX_COMMENT_LEN){
+    showToast(`Commentaire trop long (max ${MAX_COMMENT_LEN} caractères).`);
+    return;
+  }
+
+  const newComment = {
+    post_id: postId,
+    user_id: me.id,
+    content,
+    // si je commente mon propre post → pas "non lu" pour moi
+    is_read: (me.id === postOwnerId)
+  };
+
+  try{
+    const { data, error } = await supa
+      .from('post_comments')
+      .insert([newComment])
+      .select()
+      .single();
+
+    if(error){
+      console.error('Erreur ajout commentaire', error);
+      showToast("Impossible d'envoyer le commentaire.");
+      return;
+    }
+
+    input.value = '';
+    const counter = form.querySelector('.comment-counter');
+    if(counter) counter.textContent = `0/${MAX_COMMENT_LEN}`;
+
+    const post = FEED_POSTS.find(p=>p.id === postId);
+    if(post){
+      const prof = PROFILES_BY_ID[me.id] || {};
+      const pseudo =
+        (prof.pseudo && String(prof.pseudo)) ||
+        (prof.full_name && String(prof.full_name)) ||
+        displayName ||
+        'Moi';
+
+      const cObj = {
+        ...data,
+        pseudo
+      };
+
+      post.comments = post.comments || [];
+      post.comments.push(cObj);
+      post.commentsCount = (post.commentsCount || 0) + 1;
+
+      // ajoute la ligne juste au-dessus du formulaire
+      const line = document.createElement('div');
+      line.className = 'comment-line';
+
+      const authorLink = document.createElement('a');
+      authorLink.className = 'comment-author';
+      authorLink.href = 'profil_ou_rider.html?id=' + encodeURIComponent(me.id);
+      authorLink.textContent = pseudo;
+
+      const textSpan = document.createElement('span');
+      textSpan.className = 'comment-text';
+      textSpan.textContent = content;
+
+      line.appendChild(authorLink);
+      line.appendChild(document.createTextNode(' '));
+      line.appendChild(textSpan);
+
+      commentsWrap.insertBefore(line, form);
+    }
+
+    if(me.id === postOwnerId){
+      // pour être sûr que ça ne reste pas en non-lu
+      markCommentsReadForPost(postId);
+    }
+  }catch(e){
+    console.error('Erreur submitComment', e);
+  }
+}
+
+function markCommentsReadForPost(postId){
+  if(!me) return;
+  const post = FEED_POSTS.find(p=>p.id === postId);
+  if(!post || post.user_id !== me.id) return;
+
+  (async()=>{
+    try{
+      const { error } = await supa
+        .from('post_comments')
+        .update({ is_read:true })
+        .eq('post_id', postId);
+
+      if(error){
+        console.error('markCommentsReadForPost error', error);
+        return;
+      }
+      checkCommentUnread(me);
+    }catch(e){
+      console.error('markCommentsReadForPost error', e);
+    }
+  })();
 }
 </script>
 

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Ajouter — RIDLY</title>
 
   <link rel="manifest" href="manifest.json">
@@ -32,6 +32,7 @@
       --text-dim:#9ca3af;
       --border:rgba(148,163,184,.35);
       --radius-xl:18px;
+      --tabbar-h:68px;
     }
 
     body.theme-dark{
@@ -51,15 +52,8 @@
       --border:rgba(148,163,184,.25);
     }
 
-    *{
-      box-sizing:border-box;
-      -webkit-tap-highlight-color:transparent;
-    }
-    html,body{
-      margin:0;
-      padding:0;
-      height:100%;
-    }
+    *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html,body{ margin:0; padding:0; height:100%; }
     body{
       font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
       background:#000;
@@ -69,444 +63,184 @@
     }
 
     /* BG vidéo */
-    .rsl-bg-wrap{
-      position:fixed;
-      inset:0;
-      z-index:0;
-      pointer-events:none;
-    }
-    .rsl-bg-video{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      background:#000;
-      filter:brightness(.48) saturate(1.05);
-    }
-    .rsl-bg-dim{
-      position:absolute;
-      inset:0;
-      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7));
-    }
-    body.theme-light .rsl-bg-dim{
-      background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
-    }
+    .rsl-bg-wrap{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+    .rsl-bg-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000; filter:brightness(.48) saturate(1.05); }
+    .rsl-bg-dim{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7)); }
+    body.theme-light .rsl-bg-dim{ background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96)); }
 
-    .page-wrap{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      max-width:640px;
-      margin:0 auto;
-      width:100%;
-      position:relative;
-      z-index:1;
-    }
+    .page-wrap{ flex:1; display:flex; flex-direction:column; max-width:640px; margin:0 auto; width:100%; position:relative; z-index:1; }
 
     /* NAV */
     nav.nav{
-      position:sticky;
-      top:0;
-      z-index:20;
-      background:rgba(2,6,23,.9);
-      backdrop-filter:blur(18px);
+      position:sticky; top:0; z-index:20;
+      background:rgba(2,6,23,.9); backdrop-filter:blur(18px);
       border-bottom:1px solid var(--border);
     }
-    body.theme-light nav.nav{
-      background:rgba(244,244,245,.95);
-    }
-    nav.nav .row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:8px 14px;
-    }
+    body.theme-light nav.nav{ background:rgba(244,244,245,.95); }
+    nav.nav .row{ display:flex; align-items:center; justify-content:space-between; padding:8px 14px; }
 
-    .nav-left{
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      text-decoration:none;
-      color:var(--text);
-    }
-    .brand img{
-      width:32px;
-      height:32px;
-      border-radius:12px;
-      background:#000;
-      padding:3px;
-      box-shadow:0 0 12px rgba(34,197,94,.7);
-    }
-    .brand span{
-      font-weight:700;
-      letter-spacing:-0.03em;
-      font-size:20px;
-    }
+    .nav-left{ display:flex; align-items:center; gap:8px; }
+    .brand{ display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--text); }
+    .brand img{ width:32px; height:32px; border-radius:12px; background:#000; padding:3px; box-shadow:0 0 12px rgba(34,197,94,.7); }
+    .brand span{ font-weight:700; letter-spacing:-0.03em; font-size:20px; }
 
     .add-btn{
-      border:none;
-      outline:none;
-      width:30px;
-      height:30px;
-      border-radius:999px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:20px;
-      font-weight:700;
-      cursor:pointer;
+      border:none; outline:none; width:30px; height:30px; border-radius:999px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; font-weight:700; cursor:pointer;
       background:radial-gradient(circle at 30% 20%,#4ade80 0,#22c55e 35%,#16a34a 100%);
-      color:#022c16;
-      box-shadow:0 10px 22px rgba(34,197,94,.7);
+      color:#022c16; box-shadow:0 10px 22px rgba(34,197,94,.7);
     }
-    .add-btn span{
-      transform:translateY(-1px);
-    }
+    .add-btn span{ transform:translateY(-1px); }
 
-    .nav-tools{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      margin-left:auto;
-    }
+    .nav-tools{ display:flex; align-items:center; gap:8px; margin-left:auto; }
     .icon-btn{
-      border:1px solid rgba(15,23,42,.8);
-      background:rgba(15,23,42,.9);
-      color:var(--text);
-      border-radius:999px;
-      min-width:32px;
-      height:32px;
-      padding:0 10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:17px;
-      text-decoration:none;
-      position:relative;
-      cursor:pointer;
-      gap:4px;
+      border:1px solid rgba(15,23,42,.8); background:rgba(15,23,42,.9); color:var(--text);
+      border-radius:999px; min-width:32px; height:32px; padding:0 10px;
+      display:flex; align-items:center; justify-content:center; gap:4px;
+      font-size:17px; text-decoration:none; position:relative; cursor:pointer;
     }
-    body.theme-light .icon-btn{
-      background:#e5e7eb;
-      border-color:rgba(148,163,184,.6);
-    }
-    .icon-btn:hover{
-      border-color:var(--accent);
-      color:var(--accent);
-    }
-    .chat-dot{
-      position:absolute;
-      top:5px;
-      right:5px;
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:#22c55e;
-      box-shadow:0 0 8px rgba(34,197,94,.8);
-      opacity:0;
-    }
+    body.theme-light .icon-btn{ background:#e7e9ee; color:#0b1220; border-color:rgba(148,163,184,.6); }
+    .icon-btn:hover{ border-color:var(--accent); color:var(--accent); }
 
-    /* badge 1v1 */
     .badge{
-      position:absolute;
-      top:-3px;
-      right:-3px;
-      min-width:18px;
-      height:18px;
-      border-radius:999px;
-      background:#ef4444;
-      color:#f9fafb;
-      font-size:10px;
-      font-weight:800;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:0 4px;
-      box-shadow:0 0 8px rgba(0,0,0,.6);
+      position:absolute; top:-3px; right:-3px; min-width:18px; height:18px; border-radius:999px;
+      background:#ef4444; color:#f9fafb; font-size:10px; font-weight:800;
+      display:none; align-items:center; justify-content:center; padding:0 4px; box-shadow:0 0 8px rgba(0,0,0,.6);
     }
+    .chat-dot{ position:absolute; top:5px; right:5px; width:8px; height:8px; border-radius:999px; background:#22c55e; box-shadow:0 0 8px rgba(34,197,94,.8); opacity:0; }
 
-    .main{
-      flex:1;
-      padding:4px 10px 80px;
-    }
-    .mini-title{
-      padding:8px 4px 4px;
-      font-size:13px;
-      font-weight:600;
-      color:var(--text-dim);
-    }
+    .main{ flex:1; padding:8px 12px calc(var(--tabbar-h) + 22px + env(safe-area-inset-bottom,0px)); }
+    .mini-title{ padding:8px 4px 4px; font-size:13px; font-weight:600; color:var(--text-dim); }
 
-    .card{
-      background:var(--card);
-      border-radius:var(--radius-xl);
-      border:1px solid rgba(15,23,42,.9);
-      box-shadow:0 18px 45px rgba(0,0,0,.6);
-      padding:12px 10px 12px;
-      margin-top:4px;
-    }
-    body.theme-light .card{
-      border-color:rgba(209,213,219,.9);
-      box-shadow:0 14px 30px rgba(15,23,42,.15);
-    }
+    .card{ background:var(--card); border-radius:var(--radius-xl); border:1px solid rgba(15,23,42,.9); box-shadow:0 18px 45px rgba(0,0,0,.6); padding:12px 10px 12px; margin-top:4px; }
+    body.theme-light .card{ border-color:rgba(209,213,219,.9); box-shadow:0 14px 30px rgba(15,23,42,.15); }
+    .main-title{ margin:0 0 6px; font-size:17px; font-weight:800; }
+    .muted{ font-size:12px; color:var(--text-dim); margin:0 0 6px; }
 
-    .main-title{
-      margin:0 0 6px;
-      font-size:17px;
-      font-weight:800;
-    }
-    .muted{
-      font-size:12px;
-      color:var(--text-dim);
-      margin:0 0 6px;
-    }
+    .mode-toggle{ display:inline-flex; border-radius:999px; padding:3px; background:#020617; border:1px solid rgba(148,163,184,.5); margin:4px 0 10px; }
+    .mode-btn{ border:0; background:transparent; color:#9ca3af; font-size:13px; font-weight:700; padding:8px 14px; border-radius:999px; cursor:pointer; white-space:nowrap; }
+    .mode-btn.active{ background:#0f172a; color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.15); }
+    body.theme-light .mode-toggle{ background:#e5e7eb; border-color:rgba(148,163,184,.7); }
+    body.theme-light .mode-btn.active{ background:#ffffff; color:#111827; box-shadow:0 0 0 1px rgba(15,23,42,.12); }
 
-    .mode-toggle{
-      display:inline-flex;
-      border-radius:999px;
-      padding:3px;
-      background:#020617;
-      border:1px solid rgba(148,163,184,.5);
-      margin:4px 0 10px;
-    }
-    .mode-btn{
-      border:0;
-      background:transparent;
-      color:#9ca3af;
-      font-size:12px;
-      font-weight:700;
-      padding:7px 12px;
-      border-radius:999px;
-      cursor:pointer;
-      white-space:nowrap;
-    }
-    .mode-btn.active{
-      background:#0f172a;
-      color:#fff;
-      box-shadow:0 0 0 1px rgba(255,255,255,.15);
-    }
-    body.theme-light .mode-toggle{
-      background:#e5e7eb;
-      border-color:rgba(148,163,184,.7);
-    }
-    body.theme-light .mode-btn.active{
-      background:#ffffff;
-      color:#111827;
-      box-shadow:0 0 0 1px rgba(15,23,42,.12);
-    }
-
-    .row{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-bottom:8px;
-    }
+    .row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
 
     .input,.select{
-      flex:1 1 220px;
-      min-width:220px;
-      padding:9px 11px;
-      border-radius:12px;
-      background:#020617;
-      border:1px solid var(--border);
-      color:var(--text);
-      font-family:inherit;
-      font-size:13px;
-      font-weight:600;
+      flex:1 1 220px; min-width:220px; padding:12px 12px; border-radius:12px;
+      background:#020617; border:1px solid var(--border); color:var(--text);
+      font-family:inherit; font-size:14px; font-weight:600;
     }
-    textarea.input{
-      min-height:70px;
-      resize:vertical;
-    }
-    body.theme-light .input,
-    body.theme-light .select{
-      background:#f3f4f6;
-      color:#111827;
-      border:1px solid rgba(148,163,184,.5);
-    }
+    textarea.input{ min-height:70px; resize:vertical; }
+    body.theme-light .input, body.theme-light .select{ background:#f6f7fa; color:#0b1220; border:1px solid #c9d0da; }
 
     .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      background:linear-gradient(180deg,#22c55e,#16a34a);
-      color:#062312;
-      border:0;
-      border-radius:12px;
-      font-weight:800;
-      font-size:13px;
-      padding:9px 13px;
-      cursor:pointer;
-      box-shadow:0 10px 24px rgba(0,0,0,.5);
-      white-space:nowrap;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      background:linear-gradient(180deg,#22c55e,#16a34a); color:#062312;
+      border:0; border-radius:12px; font-weight:800; font-size:14px;
+      padding:11px 14px; cursor:pointer; box-shadow:0 10px 24px rgba(0,0,0,.5); white-space:nowrap;
     }
 
-    .upload-shell{
-      flex:1 1 260px;
-      min-width:240px;
-    }
+    .upload-shell{ flex:1 1 260px; min-width:240px; }
     .file-pill{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px dashed rgba(255,255,255,.35);
-      background:rgba(15,23,42,.95);
-      cursor:pointer;
-      font-size:13px;
-      font-weight:700;
+      display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:14px;
+      border:1px dashed rgba(255,255,255,.35); background:rgba(15,23,42,.95);
+      font-size:13px; font-weight:700;
     }
-    .file-pill:hover{
-      border-style:solid;
-      border-color:var(--accent);
-      box-shadow:0 0 0 1px rgba(34,197,94,.35);
-    }
-    .file-ic{font-size:18px}
-    .file-main{display:flex;flex-direction:column}
-    .file-title{font-weight:800}
-    .file-sub{font-size:11px;color:var(--text-dim)}
+    .file-ic{font-size:18px} .file-main{display:flex;flex-direction:column}
+    .file-title{font-weight:800} .file-sub{font-size:11px;color:var(--text-dim)}
     .file-input{display:none}
-    body.theme-light .file-pill{
-      background:#f3f4f6;
-      border-color:rgba(148,163,184,.7);
-      color:#111827;
-    }
+    body.theme-light .file-pill{ background:#eef1f5; border-color:rgba(148,163,184,.7); color:#111827; }
 
-    .msg{
-      font-size:12px;
-      font-weight:700;
-      margin-top:4px;
-      min-height:16px;
+    /* Choix Caméra / Album / Studio */
+    .picker-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:6px;
     }
-
-    .hint-bottom{
+    .picker-btn{
+      flex:1 1 auto;
+      padding:7px 8px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      background:rgba(15,23,42,.95);
       font-size:11px;
-      color:var(--text-dim);
-      margin:6px 2px 0;
-    }
-
-    /* Modales */
-    .modal{
-      position:fixed;
-      inset:0;
-      z-index:40;
-      display:none;
-    }
-    .modal.show{
-      display:block;
-    }
-    .modal-bg{
-      position:absolute;
-      inset:0;
-      background:rgba(0,0,0,.6);
-      backdrop-filter:blur(4px);
-    }
-    .modal-card{
-      position:relative;
-      margin:6vh auto 0;
-      max-width:min(92vw,600px);
-      background:rgba(8,12,24,.96);
-      border:1px solid rgba(148,163,184,.7);
-      border-radius:16px;
-      padding:14px;
-      color:#fff;
-    }
-    body.theme-light .modal-card{
-      background:#ffffff;
-      color:#020617;
-      border-color:rgba(148,163,184,.7);
-    }
-    .modal-card h3{
-      margin:2px 0 10px;
-      font-size:18px;
-      font-weight:800;
-    }
-
-    /* Tabbar bas */
-    .tabbar{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:30;
-      border-top:1px solid var(--border);
-      background:rgba(2,6,23,.97);
-      backdrop-filter:blur(18px);
+      font-weight:700;
+      color:#e5e7eb;
       display:flex;
-      justify-content:space-around;
-      align-items:center;
-      padding:6px 8px 10px;
-    }
-    body.theme-light .tabbar{
-      background:rgba(244,244,245,.97);
-    }
-
-    .tab{
-      flex:1;
-      display:flex;
-      flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:2px;
-      text-decoration:none;
-      color:var(--text-dim);
-      font-size:9px;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-      padding:4px 0;
+      gap:6px;
+      cursor:pointer;
     }
-    .tab .ic{
-      font-size:20px;
-      line-height:1;
+    .picker-btn span.ic{font-size:14px;}
+    .picker-btn:hover{
+      border-color:var(--accent);
+      color:#bbf7d0;
     }
-    .tab.active{
-      color:var(--accent);
+    .picker-btn.disabled{
+      opacity:.6;
+      cursor:default;
+    }
+    body.theme-light .picker-btn{
+      background:#eef1f5;
+      color:#111827;
+      border-color:rgba(148,163,184,.7);
     }
 
-    /* Toast EN HAUT */
+    .msg{ font-size:12px; font-weight:700; margin-top:4px; min-height:16px; }
+    .hint-bottom{ font-size:11px; color:var(--text-dim); margin:6px 2px 0; }
+
+    /* ===== Modales (plein écran, pas de scroll interne) ===== */
+    .modal{
+      position:fixed; inset:0; z-index:40; display:none;
+      background:rgba(0,0,0,.55); backdrop-filter:blur(4px);
+      overflow-y:auto; -webkit-overflow-scrolling:touch; /* scroll éventuel sur l’overlay entier */
+    }
+    .modal.show{ display:block; }
+
+    .modal-card{
+      position:relative; margin:0; width:min(100vw, 680px);
+      min-height:100svh; background:rgba(8,12,24,.96);
+      border:1px solid rgba(148,163,184,.7); border-radius:0;
+      padding:16px 14px calc(14px + env(safe-area-inset-bottom,0px)); color:#fff;
+    }
+    body.theme-light .modal-card{ background:#ffffff; color:#020617; border-color:rgba(148,163,184,.6); }
+    .modal-card h3{ margin:4px 0 12px; font-size:20px; font-weight:800; }
+    .modal-card p{ font-size:13.5px; color:var(--text-dim); }
+
+    /* Cartes Leaflet compactes */
+    #chooseSpotMap{ height:44vh; border-radius:12px; overflow:hidden; border:1px solid rgba(148,163,184,.6); }
+    #addSpotMap{    height:40vh; border-radius:12px; overflow:hidden; border:1px solid rgba(148,163,184,.6); }
+
+    /* Tabbar */
+    .tabbar{
+      position:fixed; left:0; right:0; bottom:0; z-index:30;
+      border-top:1px solid var(--border); background:rgba(2,6,23,.97); backdrop-filter:blur(18px);
+      display:flex; justify-content:space-around; align-items:center;
+      height:var(--tabbar-h);
+      padding:8px 10px calc(12px + env(safe-area-inset-bottom,0px));
+    }
+    body.theme-light .tabbar{ background:rgba(244,244,245,.97); }
+    .tab{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; text-decoration:none; color:var(--text-dim); font-size:9px; letter-spacing:.04em; text-transform:uppercase; padding:4px 0; }
+    .tab .ic{ font-size:20px; line-height:1; }
+    .tab.active{ color:var(--accent); }
+
+    /* Toast en haut */
     .toast{
-      position:fixed;
-      left:50%;
-      top:60px;               /* <--- en haut */
-      transform:translateX(-50%);
-      background:rgba(15,23,42,.97);
-      color:#f9fafb;
-      padding:8px 14px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:700;
-      box-shadow:0 10px 30px rgba(0,0,0,.6);
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .2s, transform .2s;
-      z-index:60;
-      max-width:90%;
-      text-align:center;
-      white-space:normal;
+      position:fixed; left:50%; top:60px; transform:translateX(-50%);
+      background:rgba(15,23,42,.97); color:#f9fafb; padding:8px 14px; border-radius:999px;
+      font-size:12px; font-weight:700; box-shadow:0 10px 30px rgba(0,0,0,.6);
+      opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:60;
+      max-width:90%; text-align:center; white-space:normal;
     }
-    .toast.show{
-      opacity:1;
-      transform:translateX(-50%) translateY(4px);
-    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(4px); }
 
     @media(min-width:700px){
-      nav.nav .row{
-        padding-inline:20px;
-      }
-      .main{
-        padding-inline:14px;
-      }
-      .tabbar{
-        border-radius:22px 22px 0 0;
-      }
+      nav.nav .row{ padding-inline:20px; }
+      .main{ padding-inline:14px; }
+      .tabbar{ border-radius:22px 22px 0 0; }
     }
   </style>
 </head>
@@ -535,14 +269,13 @@
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
 
-        <!-- Nouveau bouton 1v1 -> chat1v1.html -->
         <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
           💌
           <span class="badge" id="badge1v1"></span>
         </a>
 
+        <!-- Chat global SANS pastille -->
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
-          <span class="chat-dot" id="chatDot"></span>
           💬
         </a>
       </div>
@@ -586,14 +319,26 @@
 
         <div class="row">
           <div class="upload-shell">
-            <label for="fFile" class="file-pill">
+            <div class="file-pill">
               <div class="file-ic">📸</div>
               <div class="file-main">
                 <span class="file-title" id="fFileLabel">Ajouter une photo / vidéo</span>
-                <span class="file-sub">Tu peux ouvrir la caméra ou choisir dans ta galerie.</span>
+                <span class="file-sub">Choisis Caméra, Album ou Studio (à venir) ci-dessous.</span>
               </div>
-            </label>
-            <input id="fFile" class="file-input" type="file" accept="image/*,video/*" capture="environment">
+            </div>
+            <div class="picker-row">
+              <button type="button" class="picker-btn" id="fPickCam">
+                <span class="ic">📷</span><span>Caméra</span>
+              </button>
+              <button type="button" class="picker-btn" id="fPickAlbum">
+                <span class="ic">🖼️</span><span>Album</span>
+              </button>
+              <button type="button" class="picker-btn disabled studio-btn">
+                <span class="ic">🎛️</span><span>Studio (à venir)</span>
+              </button>
+            </div>
+            <input id="fFileCam"    class="file-input" type="file" accept="image/*,video/*" capture="environment">
+            <input id="fFileAlbum" class="file-input" type="file" accept="image/*,video/*">
           </div>
           <textarea id="fCaption" class="input" maxlength="140" placeholder="Légende (ex: Double whip à Vidy 🔥)"></textarea>
         </div>
@@ -609,14 +354,26 @@
       <form id="formStory" style="display:none">
         <div class="row">
           <div class="upload-shell">
-            <label for="sFile" class="file-pill">
+            <div class="file-pill">
               <div class="file-ic">✨</div>
               <div class="file-main">
                 <span class="file-title" id="sFileLabel">Ajouter une story</span>
-                <span class="file-sub">Photo ou vidéo verticale (48h) — caméra ou galerie.</span>
+                <span class="file-sub">Photo ou vidéo verticale — Caméra, Album ou Studio (à venir).</span>
               </div>
-            </label>
-            <input id="sFile" class="file-input" type="file" accept="image/*,video/*" capture="environment">
+            </div>
+            <div class="picker-row">
+              <button type="button" class="picker-btn" id="sPickCam">
+                <span class="ic">📷</span><span>Caméra</span>
+              </button>
+              <button type="button" class="picker-btn" id="sPickAlbum">
+                <span class="ic">🖼️</span><span>Album</span>
+              </button>
+              <button type="button" class="picker-btn disabled studio-btn">
+                <span class="ic">🎛️</span><span>Studio (à venir)</span>
+              </button>
+            </div>
+            <input id="sFileCam"    class="file-input" type="file" accept="image/*,video/*" capture="environment">
+            <input id="sFileAlbum" class="file-input" type="file" accept="image/*,video/*">
           </div>
           <textarea id="sCaption" class="input" maxlength="120" placeholder="Texte de la story (optionnel)…"></textarea>
         </div>
@@ -652,14 +409,26 @@
 
         <div class="row">
           <div class="upload-shell">
-            <label for="rFile" class="file-pill">
+            <div class="file-pill">
               <div class="file-ic">🎬</div>
               <div class="file-main">
                 <span class="file-title" id="rFileLabel">Ajouter un reel (vidéo)</span>
-                <span class="file-sub">Vidéo verticale courte — ouvre la caméra ou la galerie.</span>
+                <span class="file-sub">Vidéo verticale courte — Caméra, Album ou Studio (à venir).</span>
               </div>
-            </label>
-            <input id="rFile" class="file-input" type="file" accept="video/*" capture="environment">
+            </div>
+            <div class="picker-row">
+              <button type="button" class="picker-btn" id="rPickCam">
+                <span class="ic">📷</span><span>Caméra</span>
+              </button>
+              <button type="button" class="picker-btn" id="rPickAlbum">
+                <span class="ic">🖼️</span><span>Album</span>
+              </button>
+              <button type="button" class="picker-btn disabled studio-btn">
+                <span class="ic">🎛️</span><span>Studio (à venir)</span>
+              </button>
+            </div>
+            <input id="rFileCam"    class="file-input" type="file" accept="video/*" capture="environment">
+            <input id="rFileAlbum" class="file-input" type="file" accept="video/*">
           </div>
           <textarea id="rCaption" class="input" maxlength="180" placeholder="Légende du reel (hashtags, @… )"></textarea>
         </div>
@@ -678,12 +447,11 @@
   </main>
 </div>
 
-<!-- Modale carte choix spot -->
+<!-- Modale carte choix spot (plein écran, pas de .modal-bg) -->
 <div class="modal" id="chooseSpotModal">
-  <div class="modal-bg"></div>
   <div class="modal-card">
     <h3>Choisir un spot</h3>
-    <p style="font-size:13px;margin-top:0;margin-bottom:8px">
+    <p style="margin-top:0;margin-bottom:8px">
       Tape un point sur la carte pour lier ton post à ce spot.<br>
       Les points viennent de la carte <b>« Où rider ? »</b>.
     </p>
@@ -700,16 +468,15 @@
       <button type="button" class="btn" id="spotPickerClose" style="margin-left:auto">Fermer</button>
     </div>
 
-    <div id="chooseSpotMap" style="height:320px;border-radius:12px;overflow:hidden;border:1px solid rgba(148,163,184,.6);"></div>
+    <div id="chooseSpotMap"></div>
     <p style="font-size:11px;color:#9ca3af;margin-top:6px">
       Conseil : zoome autour de ta ville, puis tape sur le skatepark / street spot le plus proche.
     </p>
   </div>
 </div>
 
-<!-- Modale AJOUTER UN NOUVEAU SPOT -->
+<!-- Modale AJOUTER UN NOUVEAU SPOT (plein écran) -->
 <div class="modal" id="addSpotModal">
-  <div class="modal-bg"></div>
   <div class="modal-card">
     <h3>Ajouter un nouveau spot</h3>
 
@@ -764,8 +531,7 @@
       <textarea id="asDesc" class="input" style="min-height:70px" placeholder="Description rapide (bowl, rails, niveau…)"></textarea>
     </div>
 
-    <!-- Petite carte pour l'ajout -->
-    <div id="addSpotMap" style="height:260px;border-radius:12px;overflow:hidden;border:1px solid rgba(148,163,184,.6);margin-bottom:8px;"></div>
+    <div id="addSpotMap" style="margin-bottom:8px;"></div>
 
     <div class="row">
       <div style="flex:1">
@@ -794,27 +560,15 @@
 
 <!-- TABBAR -->
 <nav class="tabbar" aria-label="Navigation">
-  <a class="tab" href="ou_rider.html" title="Spots">
-    <div class="ic">📍</div><span>Spots</span>
-  </a>
-  <a class="tab" href="feed.html" title="Feed">
-    <div class="ic">🎬</div><span>Feed</span>
-  </a>
-  <a class="tab" href="recherche.html" title="Recherche">
-    <div class="ic">🔎</div><span>Search</span>
-  </a>
-  <a class="tab" href="games.html" title="Games">
-    <div class="ic">🎮</div><span>Game</span>
-  </a>
-  <a class="tab" href="classement.html" title="Classement">
-    <div class="ic">🏆</div><span>Rank</span>
-  </a>
-  <a class="tab" href="profil_ou_rider.html" title="Profil">
-    <div class="ic">👤</div><span>Profil</span>
-  </a>
+  <a class="tab" href="ou_rider.html" title="Spots"><div class="ic">📍</div><span>Spots</span></a>
+  <a class="tab" href="feed.html" title="Feed"><div class="ic">🎬</div><span>Feed</span></a>
+  <a class="tab" href="recherche.html" title="Recherche"><div class="ic">🔎</div><span>Search</span></a>
+  <a class="tab" href="games.html" title="Games"><div class="ic">🎮</div><span>Game</span></a>
+  <a class="tab" href="classement.html" title="Classement"><div class="ic">🏆</div><span>Rank</span></a>
+  <a class="tab" href="profil_ou_rider.html" title="Profil"><div class="ic">👤</div><span>Profil</span></a>
 </nav>
 
-<!-- Toast global -->
+<!-- Toast -->
 <div id="toast" class="toast"></div>
 
 <script>
@@ -863,9 +617,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     }catch(e){}
   };
   play();
-  document.addEventListener('visibilitychange',()=>{
-    document.hidden ? v.pause() : play();
-  });
+  document.addEventListener('visibilitychange',()=>{ document.hidden ? v.pause() : play(); });
 })();
 </script>
 
@@ -883,71 +635,34 @@ function showToast(msg){
   clearTimeout(showToast._t);
   showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
 }
-function playNotifSound(){
-  try{
-    notifAudio.currentTime = 0;
-    notifAudio.play().catch(()=>{});
-  }catch(e){}
-}
+function playNotifSound(){ try{ notifAudio.currentTime=0; notifAudio.play().catch(()=>{}); }catch(e){} }
 function update1v1Badge(count){
   if(!badge1v1) return;
-  if(count>0){
-    badge1v1.style.display = 'flex';
-    badge1v1.textContent = count>9 ? '9+' : String(count);
-  }else{
-    badge1v1.style.display = 'none';
-  }
+  if(count>0){ badge1v1.style.display='flex'; badge1v1.textContent = count>9 ? '9+' : String(count); }
+  else{ badge1v1.style.display='none'; }
 }
 async function checkPrivateUnread(me){
   if(!me) return;
   try{
-    const { data, error } = await supa
-      .from('ridly_private_unread_counts')
-      .select('unread_count')
-      .eq('user_id', me.id);
-
-    if(error){
-      console.error('unread error', error);
-      return;
-    }
+    const { data, error } = await supa.from('ridly_private_unread_counts').select('unread_count').eq('user_id', me.id);
+    if(error) return;
     const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
     update1v1Badge(total);
-    if(total>0 && !unreadToastShown){
-      unreadToastShown = true;
-      const s = total>1 ? 's' : '';
-      showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`);
-      playNotifSound();
-    }
-  }catch(e){
-    console.error(e);
-  }
+    if(total>0 && !unreadToastShown){ unreadToastShown = true; const s = total>1 ? 's':''; showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`); playNotifSound(); }
+  }catch(e){}
 }
 function subscribePrivateAlerts(me){
   if(!me) return;
   supa.channel('ridly_private_alert_'+me.id)
-    .on('postgres_changes',{
-      event:'INSERT',
-      schema:'public',
-      table:'ridly_private_messages'
-    }, async payload => {
-      const m = payload.new;
-      if(m.to_id !== me.id) return;
-
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ridly_private_messages'}, async payload=>{
+      const m = payload.new; if(m.to_id !== me.id) return;
       let senderName = 'Rider';
       try{
-        const { data:p } = await supa
-          .from('profiles')
-          .select('pseudo,full_name')
-          .eq('id', m.from_id)
-          .maybeSingle();
+        const { data:p } = await supa.from('profiles').select('pseudo,full_name').eq('id', m.from_id).maybeSingle();
         if(p) senderName = p.pseudo || p.full_name || 'Rider';
       }catch(e){}
-
-      playNotifSound();
-      showToast('Nouveau message privé de ' + senderName);
-      checkPrivateUnread(me);
-    })
-    .subscribe();
+      playNotifSound(); showToast('Nouveau message privé de ' + senderName); checkPrivateUnread(me);
+    }).subscribe();
 }
 </script>
 
@@ -964,9 +679,7 @@ const authState = document.getElementById('authState');
       me = user;
       displayName = user.user_metadata?.full_name || user.email || "Rider";
       authState.textContent = `Connecté : ${displayName}`;
-      const dot = document.getElementById('chatDot');
-      if(dot) dot.style.opacity = 1;
-
+      const dot = document.getElementById('chatDot'); if(dot) dot.style.opacity = 1; // ok si absent
       await checkPrivateUnread(me);
       subscribePrivateAlerts(me);
     }else{
@@ -975,9 +688,7 @@ const authState = document.getElementById('authState');
       document.getElementById('formStory').style.opacity=".4";
       document.getElementById('formReel').style.opacity=".4";
     }
-  }catch(e){
-    authState.textContent="Session inconnue";
-  }
+  }catch(e){ authState.textContent="Session inconnue"; }
 })();
 </script>
 
@@ -998,26 +709,14 @@ function setMode(mode){
   formStory.style.display = 'none';
   formReel.style.display  = 'none';
 
-  if(mode === 'story'){
-    btnModeStory.classList.add('active');
-    formStory.style.display = 'block';
-    history.replaceState(null,'',location.pathname + '#story');
-  }else if(mode === 'reel'){
-    btnModeReel.classList.add('active');
-    formReel.style.display = 'block';
-    history.replaceState(null,'',location.pathname + '#reel');
-  }else{
-    btnModeFeed.classList.add('active');
-    formFeed.style.display = 'block';
-    history.replaceState(null,'',location.pathname);
-  }
+  if(mode === 'story'){ btnModeStory.classList.add('active'); formStory.style.display='block'; history.replaceState(null,'',location.pathname + '#story'); }
+  else if(mode === 'reel'){ btnModeReel.classList.add('active'); formReel.style.display='block'; history.replaceState(null,'',location.pathname + '#reel'); }
+  else{ btnModeFeed.classList.add('active'); formFeed.style.display='block'; history.replaceState(null,'',location.pathname); }
 }
 btnModeFeed.onclick  = ()=>setMode('feed');
 btnModeStory.onclick = ()=>setMode('story');
 btnModeReel.onclick  = ()=>setMode('reel');
-
-if(location.hash === '#story'){ setMode('story'); }
-else if(location.hash === '#reel'){ setMode('reel'); }
+if(location.hash === '#story'){ setMode('story'); } else if(location.hash === '#reel'){ setMode('reel'); }
 </script>
 
 <script>
@@ -1028,18 +727,34 @@ const fSpotType  = document.getElementById('fSpotType');
 const btnPickSpot   = document.getElementById('btnPickSpot');
 const chosenSpotLabel = document.getElementById('chosenSpotLabel');
 
-const fFile      = document.getElementById('fFile');
-const fFileLabel = document.getElementById('fFileLabel');
+const fFileCam      = document.getElementById('fFileCam');
+const fFileAlbum    = document.getElementById('fFileAlbum');
+const fPickCam      = document.getElementById('fPickCam');
+const fPickAlbum    = document.getElementById('fPickAlbum');
+const fFileLabel    = document.getElementById('fFileLabel');
+
+const sFileCam      = document.getElementById('sFileCam');
+const sFileAlbum    = document.getElementById('sFileAlbum');
+const sPickCam      = document.getElementById('sPickCam');
+const sPickAlbum    = document.getElementById('sPickAlbum');
+const sFileLabel    = document.getElementById('sFileLabel');
+
+const rFileCam      = document.getElementById('rFileCam');
+const rFileAlbum    = document.getElementById('rFileAlbum');
+const rPickCam      = document.getElementById('rPickCam');
+const rPickAlbum    = document.getElementById('rPickAlbum');
+const rFileLabel    = document.getElementById('rFileLabel');
+
+let feedFile  = null;
+let storyFile = null;
+let reelFile  = null;
+
 const fCaption   = document.getElementById('fCaption');
 const feedMsg    = document.getElementById('feedMsg');
 
-const sFile      = document.getElementById('sFile');
-const sFileLabel = document.getElementById('sFileLabel');
 const sCaption   = document.getElementById('sCaption');
 const storyMsg   = document.getElementById('storyMsg');
 
-const rFile      = document.getElementById('rFile');
-const rFileLabel = document.getElementById('rFileLabel');
 const rCaption   = document.getElementById('rCaption');
 const rCategory  = document.getElementById('rCategory');
 const reelMsg    = document.getElementById('reelMsg');
@@ -1049,26 +764,66 @@ const rSpotType  = document.getElementById('rSpotType');
 const btnPickSpotReel = document.getElementById('btnPickSpotReel');
 const chosenSpotLabelReel = document.getElementById('chosenSpotLabelReel');
 
-fFile.addEventListener('change',()=>{fFileLabel.textContent=fFile.files?.[0]?.name || "Ajouter une photo / vidéo";});
-sFile.addEventListener('change',()=>{sFileLabel.textContent=sFile.files?.[0]?.name || "Ajouter une story";});
-rFile.addEventListener('change',()=>{rFileLabel.textContent=rFile.files?.[0]?.name || "Ajouter un reel (vidéo)";});
+/* Choix Caméra / Album */
+fPickCam?.addEventListener('click', ()=> fFileCam.click());
+fPickAlbum?.addEventListener('click', ()=> fFileAlbum.click());
+sPickCam?.addEventListener('click', ()=> sFileCam.click());
+sPickAlbum?.addEventListener('click', ()=> sFileAlbum.click());
+rPickCam?.addEventListener('click', ()=> rFileCam.click());
+rPickAlbum?.addEventListener('click', ()=> rFileAlbum.click());
+
+function updateFeedLabel(){
+  fFileLabel.textContent = feedFile ? (feedFile.name || 'Média sélectionné') : 'Ajouter une photo / vidéo';
+}
+function updateStoryLabel(){
+  sFileLabel.textContent = storyFile ? (storyFile.name || 'Média sélectionné') : 'Ajouter une story';
+}
+function updateReelLabel(){
+  rFileLabel.textContent = reelFile ? (reelFile.name || 'Média sélectionné') : 'Ajouter un reel (vidéo)';
+}
+
+fFileCam?.addEventListener('change', ()=>{
+  feedFile = fFileCam.files?.[0] || null;
+  updateFeedLabel();
+});
+fFileAlbum?.addEventListener('change', ()=>{
+  feedFile = fFileAlbum.files?.[0] || null;
+  updateFeedLabel();
+});
+
+sFileCam?.addEventListener('change', ()=>{
+  storyFile = sFileCam.files?.[0] || null;
+  updateStoryLabel();
+});
+sFileAlbum?.addEventListener('change', ()=>{
+  storyFile = sFileAlbum.files?.[0] || null;
+  updateStoryLabel();
+});
+
+rFileCam?.addEventListener('change', ()=>{
+  reelFile = rFileCam.files?.[0] || null;
+  updateReelLabel();
+});
+rFileAlbum?.addEventListener('change', ()=>{
+  reelFile = rFileAlbum.files?.[0] || null;
+  updateReelLabel();
+});
+
+/* Boutons Studio (à venir) => toast */
+document.querySelectorAll('.studio-btn')?.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    showToast("Studio RIDLY — bientôt dispo 😉");
+  });
+});
 
 async function uploadToBucket(bucket, path, file){
-  let { error } = await supa.storage.from(bucket).upload(path,file,{
-    upsert:false,
-    contentType:file.type||undefined
-  });
+  let { error } = await supa.storage.from(bucket).upload(path,file,{ upsert:false, contentType:file.type||undefined });
   if(error){
-    const res2 = await supa.storage.from(bucket).upload(path,file,{
-      upsert:true,
-      contentType:file.type||undefined
-    });
-    error = res2.error;
-    if(error) throw error;
+    const res2 = await supa.storage.from(bucket).upload(path,file,{ upsert:true, contentType:file.type||undefined });
+    error = res2.error; if(error) throw error;
   }
   const { data:pub } = supa.storage.from(bucket).getPublicUrl(path);
-  const url = pub?.publicUrl;
-  if(!url) throw new Error('URL publique indisponible');
+  const url = pub?.publicUrl; if(!url) throw new Error('URL publique indisponible');
   return url;
 }
 </script>
@@ -1076,14 +831,12 @@ async function uploadToBucket(bucket, path, file){
 <script>
 /* Carte choix spot + ajout spot + recherche + auto ville/pays/adresse */
 const spotModal        = document.getElementById('chooseSpotModal');
-const spotModalBg      = document.querySelector('#chooseSpotModal .modal-bg');
 const spotPickerClose  = document.getElementById('spotPickerClose');
 const spotPickerLocate = document.getElementById('spotPickerLocate');
 const spotPickerClear  = document.getElementById('spotPickerClear');
 const spotPickerAdd    = document.getElementById('spotPickerAdd');
 
 const addSpotModal     = document.getElementById('addSpotModal');
-const addSpotBg        = document.querySelector('#addSpotModal .modal-bg');
 const asType           = document.getElementById('asType');
 const asCountry        = document.getElementById('asCountry');
 const asVille          = document.getElementById('asVille');
@@ -1104,264 +857,139 @@ let currentSpotTarget = 'feed';
 let addSpotMapInstance = null;
 let spotSearchMarker = null;
 
-function isLocalFileOrigin(){
-  return location.protocol === 'file:' || location.origin === 'null';
-}
+function isLocalFileOrigin(){ return location.protocol === 'file:' || location.origin === 'null'; }
 
 async function fillAddressFromLatLng(lat, lng){
-  if (isLocalFileOrigin()){
-    console.log('Géocodage désactivé en file:// (CORS).');
-    return;
-  }
-
+  if (isLocalFileOrigin()){ console.log('Géocodage désactivé en file:// (CORS).'); return; }
   try{
-    const url = 'https://nominatim.openstreetmap.org/reverse'
-      + '?format=json&lat=' + encodeURIComponent(lat)
-      + '&lon=' + encodeURIComponent(lng)
-      + '&zoom=18&addressdetails=1';
-
+    const url = 'https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&addressdetails=1'
+      + '&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lng);
     const res  = await fetch(url, { headers:{'Accept':'application/json'} });
     const data = await res.json();
     const addr = data.address || {};
+    const city = addr.city || addr.town || addr.village || addr.hamlet || '';
+    if(city && !asVille.value) asVille.value = city;
 
-    const city =
-      addr.city ||
-      addr.town ||
-      addr.village ||
-      addr.hamlet ||
-      '';
-
-    if(city && !asVille.value){
-      asVille.value = city;
-    }
-
-    let countryCodeRaw = (addr.country_code || '').toUpperCase();
-    if(countryCodeRaw === 'GB') countryCodeRaw = 'UK';
-
-    if(countryCodeRaw){
-      const opts = Array.from(asCountry.options);
-      const found = opts.find(o => o.value === countryCodeRaw);
-      if(found){
-        asCountry.value = countryCodeRaw;
-      }
-    }
+    let cc = (addr.country_code || '').toUpperCase(); if(cc === 'GB') cc='UK';
+    if(cc){ const opt = Array.from(asCountry.options).find(o=>o.value===cc); if(opt) asCountry.value=cc; }
 
     const countryName = addr.country || '';
-    let line = '';
-    if(addr.road)         line = addr.road;
-    if(addr.house_number) line = (line ? line + ' ' : '') + addr.house_number;
-
-    const descParts = [];
-    if(line)        descParts.push(line);
-    if(city)        descParts.push(city);
-    if(countryName) descParts.push(countryName);
-
-    if(descParts.length && !asDesc.value){
-      asDesc.value = descParts.join(', ');
-    }
+    let line = addr.road || ''; if(addr.house_number) line = (line?line+' ':'') + addr.house_number;
+    const descParts = []; if(line) descParts.push(line); if(city) descParts.push(city); if(countryName) descParts.push(countryName);
+    if(descParts.length && !asDesc.value) asDesc.value = descParts.join(', ');
 
     asMsg.textContent = "Position mise à jour, adresse récupérée.";
-  }catch(e){
-    console.warn('Reverse geocode fail', e);
-    asMsg.textContent = "Position mise à jour.";
-  }
+  }catch(e){ asMsg.textContent = "Position mise à jour."; }
 }
 
-/* Ouverture modale choix spot */
-btnPickSpot.addEventListener('click', ()=>{
-  currentSpotTarget = 'feed';
-  spotModal.classList.add('show');
-  setTimeout(()=>{ initSpotMap(); }, 80);
-});
+/* ouverture modales */
+btnPickSpot.addEventListener('click', ()=>{ currentSpotTarget='feed'; spotModal.classList.add('show'); setTimeout(()=>{ initSpotMap(); }, 80); });
+btnPickSpotReel.addEventListener('click', ()=>{ currentSpotTarget='reel'; spotModal.classList.add('show'); setTimeout(()=>{ initSpotMap(); }, 80); });
 
-btnPickSpotReel.addEventListener('click', ()=>{
-  currentSpotTarget = 'reel';
-  spotModal.classList.add('show');
-  setTimeout(()=>{ initSpotMap(); }, 80);
-});
-
-spotModalBg.addEventListener('click', ()=> spotModal.classList.remove('show'));
 spotPickerClose.addEventListener('click', ()=> spotModal.classList.remove('show'));
-
 spotPickerClear.addEventListener('click', ()=>{
-  if(currentSpotTarget === 'reel'){
-    rSpotId.value = '';
-    rSpotType.value = '';
-    chosenSpotLabelReel.textContent = 'Pas de spot sélectionné';
-  }else{
-    fSpotId.value = '';
-    fSpotType.value = '';
-    chosenSpotLabel.textContent = 'Pas de spot sélectionné';
-  }
+  if(currentSpotTarget === 'reel'){ rSpotId.value=''; rSpotType.value=''; chosenSpotLabelReel.textContent='Pas de spot sélectionné'; }
+  else{ fSpotId.value=''; fSpotType.value=''; chosenSpotLabel.textContent='Pas de spot sélectionné'; }
   spotModal.classList.remove('show');
 });
 
+/* fermeture au tap hors carte */
+['chooseSpotModal','addSpotModal'].forEach(id=>{
+  const m = document.getElementById(id);
+  if(!m) return;
+  m.addEventListener('click', (e)=>{ if(e.target === m) m.classList.remove('show'); });
+});
+
+/* set spot choisi */
 function setChosenSpot(spot){
   if(currentSpotTarget === 'reel'){
-    rSpotId.value = spot.id;
-    rSpotType.value = spot.type;
+    rSpotId.value = spot.id; rSpotType.value = spot.type;
     chosenSpotLabelReel.textContent = `${spot.nom} — ${spot.ville || ''}`;
   }else{
-    fSpotId.value = spot.id;
-    fSpotType.value = spot.type;
+    fSpotId.value = spot.id; fSpotType.value = spot.type;
     chosenSpotLabel.textContent = `${spot.nom} — ${spot.ville || ''}`;
   }
   spotModal.classList.remove('show');
 }
 
-/* Init carte "choisir un spot" */
+/* init carte choisir spot */
 async function initSpotMap(){
   const container = document.getElementById('chooseSpotMap');
   if(!container) return;
 
   if(!spotMap){
     spotMap = L.map(container).setView([46.8, 8.2], 6);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      maxZoom:19,
-      attribution:'© OpenStreetMap'
-    }).addTo(spotMap);
-
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19, attribution:'© OpenStreetMap' }).addTo(spotMap);
     setTimeout(()=>{ spotMap.invalidateSize(); }, 50);
 
     spotMap.on('click', e=>{
       if(!addSpotModal.classList.contains('show')) return;
       const { lat, lng } = e.latlng;
-      asLat.value = lat.toFixed(6);
-      asLng.value = lng.toFixed(6);
+      asLat.value = lat.toFixed(6); asLng.value = lng.toFixed(6);
       asMsg.textContent = "Position mise à jour, récupération de l'adresse…";
       fillAddressFromLatLng(lat, lng);
     });
 
     await loadSpotMarkers();
-  }else{
-    setTimeout(()=>{ spotMap.invalidateSize(); }, 50);
-  }
+  }else{ setTimeout(()=>{ spotMap.invalidateSize(); }, 50); }
 }
 
-/* Charge markers parks/street */
+/* markers parks + street */
 async function loadSpotMarkers(){
   if(!spotMap) return;
-
-  spotMarkers.forEach(m=>spotMap.removeLayer(m));
-  spotMarkers = [];
+  spotMarkers.forEach(m=>spotMap.removeLayer(m)); spotMarkers=[];
 
   try{
-    const { data:parks } = await supa
-      .from('spots')
-      .select('id,nom,ville,lat,lng')
-      .limit(1000);
+    const { data:parks } = await supa.from('spots').select('id,nom,ville,lat,lng').limit(1000);
     (parks||[]).forEach(p=>{
       if(!p.lat || !p.lng) return;
       const marker = L.marker([p.lat, p.lng]);
-      marker.on('click', ()=> setChosenSpot({
-        id:p.id,
-        type:'park',
-        nom:p.nom || 'Spot',
-        ville:p.ville || ''
-      }));
-      marker.addTo(spotMap);
-      spotMarkers.push(marker);
+      marker.on('click', ()=> setChosenSpot({ id:p.id, type:'park', nom:p.nom || 'Spot', ville:p.ville || '' }));
+      marker.addTo(spotMap); spotMarkers.push(marker);
     });
-  }catch(e){
-    console.error('Erreur chargement spots', e);
-  }
+  }catch(e){}
 
   try{
-    const { data:streets } = await supa
-      .from('bunny')
-      .select('id,nom,ville,lat,lng')
-      .limit(1000);
+    const { data:streets } = await supa.from('bunny').select('id,nom,ville,lat,lng').limit(1000);
     (streets||[]).forEach(s=>{
       if(!s.lat || !s.lng) return;
       const marker = L.marker([s.lat, s.lng]);
-      marker.on('click', ()=> setChosenSpot({
-        id:s.id,
-        type:'street',
-        nom:s.nom || 'Street spot',
-        ville:s.ville || ''
-      }));
-      marker.addTo(spotMap);
-      spotMarkers.push(marker);
+      marker.on('click', ()=> setChosenSpot({ id:s.id, type:'street', nom:s.nom || 'Street spot', ville:s.ville || '' }));
+      marker.addTo(spotMap); spotMarkers.push(marker);
     });
-  }catch(e){
-    console.error('Erreur chargement street', e);
-  }
+  }catch(e){}
 }
 
-/* Recherche dans la modale "Choisir un spot" */
+/* recherche adresse */
 async function doSpotSearch(){
-  const q = (spotSearch.value || '').trim();
-  if(!q) return;
-
-  if (isLocalFileOrigin()){
-    alert("La recherche d’adresse ne peut pas fonctionner quand la page est ouverte directement en fichier.\nOuvre RIDLY via http://localhost ou en ligne pour tester cette fonction.");
-    return;
-  }
-
-  if(!spotMap){
-    await initSpotMap();
-  }
-  spotSearchBtn.disabled = true;
-  const oldLabel = spotSearchBtn.textContent;
-  spotSearchBtn.textContent = '…';
-
+  const q = (spotSearch.value || '').trim(); if(!q) return;
+  if (isLocalFileOrigin()){ alert("La recherche d’adresse ne fonctionne pas en file://. Ouvre la page en http(s)."); return; }
+  if(!spotMap){ await initSpotMap(); }
+  spotSearchBtn.disabled = true; const old = spotSearchBtn.textContent; spotSearchBtn.textContent = '…';
   try{
-    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q='
-      + encodeURIComponent(q);
-    const res = await fetch(url, { headers:{'Accept':'application/json'} });
-    const data = await res.json();
-    if(!data || !data.length){
-      alert('Lieu introuvable.');
-      return;
-    }
-    const { lat, lon } = data[0];
-    const latNum = parseFloat(lat);
-    const lngNum = parseFloat(lon);
-
+    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q);
+    const res = await fetch(url, { headers:{'Accept':'application/json'} }); const data = await res.json();
+    if(!data || !data.length){ alert('Lieu introuvable.'); return; }
+    const { lat, lon } = data[0]; const latNum = parseFloat(lat); const lngNum = parseFloat(lon);
     spotMap.setView([latNum, lngNum], 14);
-
-    if(spotSearchMarker){
-      spotMap.removeLayer(spotSearchMarker);
-    }
+    if(spotSearchMarker){ spotMap.removeLayer(spotSearchMarker); }
     spotSearchMarker = L.marker([latNum, lngNum]).addTo(spotMap);
-  }catch(e){
-    console.error(e);
-    alert('Recherche impossible pour le moment.');
-  }finally{
-    spotSearchBtn.disabled = false;
-    spotSearchBtn.textContent = oldLabel;
-  }
+  }catch(e){ alert('Recherche impossible pour le moment.'); }
+  finally{ spotSearchBtn.disabled=false; spotSearchBtn.textContent=old; }
 }
-
 spotSearchBtn.addEventListener('click', doSpotSearch);
-spotSearch.addEventListener('keydown', e=>{
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    doSpotSearch();
-  }
-});
+spotSearch.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); doSpotSearch(); } });
 
 /* Localiser */
 spotPickerLocate.addEventListener('click', ()=>{
-  if(!navigator.geolocation){
-    alert("Géolocalisation indisponible.");
-    return;
-  }
+  if(!navigator.geolocation){ alert("Géolocalisation indisponible."); return; }
   navigator.geolocation.getCurrentPosition(pos=>{
     const { latitude, longitude } = pos.coords;
     if(spotMap){
       spotMap.setView([latitude, longitude], 14);
-      L.circleMarker([latitude, longitude],{
-        radius:6,
-        color:'#22c55e',
-        fillColor:'#22c55e',
-        fillOpacity:0.9,
-        weight:2
-      }).addTo(spotMap);
+      L.circleMarker([latitude, longitude],{ radius:6, color:'#22c55e', fillColor:'#22c55e', fillOpacity:0.9, weight:2 }).addTo(spotMap);
     }
-  }, ()=>{
-    alert("Impossible d'obtenir ta position.");
-  });
+  }, ()=>{ alert("Impossible d'obtenir ta position."); });
 });
 
 /* Modale Ajouter un spot */
@@ -1371,106 +999,58 @@ spotPickerAdd.addEventListener('click', ()=>{
   asMsg.textContent = 'Clique la petite carte ou remplis les champs puis Enregistrer.';
   setTimeout(()=>{ initAddSpotMap(); }, 80);
 });
-
-addSpotBg.addEventListener('click', ()=> addSpotModal.classList.remove('show'));
 asCancelBtn.addEventListener('click', ()=> addSpotModal.classList.remove('show'));
 
-/* Carte de la modale "Ajouter un spot" */
+/* Carte add spot */
 function initAddSpotMap(){
-  const container = document.getElementById('addSpotMap');
-  if(!container) return;
-
+  const container = document.getElementById('addSpotMap'); if(!container) return;
   if(!addSpotMapInstance){
     addSpotMapInstance = L.map(container).setView([46.8, 8.2], 7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      maxZoom:19,
-      attribution:'© OpenStreetMap'
-    }).addTo(addSpotMapInstance);
-
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19, attribution:'© OpenStreetMap' }).addTo(addSpotMapInstance);
     setTimeout(()=>{ addSpotMapInstance.invalidateSize(); }, 50);
-
     addSpotMapInstance.on('click', e=>{
       const { lat, lng } = e.latlng;
-      asLat.value = lat.toFixed(6);
-      asLng.value = lng.toFixed(6);
+      asLat.value = lat.toFixed(6); asLng.value = lng.toFixed(6);
       asMsg.textContent = "Position mise à jour, récupération de l'adresse…";
       fillAddressFromLatLng(lat, lng);
     });
-  }else{
-    setTimeout(()=>{ addSpotMapInstance.invalidateSize(); }, 50);
-  }
+  }else{ setTimeout(()=>{ addSpotMapInstance.invalidateSize(); }, 50); }
 }
 
 /* Enregistrer le spot */
 asSaveBtn.addEventListener('click', async ()=>{
-  asMsg.style.color = '#e5e7eb';
-  asMsg.textContent = 'Envoi…';
-
+  asMsg.style.color = '#e5e7eb'; asMsg.textContent = 'Envoi…';
   const nom = (asNom.value||'').trim();
   const ville = (asVille.value||'').trim();
   const country = (asCountry.value||'').trim() || 'WORLD';
   const description = (asDesc.value||'').trim();
-  const lat = parseFloat(asLat.value);
-  const lng = parseFloat(asLng.value);
+  const lat = parseFloat(asLat.value); const lng = parseFloat(asLng.value);
 
-  if(!nom || !lat || !lng){
-    asMsg.style.color = '#f97373';
-    asMsg.textContent = 'Nom + position obligatoires.';
-    return;
-  }
+  if(!nom || !lat || !lng){ asMsg.style.color='#f97373'; asMsg.textContent='Nom + position obligatoires.'; return; }
 
-  const row = {
-    nom,
-    ville,
-    canton:'',
-    country,
-    description,
-    lat,
-    lng
-  };
-
+  const row = { nom, ville, canton:'', country, description, lat, lng };
   try{
     const target = (asType.value === 'street') ? 'bunny' : 'spots';
     const { data, error } = await supa.from(target).insert(row).select().single();
     if(error) throw error;
 
-    asMsg.style.color = '#22c55e';
-    asMsg.textContent = 'Spot ajouté ✅';
-
+    asMsg.style.color = '#22c55e'; asMsg.textContent = 'Spot ajouté ✅';
     await loadSpotMarkers();
 
     addSpotModal.classList.remove('show');
-    setChosenSpot({
-      id: data.id,
-      type: (asType.value === 'street') ? 'street' : 'park',
-      nom: nom,
-      ville: ville
-    });
-
-  }catch(err){
-    console.error(err);
-    asMsg.style.color = '#f97373';
-    asMsg.textContent = 'Erreur: '+(err?.message||'');
-  }
+    setChosenSpot({ id:data.id, type:(asType.value==='street')?'street':'park', nom, ville });
+  }catch(err){ asMsg.style.color='#f97373'; asMsg.textContent='Erreur: '+(err?.message||''); }
 });
 </script>
 
 <script>
 /* Publier FEED */
 formFeed.addEventListener('submit',async e=>{
-  e.preventDefault();
-  feedMsg.textContent='';
-  if(!me){
-    alert('Connecte-toi pour publier.');
-    return;
-  }
+  e.preventDefault(); feedMsg.textContent='';
+  if(!me){ alert('Connecte-toi pour publier.'); return; }
 
-  const file=fFile.files?.[0] || null;
-  if(!file){
-    feedMsg.style.color='#f97373';
-    feedMsg.textContent='Choisis une photo ou vidéo.';
-    return;
-  }
+  const file = feedFile;
+  if(!file){ feedMsg.style.color='#f97373'; feedMsg.textContent='Choisis une photo ou vidéo (Caméra ou Album).'; return; }
 
   const baseType   = fType.value;
   const spotIdStr  = fSpotId.value;
@@ -1480,98 +1060,62 @@ formFeed.addEventListener('submit',async e=>{
   const caption   = (fCaption.value||'').trim();
 
   try{
-    feedMsg.style.color='#e5e7eb';
-    feedMsg.textContent='Upload en cours…';
+    feedMsg.style.color='#e5e7eb'; feedMsg.textContent='Upload en cours…';
     const safeName=file.name.replace(/[^\w.\-]+/g,'_');
     const path=`${me.id}/feed/${Date.now()}_${safeName}`;
     const mediaUrl = await uploadToBucket('feed', path, file);
 
-    const row={
-      spot_id:   spotIdStr || null,
-      spot_type: finalType,
-      user_id:   me.id,
-      user_display: displayName||'Rider',
-      media_url: mediaUrl,
-      caption
-    };
+    const row={ spot_id: spotIdStr || null, spot_type: finalType, user_id: me.id, user_display: displayName||'Rider', media_url: mediaUrl, caption };
     const { error } = await supa.from('spot_posts').insert([row]);
     if(error) throw error;
 
-    feedMsg.style.color='#22c55e';
-    feedMsg.textContent='Post publié ✅';
-    fFile.value='';
-    fFileLabel.textContent='Ajouter une photo / vidéo';
-    fCaption.value='';
-    fSpotId.value='';
-    fSpotType.value='';
-    chosenSpotLabel.textContent='Pas de spot sélectionné';
-  }catch(err){
-    feedMsg.style.color='#f97373';
-    feedMsg.textContent='Erreur: '+(err?.message||'');
-  }
+    feedMsg.style.color='#22c55e'; feedMsg.textContent='Post publié ✅';
+    feedFile = null;
+    fFileCam.value=''; fFileAlbum.value='';
+    updateFeedLabel();
+    fCaption.value=''; fSpotId.value=''; fSpotType.value=''; chosenSpotLabel.textContent='Pas de spot sélectionné';
+  }catch(err){ feedMsg.style.color='#f97373'; feedMsg.textContent='Erreur: '+(err?.message||''); }
 });
 </script>
 
 <script>
 /* Publier STORY */
 formStory.addEventListener('submit',async e=>{
-  e.preventDefault();
-  storyMsg.textContent='';
-  if(!me){alert('Connecte-toi pour publier.');return;}
+  e.preventDefault(); storyMsg.textContent='';
+  if(!me){ alert('Connecte-toi pour publier.'); return; }
 
-  const file=sFile.files?.[0] || null;
-  if(!file){
-    storyMsg.style.color='#f97373';
-    storyMsg.textContent='Choisis un média pour ta story.';
-    return;
-  }
+  const file = storyFile;
+  if(!file){ storyMsg.style.color='#f97373'; storyMsg.textContent='Choisis un média pour ta story (Caméra ou Album).'; return; }
 
   const caption=(sCaption.value||'').trim();
 
   try{
-    storyMsg.style.color='#e5e7eb';
-    storyMsg.textContent='Upload en cours…';
+    storyMsg.style.color='#e5e7eb'; storyMsg.textContent='Upload en cours…';
     const safeName=file.name.replace(/[^\w.\-]+/g,'_');
     const path=`${me.id}/flashes/${Date.now()}_${safeName}`;
     const mediaUrl = await uploadToBucket('flashes', path, file);
 
     const expires = new Date(Date.now()+48*60*60*1000).toISOString();
-    const { error } = await supa.from('flashes').insert([{
-      user_id:me.id,
-      media_url:mediaUrl,
-      caption,
-      expires_at:expires
-    }]);
+    const { error } = await supa.from('flashes').insert([{ user_id:me.id, media_url:mediaUrl, caption, expires_at:expires }]);
     if(error) throw error;
 
-    storyMsg.style.color='#22c55e';
-    storyMsg.textContent='Story publiée ✅';
-    sFile.value='';
-    sFileLabel.textContent='Ajouter une story';
+    storyMsg.style.color='#22c55e'; storyMsg.textContent='Story publiée ✅';
+    storyFile = null;
+    sFileCam.value=''; sFileAlbum.value='';
+    updateStoryLabel();
     sCaption.value='';
-  }catch(err){
-    storyMsg.style.color='#f97373';
-    storyMsg.textContent='Erreur: '+(err?.message||'');
-  }
+  }catch(err){ storyMsg.style.color='#f97373'; storyMsg.textContent='Erreur: '+(err?.message||''); }
 });
 </script>
 
 <script>
 /* Publier REEL */
 formReel.addEventListener('submit',async e=>{
-  e.preventDefault();
-  reelMsg.textContent='';
-  if(!me){
-    alert('Connecte-toi pour publier.');
-    return;
-  }
+  e.preventDefault(); reelMsg.textContent='';
+  if(!me){ alert('Connecte-toi pour publier.'); return; }
 
-  const file = rFile.files?.[0] || null;
-  if(!file){
-    reelMsg.style.color = '#f97373';
-    reelMsg.textContent = 'Choisis une vidéo pour ton reel.';
-    return;
-  }
+  const file = reelFile;
+  if(!file){ reelMsg.style.color = '#f97373'; reelMsg.textContent = 'Choisis une vidéo pour ton reel (Caméra ou Album).'; return; }
 
   const captionRaw  = (rCaption.value||'').trim();
   const category    = (rCategory.value||'').trim();
@@ -1581,50 +1125,39 @@ formReel.addEventListener('submit',async e=>{
   const rTypeVal   = rSpotType.value || null;
 
   try{
-    reelMsg.style.color = '#e5e7eb';
-    reelMsg.textContent = 'Upload du reel en cours…';
-
+    reelMsg.style.color = '#e5e7eb'; reelMsg.textContent = 'Upload du reel en cours…';
     const safeName = file.name.replace(/[^\w.\-]+/g,'_');
     const path     = `${me.id}/reels/${Date.now()}_${safeName}`;
-
     const mediaUrl = await uploadToBucket('feed', path, file);
 
-    const row = {
-      spot_id:   rSpotIdStr || null,
-      spot_type: rTypeVal,
-      user_id:   me.id,
-      user_display: displayName || 'Rider',
-      media_url: mediaUrl,
-      caption
-    };
-
+    const row = { spot_id: rSpotIdStr || null, spot_type: rTypeVal, user_id: me.id, user_display: displayName || 'Rider', media_url: mediaUrl, caption };
     const { error } = await supa.from('spot_posts').insert([row]);
     if(error) throw error;
 
-    reelMsg.style.color   = '#22c55e';
-    reelMsg.textContent   = 'Reel publié ✅';
-    rFile.value           = '';
-    rFileLabel.textContent= 'Ajouter un reel (vidéo)';
-    rCaption.value        = '';
-    rCategory.value       = '';
-    rSpotId.value         = '';
-    rSpotType.value       = '';
-    chosenSpotLabelReel.textContent = 'Pas de spot sélectionné';
-  }catch(err){
-    reelMsg.style.color = '#f97373';
-    reelMsg.textContent = 'Erreur: ' + (err?.message || '');
-  }
+    reelMsg.style.color = '#22c55e'; reelMsg.textContent = 'Reel publié ✅';
+    reelFile = null;
+    rFileCam.value=''; rFileAlbum.value='';
+    updateReelLabel();
+    rCaption.value=''; rCategory.value=''; rSpotId.value=''; rSpotType.value=''; chosenSpotLabelReel.textContent='Pas de spot sélectionné';
+  }catch(err){ reelMsg.style.color = '#f97373'; reelMsg.textContent = 'Erreur: ' + (err?.message || ''); }
 });
 </script>
 
 <script>
   // Service worker uniquement en https ou sur localhost
-  if (
-    'serviceWorker' in navigator &&
-    (location.protocol === 'https:' || location.hostname === 'localhost')
-  ) {
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
   }
+  // Ajuste les hauteurs de carte selon l’écran
+  const setMapHeights = ()=>{
+    const vh = Math.max(480, window.innerHeight);
+    const choose = document.getElementById('chooseSpotMap');
+    const add   = document.getElementById('addSpotMap');
+    if(choose) choose.style.height = Math.round(vh*0.44)+'px';
+    if(add)    add.style.height    = Math.round(vh*0.40)+'px';
+  };
+  window.addEventListener('resize', setMapHeights);
+  setMapHeights();
 </script>
 
 </body>

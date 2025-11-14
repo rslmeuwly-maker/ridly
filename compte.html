@@ -1,255 +1,518 @@
-<!-- ===== compte.html ===== -->
 <!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#22c55e">
-  <title>Mon compte — RIDLY</title>
+  <title>Connexion — RIDLY</title>
 
-  <!-- Supabase -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <!-- Ton fichier env.js (optionnel, sinon on garde les valeurs en dur) -->
-  <script src="js/env.js"></script>
-
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+
   <style>
     :root{
-      --bg:#020617;--bg-soft:#030712;--card:#020617;
-      --accent:#22c55e;--accent-soft:rgba(34,197,94,.08);--accent-strong:rgba(34,197,94,.25);
-      --text:#f9fafb;--text-dim:#9ca3af;--border:rgba(148,163,184,.35);
-      --radius-xl:18px;
+      --green:#22c55e;
+      --green-dark:#16a34a;
+      --bg:#000;
+      --text:#f9fafb;
+      --dim:#9aa5b1;
+      --accent:#38bdf8;
     }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;padding:0;height:100%}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
     body{
-      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-      background:#000;color:var(--text);display:flex;flex-direction:column;
+      min-height:100vh;
+      background:radial-gradient(circle at top left,#022c22 0,#020617 40%,#000 100%);
+      color:var(--text);
+      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      display:flex;
+      flex-direction:column;
     }
-    .page-wrap{flex:1;display:flex;flex-direction:column;max-width:640px;margin:0 auto;width:100%}
-    nav.nav{
-      position:sticky;top:0;z-index:20;
-      background:rgba(2,6,23,.9);backdrop-filter:blur(18px);
-      border-bottom:1px solid var(--border);
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 18px;
+      background:rgba(0,0,0,.7);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      z-index:10;
     }
-    nav.nav .row{display:flex;align-items:center;justify-content:space-between;padding:8px 14px}
-    .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text)}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:#fff;
+    }
     .brand img{
-      width:32px;height:32px;border-radius:12px;background:#000;
-      padding:3px;box-shadow:0 0 12px rgba(34,197,94,.7)
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      box-shadow:0 0 14px rgba(34,197,94,.5);
     }
-    .brand span{font-weight:700;letter-spacing:-0.03em;font-size:20px}
+    .brand span{
+      font-weight:800;
+      font-size:18px;
+      letter-spacing:.12em;
+    }
+    .back-link{
+      font-size:12px;
+      color:var(--dim);
+      text-decoration:none;
+    }
+    .back-link:hover{color:#fff;}
 
-    .main{flex:1;padding:10px 12px 80px}
+    main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px 16px 28px;
+    }
+
     .card{
-      background:var(--card);border-radius:var(--radius-xl);
-      border:1px solid rgba(15,23,42,.9);
-      box-shadow:0 18px 45px rgba(0,0,0,.6);
-      padding:16px 14px 18px;margin-top:10px;
+      width:100%;
+      max-width:420px;
+      background:radial-gradient(circle at top,#020617,#020617 55%,#000);
+      border-radius:22px;
+      border:1px solid rgba(148,163,184,.4);
+      box-shadow:
+        0 0 45px rgba(15,23,42,.9),
+        0 0 60px rgba(34,197,94,.25);
+      padding:20px 20px 18px;
+      position:relative;
+      overflow:hidden;
     }
-    h1.main-title{margin:0 0 4px;font-size:20px;font-weight:800}
-    .muted{font-size:13px;color:var(--text-dim);margin:0 0 10px}
-    .section-title{font-size:14px;font-weight:600;margin:14px 0 4px}
-    .field-label{font-size:12px;font-weight:600;margin:8px 0 3px;color:var(--text-dim)}
-    .text-input{
-      width:100%;padding:8px 10px;border-radius:10px;
-      border:1px solid var(--border);background:#030712;
-      color:var(--text);font-size:14px;outline:none;
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(34,197,94,.28), transparent 55%),
+        radial-gradient(circle at 95% 80%, rgba(56,189,248,.26), transparent 55%);
+      opacity:.6;
+      mix-blend-mode:soft-light;
+      pointer-events:none;
     }
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;gap:6px;
-      background:#065f46;color:#ecfdf5;border:0;border-radius:999px;
-      font-weight:700;font-size:14px;padding:9px 16px;cursor:pointer;
-      box-shadow:0 10px 24px rgba(0,0,0,.5);white-space:nowrap;
-    }
-    .btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
-    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);box-shadow:none}
-    .small-info{font-size:12px;color:var(--text-dim);margin-top:6px;white-space:pre-wrap}
-    .small-info.error{color:#fda4af;font-weight:600}
-    .small-info.success{color:#bbf7d0}
+    .card-inner{position:relative;z-index:1;}
 
-    .tabbar{
-      position:fixed;left:0;right:0;bottom:0;z-index:30;
-      border-top:1px solid var(--border);
-      background:rgba(2,6,23,.97);backdrop-filter:blur(18px);
-      display:flex;justify-content:space-around;align-items:center;
-      padding:6px 8px 10px;
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:3px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      font-size:.62rem;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--dim);
+      margin-bottom:8px;
     }
-    .tab{
-      flex:1;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;gap:2px;
-      text-decoration:none;color:var(--text-dim);
-      font-size:9px;letter-spacing:.04em;text-transform:uppercase;
-      padding:4px 0;
+    .badge span{
+      width:7px;height:7px;
+      border-radius:999px;
+      background:var(--green);
+      box-shadow:0 0 10px rgba(34,197,94,.9);
     }
-    .tab .ic{font-size:20px;line-height:1}
-    .tab.active{color:var(--accent)}
+
+    .logo-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:8px;
+    }
+    .logo-circle{
+      width:40px;height:40px;
+      border-radius:16px;
+      background:#000;
+      border:1px solid rgba(148,163,184,.7);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 16px rgba(34,197,94,.6);
+    }
+    .logo-circle img{
+      width:30px;height:30px;object-fit:contain;
+    }
+    .logo-text{
+      font-size:.72rem;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      color:var(--dim);
+    }
+
+    .title{
+      font-size:1.25rem;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+    .sub{
+      font-size:.8rem;
+      color:var(--dim);
+      margin-bottom:14px;
+    }
+
+    .section-title{
+      font-size:.75rem;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--dim);
+      margin-bottom:6px;
+    }
+
+    .section{
+      margin-bottom:14px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      margin-bottom:6px;
+    }
+    label{
+      font-size:.75rem;
+      color:var(--dim);
+    }
+    input{
+      width:100%;
+      padding:9px 11px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.5);
+      background:rgba(15,23,42,.92);
+      color:var(--text);
+      font-size:.86rem;
+      outline:none;
+    }
+    input::placeholder{color:#64748b;}
+    input:focus{
+      border-color:var(--green);
+      box-shadow:0 0 0 1px rgba(34,197,94,.4);
+    }
+
+    .btn-row{
+      display:flex;
+      gap:8px;
+      margin-top:4px;
+      flex-wrap:wrap;
+    }
+    button{
+      flex:1;
+      padding:9px 10px;
+      border-radius:999px;
+      border:none;
+      font-size:.75rem;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      white-space:nowrap;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,var(--green),var(--green-dark));
+      color:#01210f;
+      box-shadow:0 10px 26px rgba(0,0,0,.9);
+    }
+    .btn-ghost{
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      border:1px solid rgba(148,163,184,.5);
+    }
+    button:disabled{
+      opacity:.6;
+      cursor:default;
+      box-shadow:none;
+    }
+
+    .status{
+      margin-top:4px;
+      min-height:16px;
+      font-size:.75rem;
+      color:var(--dim);
+    }
+    .status.ok{color:#4ade80;}
+    .status.err{color:#f97373;}
+
+    .divider{
+      height:1px;
+      background:linear-gradient(to right, transparent, rgba(148,163,184,.5), transparent);
+      opacity:.7;
+      margin:6px 0 10px;
+    }
+
+    .footer-text{
+      font-size:.7rem;
+      color:var(--dim);
+      line-height:1.4;
+    }
+    .footer-text a{
+      color:var(--accent);
+      text-decoration:none;
+    }
+    .footer-text a:hover{text-decoration:underline;}
+
+    footer{
+      text-align:center;
+      font-size:11px;
+      color:#9aa5b1;
+      padding:10px 12px 14px;
+      opacity:.8;
+    }
+
+    @media(max-width:480px){
+      header{padding:10px 12px;}
+      .card{padding:18px 16px 16px;border-radius:18px;}
+    }
   </style>
 </head>
 <body>
-<div class="page-wrap">
-  <nav class="nav">
-    <div class="row">
-      <a class="brand" href="ou_rider.html">
-        <img src="image/1logo_ridly.png" alt="RIDLY"/><span>RIDLY</span>
-      </a>
-    </div>
-  </nav>
 
-  <main class="main">
-    <section class="card">
-      <h1 class="main-title">Connexion</h1>
-      <p class="muted">Connecte-toi pour accéder aux features RIDLY.</p>
+<header>
+  <a href="index.html" class="brand">
+    <img src="image/1logo_ridly.png" alt="RIDLY">
+    <span>RIDLY</span>
+  </a>
+  <a href="index.html" class="back-link">← Retour</a>
+</header>
 
-      <div class="section-title">Connexion rapide</div>
-      <button class="btn" id="btnGoogle"><span>🔑</span><span>Continuer avec Google</span></button>
-      <div id="googleMsg" class="small-info"></div>
+<main>
+  <div class="card">
+    <div class="card-inner">
 
-      <div class="section-title">E-mail / mot de passe</div>
-      <label class="field-label" for="emailInput">E-mail</label>
-      <input id="emailInput" class="text-input" type="email" placeholder="toi@example.ch" autocomplete="email"/>
-      <label class="field-label" for="passwordInput">Mot de passe</label>
-      <input id="passwordInput" class="text-input" type="password" placeholder="••••••••" autocomplete="current-password"/>
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn" id="btnEmailLogin">Se connecter</button>
-        <button class="btn btn-outline" id="btnEmailSignup">Créer un compte</button>
+      <div class="badge">
+        <span></span> COMPTE RIDER
       </div>
-      <div id="emailMsg" class="small-info"></div>
 
-      <div class="small-info" style="margin-top:14px;border-top:1px dashed rgba(148,163,184,.35);padding-top:10px">
-        <b>Debug:</b>
-        <div>• ORIGIN: <span id="dbgOrigin"></span></div>
-        <div>• redirectTo utilisé: <span id="dbgRedirect"></span></div>
-        <div>• Astuce: si “redirect_uri_mismatch”, ajoute exactement cette URL dans
-          <i>Supabase → Auth → URL configuration → Redirect URLs</i>.
+      <div class="logo-row">
+        <div class="logo-circle">
+          <img src="image/1logo_ridly.png" alt="RIDLY">
+        </div>
+        <div class="logo-text">SPOTS • RIDERS • CLIPS</div>
+      </div>
+
+      <div class="title">Connecte-toi pour ouvrir la carte</div>
+      <div class="sub">
+        Déjà membre ou nouveau ? Choisis juste comment tu veux te connecter.
+      </div>
+
+      <!-- DÉJÀ MEMBRE -->
+      <div class="section">
+        <div class="section-title">Déjà membre</div>
+        <div class="field">
+          <label for="email-existing">Adresse e-mail</label>
+          <input id="email-existing" type="email" placeholder="ton.email@exemple.ch" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="password-existing">Mot de passe (facultatif si lien magique)</label>
+          <input id="password-existing" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <div class="btn-row">
+          <button id="btn-magic" class="btn-ghost" type="button">
+            🔗 Lien magique
+          </button>
+          <button id="btn-login" class="btn-primary" type="button">
+            ✅ Connexion
+          </button>
+        </div>
+
+        <div id="status-existing" class="status">
+          Choisis : lien magique ou connexion classique.
         </div>
       </div>
-    </section>
-  </main>
-</div>
 
-<nav class="tabbar" aria-label="Navigation">
-  <a class="tab" href="ou_rider.html"><div class="ic">📍</div><span>Spots</span></a>
-  <a class="tab" href="feed.html"><div class="ic">🎬</div><span>Feed</span></a>
-  <a class="tab" href="recherche.html"><div class="ic">🔎</div><span>Search</span></a>
-  <a class="tab active" href="compte.html"><div class="ic">👤</div><span>Compte</span></a>
-</nav>
+      <div class="divider"></div>
+
+      <!-- NOUVEAU COMPTE -->
+      <div class="section">
+        <div class="section-title">Nouveau sur RIDLY ?</div>
+        <div class="field">
+          <label for="email-signup">Adresse e-mail</label>
+          <input id="email-signup" type="email" placeholder="ton.email@exemple.ch" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="password-signup">Créer un mot de passe</label>
+          <input id="password-signup" type="password" placeholder="Min. 6 caractères" autocomplete="new-password">
+        </div>
+        <button id="btn-signup" class="btn-primary" type="button">
+          ✨ Créer mon compte
+        </button>
+        <div id="status-signup" class="status">
+          Tu pourras ensuite te connecter comme tout le monde.
+        </div>
+      </div>
+
+      <div class="footer-text">
+        En utilisant RIDLY, tu acceptes les
+        <a href="conditions.html">conditions générales</a> et la
+        <a href="confidentialite.html">politique de confidentialité</a>.
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  © <span id="year"></span> RIDLY — Spots, riders et clips, partout avec toi.
+</footer>
 
 <script>
-  // ---- Supabase init ----
-  const SUPABASE_URL  = window.env?.SUPABASE_URL  || "https://jynxifufaauoxwzjapzq.supabase.co";
-  const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
-  const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-  // ---- UI refs ----
-  const btnGoogle       = document.getElementById('btnGoogle');
-  const googleMsg       = document.getElementById('googleMsg');
-  const emailMsg        = document.getElementById('emailMsg');
-  const emailInput      = document.getElementById('emailInput');
-  const passwordInput   = document.getElementById('passwordInput');
-  const btnEmailLogin   = document.getElementById('btnEmailLogin');
-  const btnEmailSignup  = document.getElementById('btnEmailSignup');
+  const supabaseUrl = window.SUPABASE_URL;
+  const supabaseAnonKey = window.SUPABASE_ANON_KEY;
+  const sb = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-  function setGoogleMsg(t, cls){
-    googleMsg.textContent = t || "";
-    googleMsg.className = "small-info" + (cls ? (" "+cls) : "");
-  }
-  function setEmailMsg(t, cls){
-    emailMsg.textContent = t || "";
-    emailMsg.className = "small-info" + (cls ? (" "+cls) : "");
-  }
-
-  // ---- Debug ORIGIN + redirectTo ----
-  const ORIGIN = window.location.origin;
-  const REDIRECT_AFTER_LOGIN = ORIGIN + "/ou_rider.html";
-  document.getElementById('dbgOrigin').textContent   = ORIGIN;
-  document.getElementById('dbgRedirect').textContent = REDIRECT_AFTER_LOGIN;
-
-  // ---- Si déjà logué → direct sur la carte ----
-  (async ()=>{
-    try{
-      const { data } = await supa.auth.getUser();
-      if (data?.user) {
-        location.href = "ou_rider.html";
+  // Si déjà connecté → direct sur la carte
+  (async () => {
+    try {
+      const { data } = await sb.auth.getSession();
+      if (data && data.session) {
+        window.location.href = "ou_rider.html";
       }
-    }catch(e){ console.warn(e); }
+    } catch (e) {
+      console.error("Erreur getSession", e);
+    }
   })();
 
-  // ---- Connexion Google ----
-  btnGoogle.addEventListener('click', async ()=>{
-    setGoogleMsg('');
-    console.log('[OAuth] start, redirectTo =', REDIRECT_AFTER_LOGIN);
+  const emailExisting = document.getElementById("email-existing");
+  const passwordExisting = document.getElementById("password-existing");
+  const btnMagic = document.getElementById("btn-magic");
+  const btnLogin = document.getElementById("btn-login");
+  const statusExisting = document.getElementById("status-existing");
 
-    const { data, error } = await supa.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: REDIRECT_AFTER_LOGIN,
-        queryParams: { prompt: 'select_account' }
+  const emailSignup = document.getElementById("email-signup");
+  const passwordSignup = document.getElementById("password-signup");
+  const btnSignup = document.getElementById("btn-signup");
+  const statusSignup = document.getElementById("status-signup");
+
+  function resetStatus(el){
+    el.className = "status";
+  }
+
+  // Lien magique
+  btnMagic.addEventListener("click", async () => {
+    const email = emailExisting.value.trim();
+    if (!email){
+      resetStatus(statusExisting);
+      statusExisting.textContent = "Entre ton e-mail pour recevoir le lien.";
+      return;
+    }
+    btnMagic.disabled = true;
+    resetStatus(statusExisting);
+    statusExisting.textContent = "Envoi du lien magique…";
+
+    try {
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options:{
+          emailRedirectTo: window.location.origin + "/ou_rider.html"
+        }
+      });
+      if (error){
+        console.error(error);
+        statusExisting.textContent = "Erreur : " + (error.message || "impossible d'envoyer le lien.");
+        statusExisting.classList.add("err");
+      } else {
+        statusExisting.textContent = "Lien envoyé ! Vérifie ta boîte mail pour ouvrir la carte RIDLY.";
+        statusExisting.classList.add("ok");
       }
-    });
-
-    if (error) {
-      console.error('[OAuth ERROR]', error);
-      setGoogleMsg('Erreur Google: ' + (error.message || 'inconnue'), 'error');
-    } else {
-      setGoogleMsg('Redirection vers Google…', 'success');
+    } catch(err){
+      console.error(err);
+      statusExisting.textContent = "Une erreur est survenue. Réessaie.";
+      statusExisting.classList.add("err");
+    } finally {
+      btnMagic.disabled = false;
     }
   });
 
-  // ---- Email / mot de passe ----
-  btnEmailLogin.addEventListener('click', async ()=>{
-    setEmailMsg('');
-    const email = (emailInput.value||'').trim();
-    const pass  = passwordInput.value||'';
-    if (!email || !pass){
-      setEmailMsg('Entre ton e-mail et ton mot de passe.', 'error');
+  // Connexion classique
+  btnLogin.addEventListener("click", async () => {
+    const email = emailExisting.value.trim();
+    const password = passwordExisting.value;
+    if (!email || !password){
+      resetStatus(statusExisting);
+      statusExisting.textContent = "Entre ton e-mail ET ton mot de passe.";
       return;
     }
-    btnEmailLogin.disabled = btnEmailSignup.disabled = true;
-    try{
-      const { error } = await supa.auth.signInWithPassword({ email, password: pass });
-      if(error){
+    btnLogin.disabled = true;
+    resetStatus(statusExisting);
+    statusExisting.textContent = "Connexion en cours…";
+
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (error){
         console.error(error);
-        setEmailMsg('Connexion impossible. Vérifie tes identifiants.', 'error');
-      }else{
-        location.href = "ou_rider.html";
+        statusExisting.textContent = "Erreur : " + (error.message || "connexion impossible.");
+        statusExisting.classList.add("err");
+      } else {
+        statusExisting.textContent = "Connecté ! Redirection vers la carte…";
+        statusExisting.classList.add("ok");
+        window.location.href = "ou_rider.html";
       }
-    }catch(e){
-      console.error(e);
-      setEmailMsg('Erreur réseau pendant la connexion.', 'error');
-    }finally{
-      btnEmailLogin.disabled = btnEmailSignup.disabled = false;
+    } catch(err){
+      console.error(err);
+      statusExisting.textContent = "Une erreur est survenue. Réessaie.";
+      statusExisting.classList.add("err");
+    } finally {
+      btnLogin.disabled = false;
     }
   });
 
-  btnEmailSignup.addEventListener('click', async ()=>{
-    setEmailMsg('');
-    const email = (emailInput.value||'').trim();
-    const pass  = passwordInput.value||'';
-    if (!email || !pass){
-      setEmailMsg('Entre un e-mail et un mot de passe pour créer ton compte.', 'error');
+  // Création de compte
+  btnSignup.addEventListener("click", async () => {
+    const email = emailSignup.value.trim();
+    const password = passwordSignup.value;
+    if (!email || !password){
+      resetStatus(statusSignup);
+      statusSignup.textContent = "Entre un e-mail et un mot de passe.";
       return;
     }
-    btnEmailLogin.disabled = btnEmailSignup.disabled = true;
-    try{
-      const { error } = await supa.auth.signUp({ email, password: pass });
-      if(error){
+    btnSignup.disabled = true;
+    resetStatus(statusSignup);
+    statusSignup.textContent = "Création du compte…";
+
+    try {
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options:{
+          emailRedirectTo: window.location.origin + "/ou_rider.html"
+        }
+      });
+      if (error){
         console.error(error);
-        setEmailMsg("Impossible de créer le compte.", "error");
-      }else{
-        setEmailMsg("Compte créé ! Vérifie tes e-mails si besoin, puis reconnecte-toi.", "success");
+        statusSignup.textContent = "Erreur : " + (error.message || "création impossible.");
+        statusSignup.classList.add("err");
+      } else {
+        if (data.session){
+          statusSignup.textContent = "Compte créé ! Redirection vers la carte…";
+          statusSignup.classList.add("ok");
+          window.location.href = "ou_rider.html";
+        } else {
+          statusSignup.textContent = "Compte créé ! Vérifie ton e-mail pour confirmer ton compte.";
+          statusSignup.classList.add("ok");
+        }
       }
-    }catch(e){
-      console.error(e);
-      setEmailMsg("Erreur réseau pendant la création du compte.", "error");
-    }finally{
-      btnEmailLogin.disabled = btnEmailSignup.disabled = false;
+    } catch(err){
+      console.error(err);
+      statusSignup.textContent = "Une erreur est survenue. Réessaie.";
+      statusSignup.classList.add("err");
+    } finally {
+      btnSignup.disabled = false;
     }
   });
 </script>
+
 </body>
 </html>

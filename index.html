@@ -13,45 +13,329 @@
   --green:#22c55e;
   --green-dark:#16a34a;
   --bg:#000;
+  --text:#f9fafb;
   --dim:#9aa5b1;
+  --accent:#38bdf8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
   background:radial-gradient(circle at top left,#022c22 0,#020617 40%,#000 100%);
-  color:#fff;
+  color:var(--text);
   font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial;
   overflow:hidden;
 }
 
-/* ==== INTRO AVEC LOGO ==== */
+/* ================== INTRO RIDLY : GEO -> SPOTS -> LOGO ================== */
+
 #intro{
-  position:fixed;inset:0;
-  display:flex;align-items:center;justify-content:center;
+  position:fixed;
+  inset:0;
+  background:#020617;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  overflow:hidden;
+  transition:opacity .6s ease-out;
+}
+
+/* halo + léger bruit */
+#intro::before{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:
+    radial-gradient(circle at center, rgba(34,197,94,.28), transparent 55%),
+    radial-gradient(circle at top left, rgba(56,189,248,.32), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(15,23,42,1), rgba(0,0,0,1));
+  opacity:0;
+  animation:introHalo 1.4s ease-out forwards .1s;
+}
+#intro::after{
+  content:"";
+  position:absolute;
+  inset:-20px;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
+  mix-blend-mode:soft-light;
+  opacity:.7;
+  pointer-events:none;
+  animation:introNoise .35s steps(3,end) infinite;
+}
+
+/* ====== ICI : carte / fenêtre supprimée visuellement ====== */
+.intro-card{
+  position:relative;
+  width:100%;
+  max-width:520px;
+  min-height:230px;
+  padding:1.6rem 2rem;
+  /* plus de fond, plus de bord, plus d’ombre */
+  border-radius:0;
+  background:transparent;
+  border:none;
+  box-shadow:none;
+  overflow:visible;
+}
+
+/* Steps */
+.intro-step{
+  position:absolute;
+  inset:1.2rem 1.6rem;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:1.5rem;
+  opacity:0;
+  transform:translateY(10px) scale(.97);
+  transition:opacity .45s ease-out, transform .45s ease-out;
+}
+.intro-step.active{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+@media (max-width:640px){
+  .intro-card{
+    padding:1.4rem 1.4rem;
+  }
+  .intro-step{
+    inset:1.1rem;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+/* --- ÉTAPE 1 : GEOLOC (radar) --- */
+
+.intro-radar{
+  position:relative;
+  width:140px;
+  height:140px;
+  border-radius:999px;
+  background:radial-gradient(circle at center,#022c22,#020617 60%,#020617);
+  box-shadow:0 0 40px rgba(34,197,94,.35);
+  overflow:hidden;
+}
+
+.radar-grid{
+  position:absolute;
+  inset:-20px;
+  background-image:
+    linear-gradient(to right, rgba(15,23,42,.7) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15,23,42,.7) 1px, transparent 1px);
+  background-size:18px 18px;
+  mix-blend-mode:soft-light;
+}
+
+.radar-circle{
+  position:absolute;
+  inset:18%;
+  border-radius:999px;
+  border:1px solid rgba(34,197,94,.35);
+}
+.radar-circle.c2{inset:32%;opacity:.7;}
+.radar-circle.c3{inset:46%;opacity:.5;}
+
+.radar-sweep{
+  position:absolute;
+  inset:-10%;
+  background:conic-gradient(from 210deg, rgba(34,197,94,0) 0deg, rgba(34,197,94,.8) 60deg, rgba(34,197,94,0) 120deg);
+  opacity:.9;
+  mix-blend-mode:screen;
+  animation:radarSweep 2.2s linear infinite;
+}
+
+.radar-dot{
+  position:absolute;
+  width:12px;height:12px;
+  border-radius:999px;
+  background:var(--green);
+  box-shadow:0 0 12px rgba(34,197,94,.9);
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+}
+.radar-dot::before{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border-radius:inherit;
+  border:2px solid rgba(34,197,94,.7);
+  opacity:0;
+  animation:radarPulse 1.6s ease-out infinite;
+}
+
+/* texte étape 1 */
+.intro-text-block{
+  flex:1;
+}
+.intro-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:3px 9px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.6);
+  font-size:.65rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--dim);
+  margin-bottom:.5rem;
+}
+.intro-badge span{
+  display:inline-block;
+  width:6px;height:6px;
+  border-radius:999px;
+  background:var(--green);
+  box-shadow:0 0 10px rgba(34,197,94,.8);
+}
+
+.intro-title{
+  font-size:1.1rem;
+  font-weight:700;
+  margin-bottom:.25rem;
+}
+.intro-sub{
+  font-size:.82rem;
+  color:var(--dim);
+}
+
+/* --- ÉTAPE 2 : SPOTS SUR LA CARTE --- */
+
+.intro-map-mini{
+  position:relative;
+  width:150px;
+  height:150px;
+  border-radius:1.3rem;
+  background:#020617;
+  border:1px solid rgba(56,189,248,.6);
+  box-shadow:
+    0 0 0 1px rgba(15,23,42,1),
+    0 0 35px rgba(56,189,248,.35);
+  overflow:hidden;
+}
+.map-bg{
+  position:absolute;
+  inset:-30px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(34,197,94,.2), transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(56,189,248,.24), transparent 55%),
+    linear-gradient(135deg,#020617,#020617 50%,#020617);
+}
+.map-grid{
+  position:absolute;
+  inset:-30px;
+  background-image:
+    linear-gradient(to right, rgba(15,23,42,.7) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15,23,42,.7) 1px, transparent 1px);
+  background-size:18px 18px;
+  mix-blend-mode:soft-light;
+  animation:introGridMove 6s linear infinite;
+}
+
+.map-spot{
+  position:absolute;
+  width:10px;height:10px;
+  border-radius:999px;
+  background:var(--green);
+  box-shadow:0 0 12px rgba(34,197,94,.9);
+}
+.map-spot::before{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border-radius:inherit;
+  border:1px solid rgba(34,197,94,.8);
+  opacity:0;
+  animation:introSpotPulse 1.8s ease-out infinite;
+}
+.map-spot.s1{left:30%;top:32%;}
+.map-spot.s2{left:64%;top:46%;animation-delay:.25s;}
+.map-spot.s3{left:42%;top:68%;animation-delay:.5s;}
+
+.map-spot.me{
+  width:12px;height:12px;
+  background:#f97316;
+  box-shadow:0 0 12px rgba(249,115,22,.9);
+}
+.map-spot.me::before{
+  border-color:rgba(249,115,22,.8);
+}
+
+/* --- ÉTAPE 3 : LOGO RIDLY --- */
+
+.intro-logo-center{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:.6rem;
+}
+.intro-logo-circle{
+  width:90px;height:90px;
+  border-radius:24px;
   background:#000;
-  z-index:1000;
-  animation:fadeOut 1.2s ease 2.7s forwards;
-}
-@keyframes fadeOut{to{opacity:0;visibility:hidden;}}
-
-.logo-intro{
-  width:140px;height:140px;
-  border-radius:36px;
-  background:radial-gradient(circle at 30% 20%,rgba(34,197,94,.9),rgba(5,46,22,1));
+  border:1px solid rgba(148,163,184,.7);
   display:flex;align-items:center;justify-content:center;
-  animation:popIn 2s cubic-bezier(.18,.9,.3,1.1) forwards;
-  box-shadow:0 0 0 rgba(34,197,94,0);
+  box-shadow:0 0 24px rgba(34,197,94,.7);
 }
-.logo-intro img{
-  width:90px;height:90px;object-fit:contain;
+.intro-logo-circle img{
+  width:70px;height:70px;
+  object-fit:contain;
 }
-@keyframes popIn{
-  0%{transform:scale(0);opacity:0;box-shadow:0 0 0 rgba(34,197,94,0);}
-  40%{transform:scale(1.15);opacity:1;box-shadow:0 0 40px rgba(34,197,94,0.8);}
-  100%{transform:scale(1);opacity:1;box-shadow:0 0 26px rgba(34,197,94,.6);}
+.intro-logo-main{
+  font-size:1.4rem;
+  font-weight:800;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+.intro-logo-sub{
+  font-size:.78rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--dim);
 }
 
-/* ==== PAGE PRINCIPALE ==== */
+/* fade out overlay */
+#intro.fade-out{
+  opacity:0;
+  pointer-events:none;
+}
+
+/* ================== ANIMATIONS ================== */
+
+@keyframes introHalo{
+  0%{opacity:0; transform:scale(1.05);}
+  100%{opacity:1; transform:scale(1);}
+}
+@keyframes introNoise{
+  0%{transform:translate(0,0);}
+  50%{transform:translate(-6px,3px);}
+  100%{transform:translate(3px,-4px);}
+}
+@keyframes radarSweep{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+@keyframes radarPulse{
+  0%{opacity:.8; transform:scale(1);}
+  60%{opacity:0; transform:scale(2.2);}
+  100%{opacity:0; transform:scale(2.5);}
+}
+@keyframes introGridMove{
+  0%{transform:translate(0,0);}
+  100%{transform:translate(-30px,20px);}
+}
+@keyframes introSpotPulse{
+  0%{opacity:.8; transform:scale(1);}
+  60%{opacity:0; transform:scale(2);}
+  100%{opacity:0; transform:scale(2.3);}
+}
+
+/* ================== PAGE PRINCIPALE (ton ancien index) ================== */
+
 header{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 18px;
@@ -59,7 +343,7 @@ header{
   backdrop-filter:blur(10px);
   border-bottom:1px solid rgba(255,255,255,.1);
   position:sticky;top:0;z-index:10;
-  opacity:0;animation:fadeIn 1s ease 3s forwards;
+  opacity:0;animation:fadeIn 1s ease 4.3s forwards;
 }
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff}
 .brand img{width:40px;height:40px;border-radius:12px}
@@ -85,7 +369,7 @@ header{
   flex-direction:column;
   padding:20px;
   opacity:0;
-  animation:fadeIn 1.2s ease 3.1s forwards;
+  animation:fadeIn 1.2s ease 4.5s forwards;
 }
 @keyframes fadeIn{
   from{opacity:0;transform:translateY(20px);}
@@ -132,20 +416,73 @@ footer{
   color:#9aa5b1;
   padding:12px;
   opacity:0;
-  animation:fadeIn 1.2s ease 3.4s forwards;
+  animation:fadeIn 1.2s ease 4.7s forwards;
 }
 </style>
 </head>
 <body>
 
-<!-- INTRO AVEC LOGO -->
+<!-- INTRO GEO / SPOTS / LOGO -->
 <div id="intro">
-  <div class="logo-intro">
-    <img src="image/1logo_ridly.png" alt="RIDLY"/>
+  <div class="intro-card">
+
+    <!-- STEP 1: GEO -->
+    <div class="intro-step step-geo active">
+      <div class="intro-radar">
+        <div class="radar-grid"></div>
+        <div class="radar-circle c1"></div>
+        <div class="radar-circle c2"></div>
+        <div class="radar-circle c3"></div>
+        <div class="radar-sweep"></div>
+        <div class="radar-dot"></div>
+      </div>
+      <div class="intro-text-block">
+        <div class="intro-badge">
+          <span></span> GÉOLOCALISATION
+        </div>
+        <div class="intro-title">On te trouve sur la carte…</div>
+        <div class="intro-sub" id="geo-label">
+          Autorise la localisation pour voir les spots autour de toi.
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: SPOTS -->
+    <div class="intro-step step-spots">
+      <div class="intro-map-mini">
+        <div class="map-bg"></div>
+        <div class="map-grid"></div>
+        <div class="map-spot me"></div>
+        <div class="map-spot s1"></div>
+        <div class="map-spot s2"></div>
+        <div class="map-spot s3"></div>
+      </div>
+      <div class="intro-text-block">
+        <div class="intro-badge">
+          <span></span> SPOTS AUTOUR DE TOI
+        </div>
+        <div class="intro-title">On charge les parks & street spots.</div>
+        <div class="intro-sub">
+          Skateparks, rues, shops partenaires, cours… tout apparaît sur la carte.
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: LOGO RIDLY -->
+    <div class="intro-step step-logo">
+      <div class="intro-logo-center">
+        <div class="intro-logo-circle">
+          <img src="image/1logo_ridly.png" alt="RIDLY">
+        </div>
+        <div class="intro-logo-main">RIDLY</div>
+        <div class="intro-logo-sub">SPOTS • RIDERS • CLIPS</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- CONTENU -->
+<!-- CONTENU PRINCIPAL -->
 <header>
   <a href="index.html" class="brand">
     <img src="image/1logo_ridly.png" alt="RIDLY">
@@ -167,7 +504,45 @@ footer{
 </footer>
 
 <script>
+  // année footer
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  const intro = document.getElementById("intro");
+  const steps = document.querySelectorAll(".intro-step");
+  const geoLabel = document.getElementById("geo-label");
+
+  function showStep(index){
+    steps.forEach((step,i)=>{
+      if(i === index) step.classList.add("active");
+      else step.classList.remove("active");
+    });
+  }
+
+  // séquence : GEO -> SPOTS -> LOGO -> sortie
+  const STEP_DURATION = 1300; // ms
+
+  setTimeout(()=>showStep(1), STEP_DURATION);            // spots
+  setTimeout(()=>showStep(2), STEP_DURATION*2);          // logo
+  setTimeout(()=>{
+    intro.classList.add("fade-out");
+    setTimeout(()=>{
+      if(intro && intro.parentNode) intro.parentNode.removeChild(intro);
+    }, 650);
+  }, STEP_DURATION*3 + 300); // petit délai avant fade
+
+  // tentative de vraie géoloc (juste pour le texte, optionnel)
+  if("geolocation" in navigator){
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        const { latitude, longitude } = pos.coords;
+        geoLabel.textContent = `Position détectée · ${latitude.toFixed(3)}, ${longitude.toFixed(3)} — on charge les spots proches.`;
+      },
+      ()=>{
+        // si refus, on laisse le texte par défaut
+      },
+      { timeout: 2000 }
+    );
+  }
 </script>
 
 </body>

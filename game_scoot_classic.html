@@ -321,13 +321,13 @@
       color:#fda4af;
       font-weight:600;
     }
-    /* >>> ICI : phrase "Partie créée ! Donne ce code..." en VERT FONCÉ <<< */
+    /* phrase "Partie créée ! Donne ce code..." en VERT FONCÉ */
     .small-info.success{
-      color:#065f46;      /* vert foncé */
-      font-weight:700;    /* bien visible */
+      color:#065f46;
+      font-weight:700;
     }
 
-    /* ===== SCOREBOARD ===== */
+    /* ===== SCOREBOARD / LOBBY ===== */
     .current-game{
       margin-top:4px;
       padding:8px 10px;
@@ -340,14 +340,67 @@
       border-color:rgba(209,213,219,.9);
     }
 
-    .players-row{
+    .players-list{
+      list-style:none;
+      padding:0;
+      margin:4px 0 0;
+    }
+    .players-item{
       display:flex;
       justify-content:space-between;
-      gap:12px;
-      margin-bottom:6px;
-      flex-wrap:wrap;
+      align-items:center;
+      font-size:13px;
+      padding:4px 0;
+      border-bottom:1px dashed rgba(15,23,42,.4);
     }
-    .player-block{
+    .players-item:last-child{
+      border-bottom:none;
+    }
+    .players-name{
+      font-weight:600;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:2px 7px;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      background:rgba(34,197,94,.16);
+      color:#bbf7d0;
+      margin-left:6px;
+    }
+    .badge-out{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:2px 7px;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      background:rgba(248,113,113,.16);
+      color:#fecaca;
+      margin-left:6px;
+    }
+
+    .scoreboard{
+      margin-top:4px;
+    }
+    .player-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      padding:4px 0;
+      border-bottom:1px dashed rgba(15,23,42,.45);
+    }
+    .player-row:last-child{
+      border-bottom:none;
+    }
+    .player-main{
       flex:1;
       min-width:0;
     }
@@ -417,7 +470,7 @@
 
     /* ===== CODE DE PARTIE (BADGE) ===== */
     .game-code-row{
-      margin-top:10px;
+      margin-top:6px;
       display:flex;
       flex-direction:column;
       gap:4px;
@@ -542,12 +595,23 @@
 
         <!-- Lancer une partie -->
         <div class="game-section">
-          <div class="section-title">Lancer une partie</div>
+          <div class="section-title">Créer une partie (tu deviens arbitre)</div>
           <div class="section-help">
-            Crée un Game of Scoot contre un autre rider. Un code sera généré et l’autre pourra te rejoindre.
+            Crée un Game of Scoot, partage le code et jusqu’à 5 riders peuvent rejoindre.
+            Celui qui crée la partie est l’arbitre : lui seul gère les lettres sur son téléphone.
           </div>
 
-          <button id="btnCreateGame" class="btn">Créer une partie</button>
+          <div class="field-label">Nombre de joueurs (2–5)</div>
+          <select id="maxPlayersSelect" class="text-input">
+            <option value="2">2 joueurs</option>
+            <option value="3">3 joueurs</option>
+            <option value="4">4 joueurs</option>
+            <option value="5" selected>5 joueurs</option>
+          </select>
+
+          <div class="inline-row" style="margin-top:8px;">
+            <button id="btnCreateGame" class="btn">Créer la partie</button>
+          </div>
           <div id="createMsg" class="small-info"></div>
         </div>
 
@@ -555,7 +619,7 @@
         <div class="game-section">
           <div class="section-title">Rejoindre une partie</div>
           <div class="section-help">
-            Entre le code que ton pote t’a donné pour rejoindre sa partie.
+            Entre le code que l’arbitre t’a donné pour rejoindre sa partie.
           </div>
 
           <div class="field-label">Code de partie</div>
@@ -572,33 +636,67 @@
           <div class="section-title">Partie en cours</div>
 
           <div id="noGame" class="small-info">
-            Aucune partie en cours. Crée une partie ou rejoins ton pote pour commencer.
+            Aucune partie en cours sur ce téléphone. Crée une partie ou rejoins ton pote pour commencer.
           </div>
 
           <div id="currentGameBox" class="current-game" style="display:none">
-            <div class="players-row">
-              <div class="player-block">
-                <div class="player-name" id="p1Name">Rider</div>
-                <div class="letters" id="p1Letters"></div>
-              </div>
-              <div class="player-block">
-                <div class="player-name" id="p2Name">Adversaire en attente</div>
-                <div class="letters" id="p2Letters"></div>
-              </div>
-            </div>
 
-            <div class="field-label" style="margin-top:4px;">Nom du trick (optionnel)</div>
-            <input id="trickInput" class="text-input" type="text" placeholder="ex: whip to bar" />
-
-            <div class="inline-row" style="margin-top:8px;">
-              <button id="btnP1Letter" class="btn-sm primary">P1 prend une lettre</button>
-              <button id="btnP2Letter" class="btn-sm primary">P2 prend une lettre</button>
-            </div>
-
-            <!-- Code de partie lisible -->
+            <!-- Code + statut -->
             <div class="game-code-row">
               <span class="game-code-label">Code de partie</span>
               <span class="game-code-value" id="gameCodeValue">------</span>
+            </div>
+
+            <div id="gameSubStatus" class="small-info" style="margin-top:6px;"></div>
+
+            <!-- Vue Lobby -->
+            <div id="lobbyView" style="margin-top:8px; display:none;">
+              <div class="field-label">Joueurs dans le lobby</div>
+              <ul id="playersList" class="players-list"></ul>
+              <div class="small-info">
+                Max joueurs : <span id="maxPlayersLabel">–</span>
+              </div>
+              <div class="small-info">
+                L’arbitre lance la partie quand tout le monde est prêt.
+              </div>
+              <div class="inline-row" style="margin-top:8px;">
+                <button id="btnStartGame" class="btn">Lancer la partie</button>
+                <button id="btnLeaveGameLobby" class="btn-sm" type="button">
+                  Quitter sur ce téléphone
+                </button>
+              </div>
+            </div>
+
+            <!-- Vue Partie en cours -->
+            <div id="gameView" style="margin-top:8px; display:none;">
+              <div class="field-label">Scoreboard</div>
+              <div id="scoreboard" class="scoreboard"></div>
+
+              <div id="hostControls" style="margin-top:10px; display:none;">
+                <div class="field-label">Qui tente le trick ?</div>
+                <select id="attemptPlayerSelect" class="text-input"></select>
+
+                <div class="field-label" style="margin-top:6px;">Nom du trick (optionnel)</div>
+                <input id="trickInput" class="text-input" type="text" placeholder="ex: whip to bar">
+
+                <div class="inline-row" style="margin-top:8px;">
+                  <button id="btnTrickSuccess" class="btn-sm primary" type="button">
+                    Trick réussi
+                  </button>
+                  <button id="btnTrickFail" class="btn-sm primary" type="button">
+                    Trick raté → lettre
+                  </button>
+                </div>
+                <div class="small-info">
+                  Seul l’arbitre peut ajouter des lettres. Les autres téléphones voient le score en temps réel.
+                </div>
+              </div>
+
+              <div class="inline-row" style="margin-top:10px;">
+                <button id="btnLeaveGame" class="btn-sm" type="button">
+                  Quitter cette partie sur ce téléphone
+                </button>
+              </div>
             </div>
 
             <div class="game-meta">
@@ -690,7 +788,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Game of Scoot logic ===== */
+/* ===== Game of Scoot multi-joueurs (max 5) ===== */
 
 const SCOOT = "SCOOT";
 
@@ -698,30 +796,51 @@ const connectedAs = document.getElementById('connectedAs');
 const gameLocked  = document.getElementById('gameLocked');
 const gameBox     = document.getElementById('gameBox');
 
-const btnCreate   = document.getElementById('btnCreateGame');
-const btnJoin     = document.getElementById('btnJoinGame');
-const createMsg   = document.getElementById('createMsg');
-const joinMsg     = document.getElementById('joinMsg');
-const joinCodeInput = document.getElementById('joinCodeInput');
+const btnCreate       = document.getElementById('btnCreateGame');
+const maxPlayersSelect = document.getElementById('maxPlayersSelect');
+const btnJoin         = document.getElementById('btnJoinGame');
+const createMsg       = document.getElementById('createMsg');
+const joinMsg         = document.getElementById('joinMsg');
+const joinCodeInput   = document.getElementById('joinCodeInput');
 
-const noGameBox   = document.getElementById('noGame');
-const currentGameBox = document.getElementById('currentGameBox');
-const p1NameEl    = document.getElementById('p1Name');
-const p2NameEl    = document.getElementById('p2Name');
-const p1LettersEl = document.getElementById('p1Letters');
-const p2LettersEl = document.getElementById('p2Letters');
+const noGameBox       = document.getElementById('noGame');
+const currentGameBox  = document.getElementById('currentGameBox');
 const gameCodeValue   = document.getElementById('gameCodeValue');
 const gameStatusLabel = document.getElementById('gameStatusLabel');
-const gameMsg     = document.getElementById('gameMsg');
-const trickInput  = document.getElementById('trickInput');
-const btnP1Letter = document.getElementById('btnP1Letter');
-const btnP2Letter = document.getElementById('btnP2Letter');
+const gameSubStatus   = document.getElementById('gameSubStatus');
+const maxPlayersLabel = document.getElementById('maxPlayersLabel');
+
+const lobbyView       = document.getElementById('lobbyView');
+const playersList     = document.getElementById('playersList');
+const btnStartGame    = document.getElementById('btnStartGame');
+const btnLeaveGameLobby = document.getElementById('btnLeaveGameLobby');
+
+const gameView        = document.getElementById('gameView');
+const scoreboardEl    = document.getElementById('scoreboard');
+const hostControls    = document.getElementById('hostControls');
+const attemptPlayerSelect = document.getElementById('attemptPlayerSelect');
+const trickInput      = document.getElementById('trickInput');
+const btnTrickSuccess = document.getElementById('btnTrickSuccess');
+const btnTrickFail    = document.getElementById('btnTrickFail');
+const btnLeaveGame    = document.getElementById('btnLeaveGame');
+const gameMsg         = document.getElementById('gameMsg');
 
 let me = null;
 let currentGame = null;
+let gamePlayers = [];
 let gameChannel = null;
 
-const LOCAL_KEY = "ridly_current_scoot_game_id";
+const LOCAL_KEY = "ridly_scoot_game_v2";
+
+function escapeHtml(str){
+  if(!str) return "";
+  return str
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
 
 function profileDisplayName(profile){
   let name = profile?.pseudo || profile?.full_name || "Rider";
@@ -738,14 +857,14 @@ function randCode(){
   return c;
 }
 
-function renderLetters(el, letters){
+function lettersHtml(letters){
   const l = letters || "";
   let html = "";
   for(let i=0;i<SCOOT.length;i++){
     const active = i < l.length;
-    html += `<span class="letter ${active?"active":""}">${SCOOT[i]}</span>`;
+    html += `<span class="letter ${active ? "active" : ""}">${SCOOT[i]}</span>`;
   }
-  el.innerHTML = html;
+  return html;
 }
 
 function nextLetters(current){
@@ -760,15 +879,24 @@ function isFinished(letters){
 
 function setCreateMsg(text, type){
   createMsg.textContent = text || "";
-  createMsg.className = "small-info" + (type ? " "+type : "");
+  createMsg.className = "small-info" + (type ? " " + type : "");
 }
 function setJoinMsg(text, type){
   joinMsg.textContent = text || "";
-  joinMsg.className = "small-info" + (type ? " "+type : "");
+  joinMsg.className = "small-info" + (type ? " " + type : "");
 }
 function setGameMsg(text, type){
   gameMsg.textContent = text || "";
-  gameMsg.className = "small-info" + (type ? " "+type : "");
+  gameMsg.className = "small-info" + (type ? " " + type : "");
+}
+
+function readableStatus(s){
+  switch(s){
+    case 'lobby': return 'Lobby (en attente)';
+    case 'playing': return 'En cours';
+    case 'finished': return 'Terminé';
+    default: return '–';
+  }
 }
 
 /* Charger user + profil (pseudo) */
@@ -798,41 +926,22 @@ async function loadCurrentUser(){
   return true;
 }
 
-/* Rafraîchir les pseudos des 2 joueurs depuis profiles */
-async function refreshPlayerDisplayNames(){
-  if(!currentGame) return;
+/* Charger joueurs */
+async function fetchPlayers(gameId){
+  const { data, error } = await supa
+    .from('scoot_game_players')
+    .select('*')
+    .eq('game_id', gameId)
+    .order('joined_at',{ ascending:true });
 
-  let p1 = "Rider";
-  let p2 = "Adversaire en attente";
-
-  if(currentGame.player1_id){
-    try{
-      const { data: prof1 } = await supa
-        .from('profiles')
-        .select('pseudo,full_name')
-        .eq('id', currentGame.player1_id)
-        .maybeSingle();
-      p1 = profileDisplayName(prof1);
-    }catch(e){}
+  if(!error && data){
+    gamePlayers = data;
+  }else{
+    gamePlayers = [];
   }
-  if(currentGame.player2_id){
-    try{
-      const { data: prof2 } = await supa
-        .from('profiles')
-        .select('pseudo,full_name')
-        .eq('id', currentGame.player2_id)
-        .maybeSingle();
-      p2 = profileDisplayName(prof2);
-    }catch(e){}
-  }
-
-  p1NameEl.textContent = p1;
-  p2NameEl.textContent = p2 || "Adversaire en attente";
-
-  updateGameUI();
 }
 
-/* Charger une game existante */
+/* Charger une game existante pour ce user ou depuis localStorage */
 async function loadExistingGame(){
   if(!me) return;
 
@@ -853,59 +962,33 @@ async function loadExistingGame(){
   }
 
   if(!game){
-    const { data, error } = await supa
-      .from('scoot_games')
-      .select('*')
-      .or(`player1_id.eq.${me.id},player2_id.eq.${me.id}`)
-      .order('created_at',{ ascending:false })
+    const { data: lastPlayer } = await supa
+      .from('scoot_game_players')
+      .select('game_id,joined_at')
+      .eq('user_id', me.id)
+      .order('joined_at',{ ascending:false })
       .limit(1)
       .maybeSingle();
 
-    if(!error && data){
-      game = data;
-      localStorage.setItem(LOCAL_KEY, data.id);
+    if(lastPlayer){
+      const { data: g } = await supa
+        .from('scoot_games')
+        .select('*')
+        .eq('id', lastPlayer.game_id)
+        .maybeSingle();
+      if(g){
+        game = g;
+      }
     }
   }
 
   currentGame = game;
   if(currentGame){
-    await refreshPlayerDisplayNames();
+    localStorage.setItem(LOCAL_KEY, currentGame.id);
+    await fetchPlayers(currentGame.id);
     subscribeGameRealtime(currentGame.id);
-  }else{
-    updateGameUI();
   }
-}
-
-/* Mettre à jour l'affichage de la partie */
-function updateGameUI(){
-  if(!currentGame){
-    noGameBox.style.display      = "block";
-    currentGameBox.style.display = "none";
-    setGameMsg("");
-    gameCodeValue.textContent = "------";
-    return;
-  }
-
-  noGameBox.style.display      = "none";
-  currentGameBox.style.display = "block";
-
-  renderLetters(p1LettersEl, currentGame.letters_p1 || "");
-  renderLetters(p2LettersEl, currentGame.letters_p2 || "");
-
-  gameCodeValue.textContent   = currentGame.code || "------";
-  gameStatusLabel.textContent = "Statut : " + (currentGame.status || "–");
-
-  const isP1 = me && currentGame.player1_id === me.id;
-  const isP2 = me && currentGame.player2_id === me.id;
-
-  btnP1Letter.disabled = !isP2 || isFinished(currentGame.letters_p1);
-  btnP2Letter.disabled = !isP1 || isFinished(currentGame.letters_p2);
-
-  if(!isP1 && !isP2){
-    setGameMsg("Tu regardes cette partie en spectateur.", "");
-  }else{
-    setGameMsg("Tu peux seulement ajouter des lettres à ton adversaire sur ton téléphone.", "");
-  }
+  renderGameState();
 }
 
 /* Realtime */
@@ -914,58 +997,214 @@ function subscribeGameRealtime(gameId){
     supa.removeChannel(gameChannel);
     gameChannel = null;
   }
+  if(!gameId) return;
+
   gameChannel = supa
     .channel('scoot_game_'+gameId)
     .on(
       'postgres_changes',
       { event:'UPDATE', schema:'public', table:'scoot_games', filter:`id=eq.${gameId}` },
-      async payload => {
+      payload => {
         currentGame = payload.new;
-        await refreshPlayerDisplayNames();
+        renderGameState();
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event:'INSERT', schema:'public', table:'scoot_game_players', filter:`game_id=eq.${gameId}` },
+      payload => {
+        gamePlayers.push(payload.new);
+        renderGameState();
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event:'UPDATE', schema:'public', table:'scoot_game_players', filter:`game_id=eq.${gameId}` },
+      payload => {
+        const p = payload.new;
+        const idx = gamePlayers.findIndex(x => x.id === p.id);
+        if(idx >= 0) gamePlayers[idx] = p;
+        else gamePlayers.push(p);
+        renderGameState();
       }
     )
     .subscribe();
 }
 
-/* Créer une partie */
+/* Rendu global (lobby / game) */
+function renderGameState(){
+  if(!currentGame){
+    noGameBox.style.display      = "block";
+    currentGameBox.style.display = "none";
+    lobbyView.style.display      = "none";
+    gameView.style.display       = "none";
+    setGameMsg("");
+    return;
+  }
+
+  noGameBox.style.display      = "none";
+  currentGameBox.style.display = "block";
+
+  const isHost = me && currentGame.host_id === me.id;
+
+  gameCodeValue.textContent   = currentGame.code || "------";
+  maxPlayersLabel.textContent = currentGame.max_players || 5;
+  gameStatusLabel.textContent = "Statut : " + readableStatus(currentGame.status);
+
+  const playersSorted = [...gamePlayers].sort((a,b)=>{
+    return (a.joined_at || "").localeCompare(b.joined_at || "");
+  });
+
+  // LOBBY LIST
+  playersList.innerHTML = "";
+  playersSorted.forEach(p=>{
+    const isOut = isFinished(p.letters);
+    const li = document.createElement('li');
+    li.className = "players-item";
+    li.innerHTML = `
+      <div class="players-name">
+        ${escapeHtml(p.display_name || "Rider")}
+        ${p.is_host ? '<span class="badge">Arbitre</span>' : ''}
+        ${isOut ? '<span class="badge-out">SCOOT</span>' : ''}
+      </div>
+    `;
+    playersList.appendChild(li);
+  });
+
+  // SCOREBOARD
+  scoreboardEl.innerHTML = "";
+  playersSorted.forEach(p=>{
+    const isOut = isFinished(p.letters);
+    const row = document.createElement('div');
+    row.className = "player-row";
+    row.innerHTML = `
+      <div class="player-main">
+        <div class="player-name">
+          ${escapeHtml(p.display_name || "Rider")}
+          ${p.is_host ? '<span class="badge">Arbitre</span>' : ''}
+          ${isOut ? '<span class="badge-out">SCOOT</span>' : ''}
+        </div>
+        <div class="letters">
+          ${lettersHtml(p.letters)}
+        </div>
+      </div>
+    `;
+    scoreboardEl.appendChild(row);
+  });
+
+  // Select du rider qui tente le trick (host uniquement)
+  attemptPlayerSelect.innerHTML = "";
+  const stillIn = playersSorted.filter(p => !isFinished(p.letters));
+  stillIn.forEach(p=>{
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.display_name || "Rider";
+    attemptPlayerSelect.appendChild(opt);
+  });
+
+  if(currentGame.status === 'lobby'){
+    lobbyView.style.display = "block";
+    gameView.style.display  = "none";
+    hostControls.style.display = "none";
+
+    btnStartGame.disabled = !isHost || playersSorted.length < 2;
+
+    if(isHost){
+      gameSubStatus.textContent = "Tu es l’arbitre. Attends que tout le monde rejoigne (min. 2 joueurs) puis lance la partie.";
+    }else{
+      gameSubStatus.textContent = "Tu es dans le lobby. Attends que l’arbitre lance la partie.";
+    }
+  }else{
+    lobbyView.style.display = "none";
+    gameView.style.display  = "block";
+    hostControls.style.display = isHost && currentGame.status === 'playing' ? "block" : "none";
+
+    if(currentGame.status === 'playing'){
+      if(isHost){
+        gameSubStatus.textContent = "Partie en cours. Tu es l’arbitre : tu choisis le rider et tu ajoutes les lettres.";
+      }else{
+        gameSubStatus.textContent = "Partie en cours. L’arbitre gère les lettres, ton téléphone affiche juste le score.";
+      }
+    }else if(currentGame.status === 'finished'){
+      let winnerName = "";
+      if(currentGame.winner_player_id){
+        const w = gamePlayers.find(p => p.id === currentGame.winner_player_id);
+        winnerName = w?.display_name || "";
+      }else{
+        const last = stillIn[0];
+        if(last) winnerName = last.display_name || "";
+      }
+      if(winnerName){
+        gameSubStatus.textContent = "Partie terminée. Gagnant : " + winnerName;
+      }else{
+        gameSubStatus.textContent = "Partie terminée.";
+      }
+    }
+  }
+
+  setGameMsg("");
+}
+
+/* Créer une partie → host = arbitre */
 async function createGame(){
   setCreateMsg("");
   setJoinMsg("");
+
   if(!me){
     setCreateMsg("Tu dois être connecté.", "error");
     return;
   }
 
+  const maxPlayers = Math.max(2, Math.min(5, parseInt(maxPlayersSelect.value || "5", 10)));
+
   btnCreate.disabled = true;
   try{
     const code = randCode();
 
-    const { data, error } = await supa
+    const { data: game, error: e1 } = await supa
       .from('scoot_games')
       .insert({
         code,
-        player1_id: me.id,
-        player1_name: me.pseudo,
-        letters_p1: '',
-        letters_p2: '',
-        status: 'waiting',
-        mode: 'classic'
+        host_id: me.id,
+        host_name: me.pseudo,
+        status: 'lobby',
+        max_players: maxPlayers
       })
       .select('*')
       .single();
 
-    if(error){
-      console.error("Supabase create error:", error);
+    if(e1 || !game){
+      console.error("Supabase create error:", e1);
       setCreateMsg("Erreur lors de la création de la partie.", "error");
       return;
     }
 
-    currentGame = data;
-    localStorage.setItem(LOCAL_KEY, data.id);
-    await refreshPlayerDisplayNames();
-    subscribeGameRealtime(data.id);
+    // ajouter le host dans les joueurs
+    const { data: player, error: e2 } = await supa
+      .from('scoot_game_players')
+      .insert({
+        game_id: game.id,
+        user_id: me.id,
+        display_name: me.pseudo,
+        letters: '',
+        is_host: true
+      })
+      .select('*')
+      .single();
 
-    setCreateMsg("Partie créée ! Donne ce code à ton pote : " + code, "success");
+    if(e2 || !player){
+      console.error("Supabase player insert error:", e2);
+      setCreateMsg("Partie créée mais erreur pour t’ajouter en joueur.", "error");
+      return;
+    }
+
+    currentGame = game;
+    gamePlayers = [player];
+    localStorage.setItem(LOCAL_KEY, game.id);
+    subscribeGameRealtime(game.id);
+    renderGameState();
+
+    setCreateMsg("Partie créée ! Donne ce code aux riders : " + code, "success");
   }catch(e){
     console.error(e);
     setCreateMsg("Erreur réseau.", "error");
@@ -1001,33 +1240,56 @@ async function joinGame(){
       setJoinMsg("Aucune partie trouvée avec ce code.", "error");
       return;
     }
+    if(game.status !== 'lobby'){
+      setJoinMsg("Cette partie a déjà commencé ou est terminée.", "error");
+      return;
+    }
 
-    if(game.player2_id && game.player2_id !== me.id){
+    const { data: players } = await supa
+      .from('scoot_game_players')
+      .select('*')
+      .eq('game_id', game.id);
+
+    const already = (players || []).find(p => p.user_id === me.id);
+    if(already){
+      // juste revenir dans la partie
+      currentGame = game;
+      gamePlayers = players || [];
+      localStorage.setItem(LOCAL_KEY, game.id);
+      subscribeGameRealtime(game.id);
+      renderGameState();
+      setJoinMsg("Tu es déjà dans cette partie, retour dans le lobby.", "success");
+      return;
+    }
+
+    if((players || []).length >= (game.max_players || 5)){
       setJoinMsg("Cette partie est déjà complète.", "error");
       return;
     }
 
-    const { data: updated, error: err2 } = await supa
-      .from('scoot_games')
-      .update({
-        player2_id: me.id,
-        player2_name: me.pseudo,
-        status: game.status === 'waiting' ? 'playing' : game.status
+    const { data: player, error: e2 } = await supa
+      .from('scoot_game_players')
+      .insert({
+        game_id: game.id,
+        user_id: me.id,
+        display_name: me.pseudo,
+        letters: '',
+        is_host: false
       })
-      .eq('id', game.id)
       .select('*')
       .single();
 
-    if(err2){
-      console.error(err2);
+    if(e2 || !player){
+      console.error(e2);
       setJoinMsg("Erreur lors de la jonction à la partie.", "error");
       return;
     }
 
-    currentGame = updated;
-    localStorage.setItem(LOCAL_KEY, updated.id);
-    await refreshPlayerDisplayNames();
-    subscribeGameRealtime(updated.id);
+    currentGame = game;
+    gamePlayers = [...(players || []), player];
+    localStorage.setItem(LOCAL_KEY, game.id);
+    subscribeGameRealtime(game.id);
+    renderGameState();
 
     setJoinMsg("Tu as rejoint la partie !", "success");
   }catch(e){
@@ -1038,37 +1300,140 @@ async function joinGame(){
   }
 }
 
-/* Ajouter une lettre à un joueur */
-async function addLetter(target){
+/* Lancer la partie (host seulement) */
+async function startGame(){
   if(!currentGame || !me) return;
-
-  const isP1 = me.id === currentGame.player1_id;
-  const isP2 = me.id === currentGame.player2_id;
-
-  if(target === 'p1' && !isP2) return;
-  if(target === 'p2' && !isP1) return;
-
-  const field = target === 'p1' ? 'letters_p1' : 'letters_p2';
-  const current = currentGame[field] || "";
-  if(current.length >= SCOOT.length) return;
-
-  const next = nextLetters(current);
-  const finishedNow = isFinished(next);
-
-  const update = {};
-  update[field] = next;
-  if(finishedNow){
-    update.status = 'finished';
+  const isHost = currentGame.host_id === me.id;
+  if(!isHost){
+    setGameMsg("Seul l’arbitre peut lancer la partie.", "error");
+    return;
   }
-
-  const btn = target === 'p1' ? btnP1Letter : btnP2Letter;
-  btn.disabled = true;
+  if(gamePlayers.length < 2){
+    setGameMsg("Il faut au moins 2 joueurs pour lancer la partie.", "error");
+    return;
+  }
+  if(currentGame.status !== 'lobby') return;
 
   try{
     const { data, error } = await supa
       .from('scoot_games')
-      .update(update)
+      .update({ status:'playing' })
       .eq('id', currentGame.id)
+      .select('*')
+      .single();
+
+    if(error){
+      console.error(error);
+      setGameMsg("Erreur lors du lancement de la partie.", "error");
+      return;
+    }
+    currentGame = data;
+    renderGameState();
+  }catch(e){
+    console.error(e);
+    setGameMsg("Erreur réseau.", "error");
+  }
+}
+
+/* Quitter (juste ce téléphone) */
+function leaveGameLocal(){
+  localStorage.removeItem(LOCAL_KEY);
+  if(gameChannel){
+    supa.removeChannel(gameChannel);
+    gameChannel = null;
+  }
+  currentGame = null;
+  gamePlayers = [];
+  renderGameState();
+}
+
+/* Logger un trick (optionnel) */
+async function logRound(player, result){
+  const trickName = (trickInput.value || "").trim();
+  const payload = {
+    game_id: currentGame.id,
+    player_id: player.user_id,
+    player_name: player.display_name,
+    trick_name: trickName || null,
+    result,
+    created_at: new Date().toISOString()
+  };
+  try{
+    await supa.from('scoot_rounds').insert(payload);
+  }catch(e){
+    // pas grave si ça fail, c'est juste du log
+  }
+  if(trickName){
+    trickInput.value = "";
+  }
+}
+
+/* Vérifier fin de partie (1 seul rider sans SCOOT) */
+async function checkGameEnd(){
+  if(!currentGame || currentGame.status !== 'playing') return;
+  const stillIn = gamePlayers.filter(p => !isFinished(p.letters));
+  if(stillIn.length === 1){
+    const winner = stillIn[0];
+    try{
+      const { data, error } = await supa
+        .from('scoot_games')
+        .update({
+          status:'finished',
+          winner_player_id: winner.id
+        })
+        .eq('id', currentGame.id)
+        .select('*')
+        .single();
+      if(!error && data){
+        currentGame = data;
+        renderGameState();
+      }
+    }catch(e){
+      console.error(e);
+    }
+  }
+}
+
+/* Trick réussi (host) */
+async function handleTrickSuccess(){
+  if(!currentGame || !me) return;
+  if(currentGame.host_id !== me.id){
+    setGameMsg("Seul l’arbitre peut valider les tricks.", "error");
+    return;
+  }
+  const playerId = attemptPlayerSelect.value;
+  const player = gamePlayers.find(p => p.id === playerId);
+  if(!player) return;
+  await logRound(player, 'success');
+  setGameMsg("Trick validé. Pas de lettre ajoutée.", "success");
+}
+
+/* Trick raté → ajouter une lettre (host) */
+async function handleTrickFail(){
+  if(!currentGame || !me) return;
+  if(currentGame.host_id !== me.id){
+    setGameMsg("Seul l’arbitre peut donner des lettres.", "error");
+    return;
+  }
+  if(currentGame.status !== 'playing'){
+    setGameMsg("La partie n’est pas en cours.", "error");
+    return;
+  }
+
+  const playerId = attemptPlayerSelect.value;
+  const player = gamePlayers.find(p => p.id === playerId);
+  if(!player) return;
+
+  const next = nextLetters(player.letters || "");
+  if(next === (player.letters || "")) return;
+
+  const finishedNow = isFinished(next);
+
+  try{
+    const { data, error } = await supa
+      .from('scoot_game_players')
+      .update({ letters: next })
+      .eq('id', player.id)
       .select('*')
       .single();
 
@@ -1078,31 +1443,21 @@ async function addLetter(target){
       return;
     }
 
-    currentGame = data;
-    updateGameUI();
+    const idx = gamePlayers.findIndex(p => p.id === player.id);
+    if(idx >= 0) gamePlayers[idx] = data;
 
-    const trickName = (trickInput.value || "").trim();
-    if(trickName){
-      const round = {
-        game_id: currentGame.id,
-        trick_name: trickName,
-        result: 'fail',
-        created_at: new Date().toISOString()
-      };
-      try{
-        await supa.from('scoot_rounds').insert(round);
-      }catch(e){}
-      trickInput.value = "";
-    }
+    await logRound(data, 'fail');
+    renderGameState();
 
     if(finishedNow){
-      alert("SCOOT ! La partie est terminée.");
+      setGameMsg(data.display_name + " a SCOOT !", "success");
+      await checkGameEnd();
+    }else{
+      setGameMsg(data.display_name + " prend une lettre.", "success");
     }
   }catch(e){
     console.error(e);
     setGameMsg("Erreur réseau.", "error");
-  }finally{
-    btn.disabled = false;
   }
 }
 
@@ -1116,8 +1471,11 @@ async function addLetter(target){
 /* Events */
 btnCreate.addEventListener('click', createGame);
 btnJoin.addEventListener('click', joinGame);
-btnP1Letter.addEventListener('click', ()=>addLetter('p1'));
-btnP2Letter.addEventListener('click', ()=>addLetter('p2'));
+btnStartGame.addEventListener('click', startGame);
+btnLeaveGame.addEventListener('click', leaveGameLocal);
+btnLeaveGameLobby.addEventListener('click', leaveGameLocal);
+btnTrickSuccess.addEventListener('click', handleTrickSuccess);
+btnTrickFail.addEventListener('click', handleTrickFail);
 </script>
 
 <script>
