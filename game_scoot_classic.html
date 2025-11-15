@@ -10,7 +10,6 @@
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="js/env.js"></script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -201,13 +200,6 @@
       padding:4px 10px 80px;
     }
 
-    .mini-title{
-      padding:8px 4px 4px;
-      font-size:13px;
-      font-weight:600;
-      color:var(--text-dim);
-    }
-
     .card{
       background:var(--card);
       border-radius:var(--radius-xl);
@@ -279,7 +271,7 @@
       color:rgba(148,163,184,.9);
     }
 
-    /* BOUTONS VERT FONCÉ */
+    /* BOUTONS */
     .btn{
       display:inline-flex;
       align-items:center;
@@ -304,6 +296,34 @@
       transform:scale(.97);
     }
 
+    .btn-sm{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--bg-soft);
+      color:var(--text);
+      font-size:11px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn-sm.primary{
+      border-color:#16a34a;
+      background:#065f46;
+      color:#ecfdf5;
+    }
+    .btn-sm.danger{
+      border-color:#b91c1c;
+      background:#7f1d1d;
+      color:#fee2e2;
+    }
+    .btn-sm:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+    .btn-sm:active{
+      transform:scale(.97);
+    }
+
     .inline-row{
       display:flex;
       gap:8px;
@@ -321,7 +341,6 @@
       color:#fda4af;
       font-weight:600;
     }
-    /* phrase "Partie créée ! Donne ce code..." en VERT FONCÉ */
     .small-info.success{
       color:#065f46;
       font-weight:700;
@@ -387,11 +406,13 @@
     }
 
     .scoreboard{
-      margin-top:4px;
+      margin-top:6px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
     }
     .player-row{
       display:flex;
-      justify-content:space-between;
       align-items:flex-start;
       gap:8px;
       padding:4px 0;
@@ -445,56 +466,46 @@
       gap:4px;
     }
 
-    .btn-sm{
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:var(--bg-soft);
-      color:var(--text);
-      font-size:11px;
-      cursor:pointer;
-      white-space:nowrap;
-    }
-    .btn-sm.primary{
-      border-color:#16a34a;
-      background:#065f46;
-      color:#ecfdf5;
-    }
-    .btn-sm:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-    }
-    .btn-sm:active{
-      transform:scale(.97);
-    }
-
-    /* ===== CODE DE PARTIE (BADGE) ===== */
-    .game-code-row{
+    /* ===== HISTORIQUE DES TRICKS ===== */
+    .tricks-log{
       margin-top:6px;
+      padding:6px 8px;
+      border-radius:12px;
+      background:rgba(15,23,42,.85);
+      border:1px dashed rgba(148,163,184,.4);
+      max-height:180px;
+      overflow-y:auto;
+    }
+    body.theme-light .tricks-log{
+      background:#f3f4f6;
+    }
+    .trick-row{
+      font-size:11px;
+      padding:3px 0;
+      border-bottom:1px dashed rgba(30,64,175,.25);
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .trick-row:last-child{
+      border-bottom:none;
+    }
+    .trick-main{
       display:flex;
       flex-direction:column;
-      gap:4px;
-      align-items:flex-start;
     }
-    .game-code-label{
-      font-size:12px;
+    .trick-meta{
       font-weight:600;
-      color:var(--text-dim);
     }
-    .game-code-value{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      font-size:20px;
-      font-weight:800;
-      letter-spacing:.3em;
-      padding:6px 14px;
-      border-radius:999px;
-      background:#065f46;
-      color:#ecfdf5;
-      border:1px solid #16a34a;
-      box-shadow:0 8px 20px rgba(6,95,70,.55);
-      min-width:170px;
+    .trick-result{
+      font-weight:700;
+      text-transform:uppercase;
+    }
+    .trick-result.ok{
+      color:#4ade80;
+    }
+    .trick-result.fail{
+      color:#f97373;
     }
 
     /* ===== BOTTOM NAV ===== */
@@ -580,8 +591,6 @@
 
   <!-- MAIN -->
   <main class="main">
-    <div class="mini-title">Games</div>
-
     <section class="card">
       <h1 class="main-title">Game of Scoot</h1>
       <p class="muted" id="connectedAs">Tu n’es pas connecté.</p>
@@ -593,8 +602,8 @@
 
       <div id="gameBox" class="games-box" style="display:none">
 
-        <!-- Lancer une partie -->
-        <div class="game-section">
+        <!-- Lancer une partie (masqué quand une partie est active) -->
+        <div class="game-section" id="createSection">
           <div class="section-title">Créer une partie (tu deviens arbitre)</div>
           <div class="section-help">
             Crée un Game of Scoot, partage le code et jusqu’à 5 riders peuvent rejoindre.
@@ -615,7 +624,7 @@
           <div id="createMsg" class="small-info"></div>
         </div>
 
-        <!-- Rejoindre une partie -->
+        <!-- Rejoindre -->
         <div class="game-section">
           <div class="section-title">Rejoindre une partie</div>
           <div class="section-help">
@@ -642,9 +651,9 @@
           <div id="currentGameBox" class="current-game" style="display:none">
 
             <!-- Code + statut -->
-            <div class="game-code-row">
-              <span class="game-code-label">Code de partie</span>
-              <span class="game-code-value" id="gameCodeValue">------</span>
+            <div class="field-label">Code de partie</div>
+            <div class="small-info" id="gameCodeValue" style="font-weight:700;font-size:16px;letter-spacing:.25em;">
+              ------
             </div>
 
             <div id="gameSubStatus" class="small-info" style="margin-top:6px;"></div>
@@ -669,27 +678,34 @@
 
             <!-- Vue Partie en cours -->
             <div id="gameView" style="margin-top:8px; display:none;">
-              <div class="field-label">Scoreboard</div>
-              <div id="scoreboard" class="scoreboard"></div>
 
-              <div id="hostControls" style="margin-top:10px; display:none;">
+              <div id="hostControls" style="margin-top:4px; display:none;">
                 <div class="field-label">Qui tente le trick ?</div>
                 <select id="attemptPlayerSelect" class="text-input"></select>
 
-                <div class="field-label" style="margin-top:6px;">Nom du trick (optionnel)</div>
+                <div class="field-label" style="margin-top:6px;">Nom du trick (optionnel, pour le suivi)</div>
                 <input id="trickInput" class="text-input" type="text" placeholder="ex: whip to bar">
 
                 <div class="inline-row" style="margin-top:8px;">
                   <button id="btnTrickSuccess" class="btn-sm primary" type="button">
-                    Trick réussi
+                    Plaqué
                   </button>
-                  <button id="btnTrickFail" class="btn-sm primary" type="button">
-                    Trick raté → lettre
+                  <button id="btnTrickFail" class="btn-sm danger" type="button">
+                    Pas plaqué → lettre
                   </button>
                 </div>
                 <div class="small-info">
                   Seul l’arbitre peut ajouter des lettres. Les autres téléphones voient le score en temps réel.
                 </div>
+              </div>
+
+              <div class="field-label" style="margin-top:8px;">Scoreboard</div>
+              <div id="scoreboard" class="scoreboard"></div>
+
+              <!-- Historique des tricks -->
+              <div class="field-label" style="margin-top:10px;">Historique des tricks</div>
+              <div id="tricksLog" class="tricks-log">
+                <div class="small-info" id="tricksLogEmpty">Les tricks apparaîtront ici au fur et à mesure.</div>
               </div>
 
               <div class="inline-row" style="margin-top:10px;">
@@ -761,8 +777,9 @@
 
 <script>
 /* ===== Supabase init + BG vidéo ===== */
-const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
-const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+const SUPABASE_URL  = "https://jynxifufaauoxwzjapzq.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 /* BG vidéo */
@@ -796,12 +813,13 @@ const connectedAs = document.getElementById('connectedAs');
 const gameLocked  = document.getElementById('gameLocked');
 const gameBox     = document.getElementById('gameBox');
 
-const btnCreate       = document.getElementById('btnCreateGame');
+const createSection    = document.getElementById('createSection');
+const btnCreate        = document.getElementById('btnCreateGame');
 const maxPlayersSelect = document.getElementById('maxPlayersSelect');
-const btnJoin         = document.getElementById('btnJoinGame');
-const createMsg       = document.getElementById('createMsg');
-const joinMsg         = document.getElementById('joinMsg');
-const joinCodeInput   = document.getElementById('joinCodeInput');
+const btnJoin          = document.getElementById('btnJoinGame');
+const createMsg        = document.getElementById('createMsg');
+const joinMsg          = document.getElementById('joinMsg');
+const joinCodeInput    = document.getElementById('joinCodeInput');
 
 const noGameBox       = document.getElementById('noGame');
 const currentGameBox  = document.getElementById('currentGameBox');
@@ -825,10 +843,14 @@ const btnTrickFail    = document.getElementById('btnTrickFail');
 const btnLeaveGame    = document.getElementById('btnLeaveGame');
 const gameMsg         = document.getElementById('gameMsg');
 
+const tricksLogEl      = document.getElementById('tricksLog');
+const tricksLogEmptyEl = document.getElementById('tricksLogEmpty');
+
 let me = null;
 let currentGame = null;
 let gamePlayers = [];
 let gameChannel = null;
+let trickHistory = []; // suivi local des tricks
 
 const LOCAL_KEY = "ridly_scoot_game_v2";
 
@@ -862,7 +884,7 @@ function lettersHtml(letters){
   let html = "";
   for(let i=0;i<SCOOT.length;i++){
     const active = i < l.length;
-    html += `<span class="letter ${active ? "active" : ""}">${SCOOT[i]}</span>`;
+    html += `<span class="letter ${active ? "active" : ""}" title="${SCOOT.slice(0, i+1)}">${SCOOT[i]}</span>`;
   }
   return html;
 }
@@ -897,6 +919,31 @@ function readableStatus(s){
     case 'finished': return 'Terminé';
     default: return '–';
   }
+}
+
+/* Rendu de l'historique des tricks (local) */
+function renderTrickHistory(){
+  tricksLogEl.innerHTML = "";
+  if(!trickHistory.length){
+    tricksLogEl.appendChild(tricksLogEmptyEl);
+    tricksLogEmptyEl.style.display = "block";
+    return;
+  }
+  tricksLogEmptyEl.style.display = "none";
+  trickHistory.forEach((t, idx)=>{
+    const row = document.createElement('div');
+    row.className = "trick-row";
+    row.innerHTML = `
+      <div class="trick-main">
+        <span class="trick-meta">#${idx+1} • ${escapeHtml(t.playerName)}</span>
+        <span>${t.trickName ? escapeHtml(t.trickName) : "<i>Trick non nommé</i>"}</span>
+      </div>
+      <div class="trick-result ${t.result === 'success' ? 'ok' : 'fail'}">
+        ${t.result === 'success' ? 'PLAQUÉ' : 'PAS PLAQUÉ'}
+      </div>
+    `;
+    tricksLogEl.appendChild(row);
+  });
 }
 
 /* Charger user + profil (pseudo) */
@@ -983,6 +1030,9 @@ async function loadExistingGame(){
   }
 
   currentGame = game;
+  trickHistory = []; // reset historique à chaque game chargée
+  renderTrickHistory();
+
   if(currentGame){
     localStorage.setItem(LOCAL_KEY, currentGame.id);
     await fetchPlayers(currentGame.id);
@@ -1028,11 +1078,60 @@ function subscribeGameRealtime(gameId){
         renderGameState();
       }
     )
+    .on(
+      'postgres_changes',
+      { event:'DELETE', schema:'public', table:'scoot_game_players', filter:`game_id=eq.${gameId}` },
+      payload => {
+        const deletedId = payload.old.id;
+        gamePlayers = gamePlayers.filter(p => p.id !== deletedId);
+        renderGameState();
+      }
+    )
     .subscribe();
+}
+
+/* Retirer un joueur (host seulement) */
+async function removePlayer(playerId){
+  if(!currentGame || !me || String(currentGame.host_id) !== String(me.id)) return;
+  
+  const playerToRemove = gamePlayers.find(p => String(p.id) === String(playerId));
+  
+  if (playerToRemove && playerToRemove.user_id === me.id) {
+    setGameMsg("Utilise le bouton 'Quitter' pour te retirer toi-même.", "error");
+    return;
+  }
+
+  if(currentGame.status !== 'lobby'){
+    setGameMsg("Impossible de retirer un joueur, la partie est déjà lancée.", "error");
+    return;
+  }
+
+  try{
+    const { error } = await supa
+      .from('scoot_game_players')
+      .delete()
+      .eq('id', playerId);
+
+    if(error){
+      console.error("Supabase remove player error:", error);
+      setGameMsg("Erreur lors du retrait du joueur.", "error");
+      return;
+    }
+
+    setGameMsg("Joueur retiré du lobby.", "success");
+  }catch(e){
+    console.error(e);
+    setGameMsg("Erreur réseau lors du retrait.", "error");
+  }
 }
 
 /* Rendu global (lobby / game) */
 function renderGameState(){
+  // afficher / cacher la création de partie
+  if(createSection){
+    createSection.style.display = currentGame ? "none" : "block";
+  }
+
   if(!currentGame){
     noGameBox.style.display      = "block";
     currentGameBox.style.display = "none";
@@ -1045,7 +1144,7 @@ function renderGameState(){
   noGameBox.style.display      = "none";
   currentGameBox.style.display = "block";
 
-  const isHost = me && currentGame.host_id === me.id;
+  const isHost = me && String(currentGame.host_id) === String(me.id);
 
   gameCodeValue.textContent   = currentGame.code || "------";
   maxPlayersLabel.textContent = currentGame.max_players || 5;
@@ -1061,12 +1160,19 @@ function renderGameState(){
     const isOut = isFinished(p.letters);
     const li = document.createElement('li');
     li.className = "players-item";
+    
+    let removeBtnHtml = '';
+    if (isHost && currentGame.status === 'lobby' && p.user_id !== me.id) {
+        removeBtnHtml = `<button class="btn-sm danger" data-remove-id="${p.id}" style="margin-left:auto;padding:3px 8px;">❌ Retirer</button>`;
+    }
+
     li.innerHTML = `
       <div class="players-name">
         ${escapeHtml(p.display_name || "Rider")}
         ${p.is_host ? '<span class="badge">Arbitre</span>' : ''}
         ${isOut ? '<span class="badge-out">SCOOT</span>' : ''}
       </div>
+      ${removeBtnHtml}
     `;
     playersList.appendChild(li);
   });
@@ -1092,7 +1198,7 @@ function renderGameState(){
     scoreboardEl.appendChild(row);
   });
 
-  // Select du rider qui tente le trick (host uniquement)
+  // select du rider qui tente le trick (host)
   attemptPlayerSelect.innerHTML = "";
   const stillIn = playersSorted.filter(p => !isFinished(p.letters));
   stillIn.forEach(p=>{
@@ -1107,10 +1213,11 @@ function renderGameState(){
     gameView.style.display  = "none";
     hostControls.style.display = "none";
 
-    btnStartGame.disabled = !isHost || playersSorted.length < 2;
+    // autorise à lancer dès qu'il y a au moins 1 joueur (pratique pour tester)
+    btnStartGame.disabled = !isHost || playersSorted.length < 1;
 
     if(isHost){
-      gameSubStatus.textContent = "Tu es l’arbitre. Attends que tout le monde rejoigne (min. 2 joueurs) puis lance la partie.";
+      gameSubStatus.textContent = "Tu es l’arbitre. Tu peux lancer la partie dès qu’il y a au moins un rider.";
     }else{
       gameSubStatus.textContent = "Tu es dans le lobby. Attends que l’arbitre lance la partie.";
     }
@@ -1121,28 +1228,27 @@ function renderGameState(){
 
     if(currentGame.status === 'playing'){
       if(isHost){
-        gameSubStatus.textContent = "Partie en cours. Tu es l’arbitre : tu choisis le rider et tu ajoutes les lettres.";
+        gameSubStatus.textContent = "Partie en cours. Choisis le rider et valide PLAQUÉ / PAS PLAQUÉ.";
       }else{
         gameSubStatus.textContent = "Partie en cours. L’arbitre gère les lettres, ton téléphone affiche juste le score.";
       }
     }else if(currentGame.status === 'finished'){
+      const stillInNow = gamePlayers.filter(p => !isFinished(p.letters));
       let winnerName = "";
       if(currentGame.winner_player_id){
         const w = gamePlayers.find(p => p.id === currentGame.winner_player_id);
         winnerName = w?.display_name || "";
-      }else{
-        const last = stillIn[0];
-        if(last) winnerName = last.display_name || "";
+      }else if(stillInNow[0]){
+        winnerName = stillInNow[0].display_name || "";
       }
-      if(winnerName){
-        gameSubStatus.textContent = "Partie terminée. Gagnant : " + winnerName;
-      }else{
-        gameSubStatus.textContent = "Partie terminée.";
-      }
+      gameSubStatus.textContent = winnerName
+        ? "Partie terminée. Gagnant : " + winnerName
+        : "Partie terminée.";
     }
   }
 
   setGameMsg("");
+  renderTrickHistory();
 }
 
 /* Créer une partie → host = arbitre */
@@ -1179,7 +1285,6 @@ async function createGame(){
       return;
     }
 
-    // ajouter le host dans les joueurs
     const { data: player, error: e2 } = await supa
       .from('scoot_game_players')
       .insert({
@@ -1200,6 +1305,8 @@ async function createGame(){
 
     currentGame = game;
     gamePlayers = [player];
+    trickHistory = [];
+    renderTrickHistory();
     localStorage.setItem(LOCAL_KEY, game.id);
     subscribeGameRealtime(game.id);
     renderGameState();
@@ -1250,18 +1357,6 @@ async function joinGame(){
       .select('*')
       .eq('game_id', game.id);
 
-    const already = (players || []).find(p => p.user_id === me.id);
-    if(already){
-      // juste revenir dans la partie
-      currentGame = game;
-      gamePlayers = players || [];
-      localStorage.setItem(LOCAL_KEY, game.id);
-      subscribeGameRealtime(game.id);
-      renderGameState();
-      setJoinMsg("Tu es déjà dans cette partie, retour dans le lobby.", "success");
-      return;
-    }
-
     if((players || []).length >= (game.max_players || 5)){
       setJoinMsg("Cette partie est déjà complète.", "error");
       return;
@@ -1287,11 +1382,14 @@ async function joinGame(){
 
     currentGame = game;
     gamePlayers = [...(players || []), player];
+    trickHistory = [];
+    renderTrickHistory();
     localStorage.setItem(LOCAL_KEY, game.id);
     subscribeGameRealtime(game.id);
     renderGameState();
 
     setJoinMsg("Tu as rejoint la partie !", "success");
+    joinCodeInput.value = "";
   }catch(e){
     console.error(e);
     setJoinMsg("Erreur réseau.", "error");
@@ -1303,13 +1401,9 @@ async function joinGame(){
 /* Lancer la partie (host seulement) */
 async function startGame(){
   if(!currentGame || !me) return;
-  const isHost = currentGame.host_id === me.id;
+  const isHost = String(currentGame.host_id) === String(me.id);
   if(!isHost){
     setGameMsg("Seul l’arbitre peut lancer la partie.", "error");
-    return;
-  }
-  if(gamePlayers.length < 2){
-    setGameMsg("Il faut au moins 2 joueurs pour lancer la partie.", "error");
     return;
   }
   if(currentGame.status !== 'lobby') return;
@@ -1328,6 +1422,8 @@ async function startGame(){
       return;
     }
     currentGame = data;
+    trickHistory = [];
+    renderTrickHistory();
     renderGameState();
   }catch(e){
     console.error(e);
@@ -1344,28 +1440,20 @@ function leaveGameLocal(){
   }
   currentGame = null;
   gamePlayers = [];
+  trickHistory = [];
+  renderTrickHistory();
   renderGameState();
 }
 
-/* Logger un trick (optionnel) */
+/* Logger un trick (pour l’instant uniquement en local) */
 async function logRound(player, result){
-  const trickName = (trickInput.value || "").trim();
-  const payload = {
-    game_id: currentGame.id,
-    player_id: player.user_id,
-    player_name: player.display_name,
-    trick_name: trickName || null,
-    result,
-    created_at: new Date().toISOString()
-  };
-  try{
-    await supa.from('scoot_rounds').insert(payload);
-  }catch(e){
-    // pas grave si ça fail, c'est juste du log
-  }
-  if(trickName){
-    trickInput.value = "";
-  }
+  const trickName = (trickInput?.value || "").trim();
+  trickHistory.push({
+    playerName: player.display_name || "Rider",
+    trickName: trickName || "",
+    result
+  });
+  renderTrickHistory();
 }
 
 /* Vérifier fin de partie (1 seul rider sans SCOOT) */
@@ -1394,34 +1482,42 @@ async function checkGameEnd(){
   }
 }
 
-/* Trick réussi (host) */
-async function handleTrickSuccess(){
-  if(!currentGame || !me) return;
-  if(currentGame.host_id !== me.id){
-    setGameMsg("Seul l’arbitre peut valider les tricks.", "error");
-    return;
-  }
-  const playerId = attemptPlayerSelect.value;
-  const player = gamePlayers.find(p => p.id === playerId);
-  if(!player) return;
-  await logRound(player, 'success');
-  setGameMsg("Trick validé. Pas de lettre ajoutée.", "success");
+/* Tour suivant : choisir automatiquement le rider suivant encore en jeu */
+function rotateAttemptPlayer(){
+  if(!attemptPlayerSelect) return;
+  const stillIn = gamePlayers.filter(p => !isFinished(p.letters));
+  if(stillIn.length === 0) return;
+
+  const currentId = attemptPlayerSelect.value;
+  let idx = stillIn.findIndex(p => String(p.id) === String(currentId));
+  if(idx === -1) idx = 0;
+  else idx = (idx + 1) % stillIn.length;
+
+  attemptPlayerSelect.value = stillIn[idx].id;
 }
 
-/* Trick raté → ajouter une lettre (host) */
-async function handleTrickFail(){
-  if(!currentGame || !me) return;
-  if(currentGame.host_id !== me.id){
-    setGameMsg("Seul l’arbitre peut donner des lettres.", "error");
-    return;
-  }
-  if(currentGame.status !== 'playing'){
-    setGameMsg("La partie n’est pas en cours.", "error");
-    return;
-  }
+/* Trick réussi (host) */
+async function handleTrickSuccess(){
+  if(!currentGame || !me || String(currentGame.host_id) !== String(me.id)) return;
+  if(currentGame.status !== 'playing') return;
 
   const playerId = attemptPlayerSelect.value;
-  const player = gamePlayers.find(p => p.id === playerId);
+  const player = gamePlayers.find(p => String(p.id) === String(playerId));
+  if(!player) return;
+
+  await logRound(player, 'success');
+  if(trickInput) trickInput.value = "";
+  setGameMsg("Trick plaqué pour " + (player.display_name || "Rider") + ". Pas de lettre.", "success");
+  rotateAttemptPlayer();
+}
+
+/* Trick raté → ajouter une lettre */
+async function handleTrickFail(){
+  if(!currentGame || !me || String(currentGame.host_id) !== String(me.id)) return;
+  if(currentGame.status !== 'playing') return;
+
+  const playerId = attemptPlayerSelect.value;
+  const player = gamePlayers.find(p => String(p.id) === String(playerId));
   if(!player) return;
 
   const next = nextLetters(player.letters || "");
@@ -1447,6 +1543,7 @@ async function handleTrickFail(){
     if(idx >= 0) gamePlayers[idx] = data;
 
     await logRound(data, 'fail');
+    if(trickInput) trickInput.value = "";
     renderGameState();
 
     if(finishedNow){
@@ -1455,11 +1552,26 @@ async function handleTrickFail(){
     }else{
       setGameMsg(data.display_name + " prend une lettre.", "success");
     }
+
+    rotateAttemptPlayer();
   }catch(e){
     console.error(e);
     setGameMsg("Erreur réseau.", "error");
   }
 }
+
+// clic bouton retrait dans le lobby
+playersList.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-remove-id]');
+  if (!btn) return;
+  
+  const playerId = btn.dataset.removeId;
+  const playerToRemove = gamePlayers.find(p => String(p.id) === String(playerId));
+
+  if (confirm(`Êtes-vous sûr de vouloir retirer ${playerToRemove?.display_name || "ce joueur"} du lobby ?`)) {
+      await removePlayer(playerId);
+  }
+});
 
 /* Init global */
 (async function initGamePage(){
@@ -1478,11 +1590,15 @@ btnTrickSuccess.addEventListener('click', handleTrickSuccess);
 btnTrickFail.addEventListener('click', handleTrickFail);
 </script>
 
+<!-- Firebase / Service worker : seulement si HTTP/HTTPS -->
+<script src="js/firebase.js" type="module"></script>
 <script>
-  // Service worker (évite l’erreur en file://)
-  if ('serviceWorker' in navigator &&
-      (location.protocol === 'http:' || location.protocol === 'https:')) {
-    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("/firebase-messaging-sw.js")
+      .then(reg => console.log("SW FCM OK"))
+      .catch(err => console.error("SW FCM ERROR", err));
+  } else {
+    console.log("SW non enregistré (protocole non supporté pour FCM)");
   }
 </script>
 

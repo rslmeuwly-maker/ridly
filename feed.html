@@ -666,7 +666,7 @@
 
   <!-- CONTENU PRINCIPAL -->
   <main class="main">
-    <div class="mini-title">Feed riders</div>
+    
 
     <!-- STORIES : toujours 300 ronds max -->
     <section id="storiesCard" class="card">
@@ -1612,11 +1612,16 @@ function markCommentsReadForPost(postId){
 }
 </script>
 
+<!-- Firebase Notifications -->
+<script src="js/firebase.js" type="module"></script>
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/firebase-messaging-sw.js")
+      .then(reg => console.log("SW FCM OK"))
+      .catch(err => console.error("SW FCM ERROR", err));
   }
 </script>
-
+</body>
+</html>
 </body>
 </html>
