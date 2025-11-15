@@ -86,7 +86,7 @@
       z-index:1;
     }
 
-    /* NAV top (style feed/games/classement) */
+    /* NAV top */
     nav.nav{
       position:sticky;
       top:0;
@@ -222,7 +222,6 @@
       transform:translateX(-50%) translateY(4px);
     }
 
-    /* Mini titre */
     .mini-title{
       padding:10px 10px 0;
       font-size:13px;
@@ -589,7 +588,6 @@
       .tabbar{border-radius:22px 22px 0 0;}
     }
 
-    /* Boutons clicables pour abonnés / abonnements */
     .chip-link{
       display:inline-flex;
       align-items:center;
@@ -759,14 +757,12 @@
 
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">💬</a>
 
-        <!-- Déconnexion discrète en haut -->
+        <!-- Déconnexion en haut -->
         <button type="button" class="icon-btn" id="btnLogout" title="Déconnexion" style="display:none">⏻</button>
       </div>
     </div>
   </nav>
 
-  <!-- Mini hero style feed -->
-  <div class="mini-title">Profil rider</div>
   <p class="page-intro">
     Gère ton profil RIDLY, tes stories (flashs), tes posts dans le feed et tes stats de spots.
   </p>
@@ -781,7 +777,6 @@
           <h1 class="name" id="pName">—</h1>
           <div class="loc-line" id="pSub">—</div>
           <div class="meta-line" id="pStats">0 posts • 0 flashs • 0 abonnés • Moyenne compte : —</div>
-          <!-- Option A : ligne spot local -->
           <div class="meta-line" id="pLocalPark">Skatepark local : —</div>
           <div class="cgu-row">
             <button type="button" class="chip-link cgu-btn" id="btnCgu">
@@ -860,7 +855,7 @@
       <p id="postsEmpty" class="empty" style="display:none">Aucun post pour l’instant.</p>
     </section>
 
-    <!-- Option B : card complète de stats spots -->
+    <!-- Stats spots -->
     <section class="card" style="margin-top:14px" id="spotStatsCard">
       <div class="posts-header">
         <h2>Statistiques RIDLY — Spots</h2>
@@ -912,7 +907,7 @@
 <!-- Toast -->
 <div id="toast" class="toast"></div>
 
-<!-- Thème (même logique que feed.html) -->
+<!-- Thème -->
 <script>
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
@@ -937,7 +932,7 @@
 })();
 </script>
 
-<!-- Supabase init + BG vidéo + Profil logic + notifs 1v1 + bouton conditions + stats spots -->
+<!-- Supabase + profil -->
 <script>
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
@@ -1187,7 +1182,7 @@ followModal?.addEventListener('click', (e)=>{
   }
 });
 
-/* Profil + stats counters dans window._ridlyProfile */
+/* Profil + stats counters */
 function updateStatsLine(){
   const avgTxt = (window._ridlyProfile?.accountAvg != null)
     ? `Moyenne compte : ${window._ridlyProfile.accountAvg.toFixed(1)} / 5`
@@ -1225,7 +1220,6 @@ function updateStatsLine(){
       };
     }
 
-    // notifs 1v1
     checkPrivateUnread(sessionUser);
     subscribePrivateAlerts(sessionUser);
   }
@@ -1317,7 +1311,7 @@ async function loadProfile(){
   }
 }
 
-/* Charge nb d'abonnés + nb d'abonnements + si moi je suis abonné */
+/* Follow state */
 async function loadFollowState(){
   const { profileUserId, sessionUser } = window._ridlyProfile;
   window._ridlyProfile.followersCount = 0;
@@ -1667,7 +1661,6 @@ async function loadSpotStats(){
     const totalSecondsAll = stats.reduce((s,r)=>s + (r.total_seconds || 0), 0);
     window._ridlyProfile.totalSecondsAll = totalSecondsAll;
 
-    // Park local = le plus gros total_seconds
     const top = stats[0];
     const topSpot = spotMap[top.spot_id];
     window._ridlyProfile.localSpot = { stat:top, spot:topSpot };
@@ -1689,7 +1682,6 @@ async function loadSpotStats(){
     if(spotStatsList){
       spotStatsList.innerHTML = '';
 
-      // Ligne total globale au début
       if(totalSecondsAll && totalSecondsAll > 0){
         const totalHours = (totalSecondsAll/3600).toFixed(1).replace('.0','');
         const totalDiv = document.createElement('div');
@@ -1704,7 +1696,6 @@ async function loadSpotStats(){
         spotStatsList.appendChild(totalDiv);
       }
 
-      // Puis toutes les entrées par park
       stats.forEach(row=>{
         const s = spotMap[row.spot_id];
         const title = s?.nom || "Skatepark";
@@ -1735,10 +1726,13 @@ async function loadSpotStats(){
 }
 </script>
 
+<!-- Firebase Notifications -->
+<script src="js/firebase.js" type="module"></script>
 <script>
-  // Service worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/firebase-messaging-sw.js")
+      .then(reg => console.log("SW FCM OK"))
+      .catch(err => console.error("SW FCM ERROR", err));
   }
 </script>
 
