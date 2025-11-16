@@ -296,7 +296,7 @@
       color:#062312;text-decoration:none;
     }
 
-        .chips-row{
+    .chips-row{
       position:absolute;
       left:50%;
       top:16px;
@@ -307,13 +307,10 @@
       pointer-events:none;
       padding:0 8px;
       max-width:100%;
-      overflow-x:auto;       /* scroll horizontal si ça dépasse */
-      scrollbar-width:none;  /* cache le scroll sur Firefox */
+      overflow-x:auto;
+      scrollbar-width:none;
     }
-    .chips-row::-webkit-scrollbar{
-      display:none;          /* cache le scroll sur Chrome */
-    }
-
+    .chips-row::-webkit-scrollbar{display:none}
     .chip-float{
       pointer-events:auto;
       border-radius:14px;
@@ -321,16 +318,14 @@
       font:800 14px Outfit;
       border:1px solid rgba(0,0,0,.18);
       box-shadow:0 6px 16px rgba(0,0,0,.35);
-      flex:0 0 auto;         /* reste sur une ligne, pas de retour à la ligne */
+      flex:0 0 auto;
       white-space:nowrap;
     }
-
     .chip-blue{background:#e5f0ff;color:#0f3b82}
     .chip-green{background:#e9fde9;color:#0d5b1f}
     .chip-red{background:#ffe9e9;color:#7c1010}
     .chip-orange{background:#fff2e6;color:#7a2e00;border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 16px rgba(0,0,0,.25)}
 
-    /* Version mobile : toujours à côté, juste aligné à gauche */
     @media (max-width:600px){
       .chips-row{
         left:0;
@@ -344,7 +339,6 @@
         font-size:12px;
       }
     }
-
 
     /* Bouton style de carte + tip */
     .fab-style{
@@ -413,7 +407,6 @@
       transition:transform .15s ease, box-shadow .15s ease;
     }
 
-    /* ANIM ICONES VERTICALES — tournent sur elles-mêmes toutes les 20s */
     .side-btn span{
       display:inline-block;
       transform:translateY(-1px);
@@ -462,7 +455,6 @@
     .btn-nearby{background:linear-gradient(145deg,#4ade80,#22c55e);}
     .btn-add{background:linear-gradient(145deg,#facc15,#eab308);}
 
-    /* Ajustement mobile : on garde les icônes, un peu plus petites et plus proches du bord */
     @media(max-width:899px){
       .side-actions{
         right:6px;
@@ -470,11 +462,7 @@
         transform:scale(.9);
         transform-origin:top right;
       }
-
-      /* cacher les boutons + / - de Leaflet sur mobile */
-      .leaflet-control-zoom{
-        display:none !important;
-      }
+      .leaflet-control-zoom{display:none !important;}
     }
     @media(min-width:900px){
       .side-actions{
@@ -534,7 +522,7 @@
     .modal input,.modal select,.modal textarea{
       width:100%;padding:9px 11px;
       border-radius:10px;
-      background:#020617;border:1px solid var(--border);
+      background:#020617;border:1px solid(var(--border));
       color:#fff;font:600 14px Outfit;
     }
     body.theme-light .modal input,
@@ -575,12 +563,8 @@
     }
 
     /* Marqueurs swirl */
-    .rsl-marker.swirl div{
-      animation:swirl-in .7s cubic-bezier(.2,.8,.2,1) both;
-    }
-    .rsl-marker div{
-      position:relative;
-    }
+    .rsl-marker.swirl div{animation:swirl-in .7s cubic-bezier(.2,.8,.2,1) both;}
+    .rsl-marker div{position:relative;}
     .rsl-marker div::after{
       content:"";position:absolute;inset:-6px;
       border-radius:999px;border:2px solid rgba(34,197,94,.0);
@@ -923,7 +907,6 @@ function subscribePrivateAlerts(me){
   }
   const { data:{ user } } = await supa.auth.getUser();
   if(!user){
-    // redirection vers ta vraie page de connexion
     window.location.href='connexion.html';
     return;
   }
@@ -1276,7 +1259,7 @@ function distanceMeters(lat1,lng1,lat2,lng2){
 function findNearestSpot(lat,lng){
   let best=null, bestDist=Infinity;
   ALL_MARKERS.forEach(o=>{
-    if(o.group!=='park') return;           // on ne compte que les parks
+    if(o.group!=='park') return;
     if(typeof o.lat!=='number' || typeof o.lng!=='number') return;
     const d = distanceMeters(lat,lng,o.lat,o.lng);
     if(d < bestDist){
@@ -1284,7 +1267,7 @@ function findNearestSpot(lat,lng){
       best = o;
     }
   });
-  if(best && bestDist <= 150){ // rayon de 150m autour du park
+  if(best && bestDist <= 150){
     return {
       id:   best.spotId,
       name: best.name || 'Spot',
@@ -1309,7 +1292,7 @@ async function logPresence(spotId, seconds){
   }
 }
 
-/* Flush de fin de session (quand on coupe le partage / quitte la page) */
+/* Flush de fin de session */
 async function finalizePresenceSession(){
   if(lastPresenceSpotId && lastPresenceTsMs){
     const nowMs = Date.now();
@@ -1322,14 +1305,12 @@ async function finalizePresenceSession(){
   lastPresenceTsMs   = null;
 }
 
-/* Tick à chaque update de géoloc : ici on compte le temps par park */
+/* Tick de présence */
 function handlePresenceTick(lat,lng, nowMs){
   const spot = findNearestSpot(lat,lng);
 
   if(spot){
-    // Rider dans un park
     if(lastPresenceSpotId === spot.id){
-      // même park qu'avant : on ajoute du temps si > 60s
       if(lastPresenceTsMs){
         const delta = Math.floor((nowMs - lastPresenceTsMs)/1000);
         if(delta >= 60){
@@ -1340,13 +1321,11 @@ function handlePresenceTick(lat,lng, nowMs){
         lastPresenceTsMs = nowMs;
       }
     }else{
-      // nouveau park détecté
       lastPresenceSpotId = spot.id;
       lastPresenceTsMs   = nowMs;
       showToast(`Tu es au skatepark ${spot.name} — chaque heure ici = 1 point local 🛹`);
     }
   }else{
-    // plus dans un park : on cloture la session en cours
     if(lastPresenceSpotId && lastPresenceTsMs){
       const delta = Math.floor((nowMs - lastPresenceTsMs)/1000);
       if(delta >= 60){
@@ -1411,7 +1390,6 @@ if(shareBtn){
       alert("Connecte-toi pour partager ta position.");
       return;
     }
-    // Si le partage est déjà actif -> on coupe
     if(watchId!==null){
       navigator.geolocation.clearWatch(watchId);
       watchId=null;
@@ -1430,10 +1408,7 @@ if(shareBtn){
       const nowMs = Date.now();
       lastUserPos=[latitude,longitude];
 
-      // Comptage du temps dans le park local
       handlePresenceTick(latitude, longitude, nowMs);
-
-      // Partage “riders proches”
       await upsertMyLocation(latitude, longitude);
     }, err=>{
       console.warn(err);
@@ -1624,7 +1599,7 @@ const btnSideAdd      = document.getElementById('btnSideAdd');
 
 if(btnSideFriends){
   btnSideFriends.addEventListener('click', ()=>{
-    applyFilters(); // garde tous les types
+    applyFilters();
     loadRiders();
     showToast("Les riders connectés apparaissent en bleu clair sur la carte.");
   });
@@ -1660,9 +1635,10 @@ if(btnSideAdd){
     openAddModal();
   });
 }
+</script>
 
 <!-- Firebase Notifications -->
-<script src="js/firebase.js" type="module"></script>
+<script type="module" src="js/firebase.js"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/firebase-messaging-sw.js")
@@ -1670,5 +1646,6 @@ if(btnSideAdd){
       .catch(err => console.error("SW FCM ERROR", err));
   }
 </script>
+
 </body>
 </html>
