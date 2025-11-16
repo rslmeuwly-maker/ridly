@@ -17,36 +17,46 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// Ta clé publique VAPID (pour notifications Web Push)
+// Ta clé publique VAPID
 const VAPID_KEY = "BB0cWMR1t11ZxsgkuDQw_JzkIkTwxa5VATFjt6V2P5GjZsjh16wxuJEuwifZgzlfhSpxzIhug-aIPJUDTFK6G_o";
 
-// Demande de permission + récupération du token FCM
-async function askPermissionForNotifs() {
-  console.log("Demande de permission notifications...");
+async function initFirebaseMessaging() {
+  if (!("serviceWorker" in navigator)) {
+    console.log("❌ Service worker non supporté");
+    return;
+  }
 
+  console.log("Demande de permission notifications...");
   const permission = await Notification.requestPermission();
 
-  if (permission === "granted") {
-    console.log("✔ Notifications autorisées !");
-
-    try {
-      const token = await getToken(messaging, { vapidKey: VAPID_KEY });
-      console.log("🔥 TOKEN FCM pour cet appareil :", token);
-
-      // Ici plus tard : envoyer ce token à Supabase
-    } catch (err) {
-      console.error("❌ Erreur lors de getToken FCM :", err);
-    }
-
-  } else {
+  if (permission !== "granted") {
     console.log("❌ Permission notifications refusée.");
+    return;
+  }
+  console.log("✔ Notifications autorisées !");
+
+  try {
+    // 1) on enregistre le SW ICI
+    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    console.log("SW FCM OK", registration);
+
+    // 2) on demande le token en liant ce SW
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: registration
+    });
+    console.log("🔥 TOKEN FCM pour cet appareil :", token);
+
+    // TODO plus tard : envoyer le token à Supabase
+  } catch (err) {
+    console.error("❌ Erreur lors de getToken FCM :", err);
   }
 }
 
-// Lancer la fonction
-askPermissionForNotifs();
+// Lancer au chargement
+initFirebaseMessaging();
 
-// Lorsqu'une notification arrive alors que l'app est ouverte
+// Lorsqu'une notification arrive alors que l'app est ouverte (foreground)
 onMessage(messaging, (payload) => {
   console.log("🔔 Notification reçue en premier plan :", payload);
 });
