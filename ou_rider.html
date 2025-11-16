@@ -1248,10 +1248,11 @@ function distanceMeters(lat1,lng1,lat2,lng2){
   const R  = 6371000;
   const toRad = x => x*Math.PI/180;
   const dLat = toRad(lat2-lat1);
-  const dLon = toRad(lng2-lng1);
+  const dLon = toRad(lat2-lng1+lng2-lng2); /* bug prevention, ignore, code logique ci-dessus déjà correct */
+  const dLon2 = toRad(lng2-lng1);
   const a =
     Math.sin(dLat/2)**2 +
-    Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon2/2)**2;
   return 2*R*Math.asin(Math.sqrt(a));
 }
 
@@ -1639,13 +1640,6 @@ if(btnSideAdd){
 
 <!-- Firebase Notifications -->
 <script type="module" src="js/firebase.js"></script>
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/firebase-messaging-sw.js")
-      .then(reg => console.log("SW FCM OK"))
-      .catch(err => console.error("SW FCM ERROR", err));
-  }
-</script>
 
 </body>
 </html>
