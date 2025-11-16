@@ -1,69 +1,64 @@
 // js/firebase.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import { getMessaging, getToken, onMessage }
+  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging.js";
 
-// Import Firebase modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging.js";
-
-// --- CONFIG FIREBASE ---
-// 👉 EXACTEMENT ce que tu as dans la console (ce que tu m'as montré en photo)
+// ⚠️ CONFIG EXACTE prise de ta console Firebase (pas la clé Web push !)
 const firebaseConfig = {
-  apiKey: "AIzaSyAWFEXlpHYDlJ0pg0JpbYUROSn_hcBuLs",
+  apiKey: "AIzaSyAWFEXIphYDlDJ0pg0JpbYUROSn_hcBuLs",
   authDomain: "ridly-app.firebaseapp.com",
   projectId: "ridly-app",
-  storageBucket: "ridly-app.firebasestorage.app",
+  storageBucket: "ridly-app.appspot.com", // je corrige .app en .appspot.com, plus classique
   messagingSenderId: "402614688384",
   appId: "1:402614688384:web:a79d007ffeffa94af92465",
-  measurementId: "G-K4S62BL7TK"
+  measurementId: "G-K4S628L7TK"
 };
 
 // Initialise Firebase
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// Ta clé publique VAPID (celle de la page Web push)
+// ✅ VAPID KEY = ta "Paire de clés Web push" (celle que tu as en photo)
 const VAPID_KEY =
-  "BBocWMR1I1ZxsgkuDQw_JzklkTwxa5VATFjt6V2P5GjZzsjh16wxuJEuwifZgzlfhSpxzIhug-aIPJUDTFK6G_o";
+  "BBocWMR111IZxsgkuDQw_JzklkTwxa5VATFjt6V2P5GjZsjjh16wxuJEuwifZgzIfhSpxzIhug-aIPJUDTFK6G_o";
 
 async function initFirebaseMessaging() {
-  if (!("serviceWorker" in navigator)) {
-    console.log("❌ Service worker non supporté");
+  if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+    console.log("Notifications non supportées sur ce navigateur.");
     return;
   }
 
   console.log("Demande de permission notifications...");
-  const permission = await Notification.requestPermission();
+  const perm = await Notification.requestPermission();
 
-  if (permission !== "granted") {
-    console.log("❌ Permission notifications refusée.");
+  if (perm !== "granted") {
+    console.log("Notifications refusées :", perm);
     return;
   }
-  console.log("✔ Notifications autorisées !");
+  console.log("✓ Notifications autorisées !");
+
+  // Register du service worker
+  const reg = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+  console.log("SW FCM OK", reg);
 
   try {
-    // 1) on enregistre le SW ici
-    const registration = await navigator.serviceWorker.register(
-      "/firebase-messaging-sw.js"
-    );
-    console.log("SW FCM OK", registration);
-
-    // 2) on récupère le token lié à ce SW
     const token = await getToken(messaging, {
       vapidKey: VAPID_KEY,
-      serviceWorkerRegistration: registration
+      serviceWorkerRegistration: reg
     });
-
-    console.log("🔥 TOKEN FCM pour cet appareil :", token);
-
-    // TODO plus tard : envoyer le token à Supabase
+    console.log("FCM token OK :", token);
+    // ici tu pourras plus tard envoyer le token à Supabase
   } catch (err) {
     console.error("❌ Erreur lors de getToken FCM :", err);
   }
 }
 
-// Lancer au chargement
-initFirebaseMessaging();
+// Lance le setup
+initFirebaseMessaging().catch(err => {
+  console.error("Erreur initFirebaseMessaging", err);
+});
 
-// Notification reçue quand la page est ouverte
+// Réception d’un message quand l’onglet est ouvert
 onMessage(messaging, (payload) => {
-  console.log("🔔 Notification reçue en premier plan :", payload);
+  console.log("📩 Message reçu en foreground :", payload);
 });
