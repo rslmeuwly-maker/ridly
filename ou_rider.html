@@ -303,13 +303,14 @@
       transform:translateX(-50%);
       display:flex;
       gap:8px;
-      z-index:3100;
+      z-index:1500;   /* chips derrière les boutons */
       pointer-events:none;
       padding:0 8px;
       max-width:100%;
       overflow-x:auto;
       scrollbar-width:none;
     }
+
     .chips-row::-webkit-scrollbar{display:none}
     .chip-float{
       pointer-events:auto;
@@ -697,7 +698,7 @@
       </div>
     </section>
   </main>
-
+</div>
 
 <!-- Modale Ajouter un spot -->
 <div class="modal" id="addSpotModal">
@@ -1080,16 +1081,32 @@ F.reset.onclick=()=>{
 
 let lastUserPos=null;
 F.locate.onclick=()=>{
-  if(!navigator.geolocation){alert('Géolocalisation indisponible.');return;}
+  if(!navigator.geolocation){
+    alert('Géolocalisation indisponible.');
+    return;
+  }
   navigator.geolocation.getCurrentPosition(pos=>{
     const {latitude,longitude}=pos.coords;
     lastUserPos=[latitude,longitude];
+
     L.circleMarker([latitude,longitude],{
       radius:6,color:'#38bdf8',fillColor:'#38bdf8',fillOpacity:.9,weight:2
     }).addTo(map);
-    map.setView([latitude,longitude],14);
-  },()=>alert("Impossible d'obtenir ta position."));
+
+    // On centre un peu plus près
+    map.setView([latitude,longitude],15);
+
+    // On "avance" la carte pour que le point ne soit pas caché par le bas
+    setTimeout(()=>{
+      try{
+        map.panBy([0,80]); // décale légèrement vers le haut
+      }catch(e){}
+    },400);
+  },()=>{
+    alert("Impossible d'obtenir ta position.");
+  });
 };
+
 
 /* Chips -> filtres rapides */
 (function(){
@@ -1235,9 +1252,9 @@ F.locate.onclick=()=>{
 
 <script>
 /* Partage position riders + comptage des heures par skatepark */
-let watchId=null;
-const shareBtn=document.getElementById('btnShare');
-const shareState=document.getElementById('shareState');
+let watchId = null;
+const shareBtn   = document.getElementById('btnShare');
+const shareState = document.getElementById('shareState');
 
 /* Vars pour comptage du temps dans un park */
 let lastPresenceSpotId = null;
@@ -1363,15 +1380,19 @@ async function removeMyLocation(){
   if(currentUser) await supa.from('rider_locations').delete().eq('user_id', currentUser.id);
 }
 
+/* Charge les autres riders */
 async function loadRiders(){
   const { data: rows } = await supa
     .from('rider_locations_view')
     .select('*')
     .gt('expires_at', new Date().toISOString());
+
   layers.riders.clearLayers();
-  (rows||[]).forEach(r=>{
-    if(currentUser && r.user_id===currentUser.id) return;
-    if(!r.lat||!r.lng) return;
+
+  (rows || []).forEach(r => {
+    if (currentUser && r.user_id === currentUser.id) return;
+    if (!r.lat || !r.lng) return;
+
     const name = r.full_name || r.username || r.email || 'Rider';
     const profilUrl = `profil_ou_rider.html?id=${encodeURIComponent(r.user_id)}`;
     const popup =
@@ -1380,46 +1401,85 @@ async function loadRiders(){
         <div class="rsl-pop-desc">Actif récemment</div>
         <a class="rsl-pop-btn" href="${profilUrl}">Voir le profil →</a>
       </div>`;
-    L.marker([r.lat,r.lng],{icon:icons.rider}).bindPopup(popup,{closeButton:true}).addTo(layers.riders);
+
+    const marker = L.marker([r.lat, r.lng], { icon: icons.rider }).addTo(layers.riders);
+
+    marker.on('click', () => {
+      window.location.href = profilUrl;
+    });
+
+    marker.bindPopup(popup, { closeButton:true });
   });
 }
 
+
+/* Démarre réellement le partage + watchPosition */
+function startShareWatch(){
+  if(!navigator.geolocation){
+    alert("Géolocalisation indisponible.");
+    updateShareUi(false,"");
+    localStorage.removeItem('ridlyShareActive');
+    return;
+  }
+
+  updateShareUi(true,"Partage actif…");
+  watchId = navigator.geolocation.watchPosition(async pos=>{
+    const { latitude, longitude } = pos.coords;
+    const nowMs = Date.now();
+    lastUserPos=[latitude,longitude];
+
+    handlePresenceTick(latitude, longitude, nowMs);
+    await upsertMyLocation(latitude, longitude);
+  }, err=>{
+    console.warn(err);
+    updateShareUi(false,"Autorise la géoloc");
+    watchId=null;
+    localStorage.removeItem('ridlyShareActive');
+  }, { enableHighAccuracy:true, maximumAge:8000, timeout:15000 });
+}
+
+/* Clic sur le bouton : ON reste actif tant que tu n’as pas cliqué pour couper */
 if(shareBtn){
   shareBtn.addEventListener('click', async ()=>{
     if(!currentUser){
       alert("Connecte-toi pour partager ta position.");
       return;
     }
+
+    // Si déjà actif -> on coupe
     if(watchId!==null){
       navigator.geolocation.clearWatch(watchId);
       watchId=null;
       await finalizePresenceSession();
       updateShareUi(false,"Partage coupé");
       await removeMyLocation();
+      localStorage.removeItem('ridlyShareActive'); // arrêt auto-reprise
       return;
     }
-    if(!navigator.geolocation){
-      alert("Géolocalisation indisponible.");
-      return;
-    }
-    updateShareUi(true,"Partage actif…");
-    watchId = navigator.geolocation.watchPosition(async pos=>{
-      const { latitude, longitude } = pos.coords;
-      const nowMs = Date.now();
-      lastUserPos=[latitude,longitude];
 
-      handlePresenceTick(latitude, longitude, nowMs);
-      await upsertMyLocation(latitude, longitude);
-    }, err=>{
-      console.warn(err);
-      updateShareUi(false,"Autorise la géoloc");
-      watchId=null;
-    }, { enableHighAccuracy:true, maximumAge:8000, timeout:15000 });
+    // Sinon on démarre et on mémorise que le partage est actif
+    localStorage.setItem('ridlyShareActive','1');
+    startShareWatch();
   });
 }
 
+/* Auto-reprise du partage si l’utilisateur l’avait laissé activé */
+function autoResumeShare(){
+  if(localStorage.getItem('ridlyShareActive') !== '1') return;
+  if(!currentUser || !shareBtn) {
+    setTimeout(autoResumeShare, 800);
+    return;
+  }
+  if(watchId===null){
+    startShareWatch();
+  }
+}
+autoResumeShare();
+
+/* Refresh riders régulièrement */
 setInterval(loadRiders, 20000);
 loadRiders();
+
 window.addEventListener('beforeunload', async ()=>{
   if(watchId!==null){
     try{ navigator.geolocation.clearWatch(watchId);}catch(_){}
@@ -1428,6 +1488,7 @@ window.addEventListener('beforeunload', async ()=>{
   await removeMyLocation();
 });
 </script>
+
 
 <script>
 /* Petite carte + recherche + ajout spot */
@@ -1591,48 +1652,89 @@ document.getElementById('asSave').onclick = async ()=>{
 <script>
 /* Side buttons actions (icônes à droite) */
 const btnSideFriends  = document.getElementById('btnSideFriends');
+let ridersMode = false;
 const btnSideShare    = document.getElementById('btnSideShare');
 const btnSideSearch   = document.getElementById('btnSideSearch');
 const btnSidePersonal = document.getElementById('btnSidePersonal');
 const btnSideNearby   = document.getElementById('btnSideNearby');
 const btnSideAdd      = document.getElementById('btnSideAdd');
 
-if(btnSideFriends){
-  btnSideFriends.addEventListener('click', ()=>{
-    applyFilters();
-    loadRiders();
-    showToast("Les riders connectés apparaissent en bleu clair sur la carte.");
-  });
-}
-if(btnSideShare){
-  btnSideShare.addEventListener('click', ()=>{
-    document.getElementById('btnShare').click();
-  });
-}
-if(btnSideSearch){
-  btnSideSearch.addEventListener('click', ()=>{
-    bodyEl.classList.add('show-filters');
-    document.getElementById('f-type').focus();
-  });
-}
-if(btnSidePersonal){
-  btnSidePersonal.addEventListener('click', ()=>{
-    document.getElementById('btnLocate').click();
-  });
-}
-if(btnSideNearby){
-  btnSideNearby.addEventListener('click', ()=>{
-    if(lastUserPos){
-      map.setView(lastUserPos, 14);
-      showToast("Zoom sur ta zone pour voir les spots proches.");
-    }else{
-      document.getElementById('btnLocate').click();
+/* 👥 Bouton riders proches */
+if (btnSideFriends) {
+  btnSideFriends.addEventListener('click', () => {
+    // toggle on/off
+    ridersMode = !ridersMode;
+
+    if (ridersMode) {
+      // On cache tous les spots
+      F.park.checked   = false;
+      F.street.checked = false;
+      F.shop.checked   = false;
+      F.cours.checked  = false;
+      applyFilters();
+
+      // Charge les riders connectés
+      loadRiders();
+
+      showToast("Mode riders proches : seuls les riders connectés s'affichent.");
+    } else {
+      // On remet les spots
+      F.park.checked   = true;
+      F.street.checked = true;
+      F.shop.checked   = true;
+      F.cours.checked  = true;
+      applyFilters();
+
+      showToast("Spots ré-affichés.");
     }
   });
 }
-if(btnSideAdd){
-  btnSideAdd.addEventListener('click', ()=>{
+
+/* ◎ Ma position = clique sur le bouton officiel "📍 Ma position" */
+if (btnSidePersonal && F && F.locate) {
+  btnSidePersonal.addEventListener('click', () => {
+    F.locate.click(); // lance ta géoloc + recentre + panBy
+  });
+}
+
+/* ⇪ Partager ma position = même action que le bouton "Partage riders" */
+if (btnSideShare && shareBtn) {
+  btnSideShare.addEventListener('click', () => {
+    shareBtn.click();
+  });
+}
+
+/* ＋ Ajouter un spot = ouvre la modale d'ajout */
+if (btnSideAdd) {
+  btnSideAdd.addEventListener('click', () => {
     openAddModal();
+  });
+}
+
+/* 🔎 Rechercher spots = ouvre le panneau des filtres */
+if (btnSideSearch) {
+  btnSideSearch.addEventListener('click', () => {
+    document.body.classList.add('show-filters');
+  });
+}
+
+/* 🗺️ Spots proches = recentre sur ta dernière position, sinon déclenche la géoloc */
+if (btnSideNearby) {
+  btnSideNearby.addEventListener('click', () => {
+    if (lastUserPos) {
+      map.setView(lastUserPos, 15);
+      setTimeout(() => {
+        try {
+          map.panBy([0, 80]); // remonte un peu pour ne pas se cacher sous la barre
+        } catch (e) {}
+      }, 300);
+    } else {
+      if (F && F.locate) {
+        F.locate.click();
+      } else {
+        showToast("Active d'abord ta position 📍.");
+      }
+    }
   });
 }
 </script>
@@ -1654,9 +1756,11 @@ if(btnSideAdd){
     measurementId: "G-K4S628L7TK"
   };
 
+  // Init Firebase
   firebase.initializeApp(firebaseConfig);
   const messaging = firebase.messaging();
 
+  // ------------------ FONCTION FCM ------------------
   async function initFCM() {
     try {
       const permission = await Notification.requestPermission();
@@ -1667,7 +1771,7 @@ if(btnSideAdd){
 
       console.log("✔ Notifications autorisées !");
       const token = await messaging.getToken({
-        vapidKey: "BBocWMR1t11ZxsgkuDQw_JzklkTwxa5VATFjt6V2P5GJzsjh16wxuJEuwifZgzIfhSpxzIhug-aIPJUDTFK6G_o" 
+        vapidKey: "BBocWMR1t11ZxsgkuDQw_JzklkTwxa5VATFjt6V2P5GJzsjh16wxuJEuwifZgzIfhSpxzIhug-aIPJUDTFK6G_o"
       });
 
       console.log("🔥 Token FCM :", token);
@@ -1676,18 +1780,19 @@ if(btnSideAdd){
     }
   }
 
-  initFCM();
-</script>
-
-<!-- ================================================================= -->
-<!-- =======================  SERVICE WORKER  ========================= -->
-<!-- ================================================================= -->
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/firebase-messaging-sw.js")
-    .then(() => console.log("✔ SW FCM OK"))
-    .catch(err => console.error("❌ SW FCM ERROR :", err));
-}
+  // ------------------ SERVICE WORKER ------------------
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("/firebase-messaging-sw.js")
+      .then(reg => {
+        console.log("✔ SW FCM OK", reg);
+        // On ne lance FCM qu'une fois le SW bien enregistré
+        initFCM();
+      })
+      .catch(err => console.error("❌ SW FCM ERROR :", err));
+  } else {
+    console.log("❌ Service worker non supporté");
+  }
 </script>
 
 </body>
