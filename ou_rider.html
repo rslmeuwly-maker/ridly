@@ -1380,37 +1380,179 @@ async function removeMyLocation(){
   if(currentUser) await supa.from('rider_locations').delete().eq('user_id', currentUser.id);
 }
 
-/* Charge les autres riders */
+/* Charge les autres riders (pseudo + avatar + score) */
 async function loadRiders(){
-  const { data: rows } = await supa
-    .from('rider_locations_view')
-    .select('*')
-    .gt('expires_at', new Date().toISOString());
+  console.log("loadRiders…");
+
+  // 1) Positions des riders
+  const { data: rows, error } = await supa
+    .from('rider_locations')
+    .select('*'); // <== plus de filtre expires_at
+
+  if (error) {
+    console.error("loadRiders error", error);
+    return;
+  }
 
   layers.riders.clearLayers();
+  if (!rows || !rows.length) return;
 
-  (rows || []).forEach(r => {
-    if (currentUser && r.user_id === currentUser.id) return;
+  const ids = rows.map(r => r.user_id);
+
+  // 2) Profils (pseudo, nom, avatar)
+  let profiles = [];
+  if (ids.length) {
+    const { data: profs } = await supa
+      .from('profiles')
+      .select('id,pseudo,full_name,avatar_url')
+      .in('id', ids);
+
+    profiles = profs || [];
+  }
+
+  // 3) Sessions pour calculer le temps total sur les spots
+  let scoreMap = {};
+  if (ids.length) {
+    const { data: sess } = await supa
+      .from('rider_spot_sessions')
+      .select('user_id,seconds_spent')
+      .in('user_id', ids);
+
+    (sess || []).forEach(row => {
+      scoreMap[row.user_id] =
+        (scoreMap[row.user_id] || 0) + (row.seconds_spent || 0);
+    });
+  }
+
+  // 4) Dernier post du feed par rider
+  let lastPostByUser = {};
+  if (ids.length) {
+    const { data: posts } = await supa
+      .from('spot_posts')
+      .select('user_id,media_url,created_at')
+      .in('user_id', ids)
+      .order('created_at', { ascending:false });
+
+    (posts || []).forEach(p => {
+      if (!lastPostByUser[p.user_id]) {
+        lastPostByUser[p.user_id] = p; // le plus récent pour ce user
+      }
+    });
+  }
+
+  // 5) Création des marqueurs
+  rows.forEach(r => {
     if (!r.lat || !r.lng) return;
 
-    const name = r.full_name || r.username || r.email || 'Rider';
-    const profilUrl = `profil_ou_rider.html?id=${encodeURIComponent(r.user_id)}`;
-    const popup =
-      `<div class="rsl-pop">
-        <div class="rsl-pop-title">${name}</div>
-        <div class="rsl-pop-desc">Actif récemment</div>
-        <a class="rsl-pop-btn" href="${profilUrl}">Voir le profil →</a>
-      </div>`;
+    const profil = profiles.find(p => p.id === r.user_id) || {};
+    const name =
+      (profil.pseudo && String(profil.pseudo)) ||
+      (profil.full_name && String(profil.full_name)) ||
+      "Rider";
+    const avatar = profil.avatar_url || null;
 
-    const marker = L.marker([r.lat, r.lng], { icon: icons.rider }).addTo(layers.riders);
+    const totalSeconds = scoreMap[r.user_id] || 0;
+    const hoursFloat   = totalSeconds / 3600;
+    const points       = Math.round(hoursFloat);
+    const pointsLabel  = points === 1 ? "1 point local" : `${points} points locaux`;
+    const hoursTxt     = hoursFloat < 1
+      ? `${Math.max(1, Math.round(totalSeconds/60))} min`
+      : `${hoursFloat.toFixed(1)} h`;
 
-    marker.on('click', () => {
-      window.location.href = profilUrl;
+    // Dernier post
+    const lastPost = lastPostByUser[r.user_id] || null;
+    const mediaUrl = lastPost ? lastPost.media_url : null;
+    const isVideo  = mediaUrl ? /\.(mp4|webm|mov)$/i.test(mediaUrl) : false;
+
+    // Icône ronde avec avatar sur la carte
+    const markerIcon = L.divIcon({
+      className: 'rsl-marker',
+      html: `
+        <div style="
+          width:34px;height:34px;
+          border-radius:50%;
+          overflow:hidden;
+          background:#020617;
+          border:2px solid #22c55e;
+          display:flex;align-items:center;justify-content:center;
+        ">
+          ${
+            avatar
+              ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;">`
+              : `<span style="font-size:18px;color:#fff;">👤</span>`
+          }
+        </div>
+      `,
+      iconSize:[34,34],
+      iconAnchor:[17,17]
     });
 
-    marker.bindPopup(popup, { closeButton:true });
+    const profilUrl = `profil_ou_rider.html?id=${encodeURIComponent(r.user_id)}`;
+
+    // Popup avec avatar + pseudo + dernier post
+    const popup = `
+      <div class="rsl-pop" style="max-width:260px;">
+        <!-- Header avatar + pseudo -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="
+            width:36px;height:36px;
+            border-radius:50%;
+            overflow:hidden;
+            background:#020617;
+            border:2px solid #22c55e;
+            flex-shrink:0;
+          ">
+            ${
+              avatar
+                ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;">`
+                : `<span style="font-size:18px;color:#fff;display:flex;align-items:center;justify-content:center;">👤</span>`
+            }
+          </div>
+          <div>
+            <div class="rsl-pop-title">${name}</div>
+            <div style="font-size:11px;color:#9ca3af;">Actif récemment</div>
+          </div>
+        </div>
+
+        <!-- Dernier post (image / vidéo) -->
+        ${
+          mediaUrl
+            ? `
+              <div style="
+                position:relative;
+                width:100%;
+                padding-top:56%; /* 16/9 */
+                border-radius:12px;
+                overflow:hidden;
+                margin-bottom:6px;
+                background:#020617;
+              ">
+                ${
+                  isVideo
+                    ? `<video src="${mediaUrl}" muted playsinline
+                        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>`
+                    : `<img src="${mediaUrl}" alt=""
+                        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">`
+                }
+              </div>
+            `
+            : ``
+        }
+
+        <div class="rsl-pop-desc">
+          <b>${pointsLabel}</b><br>
+          ${hoursTxt} sur les spots
+        </div>
+        <a class="rsl-pop-btn" href="${profilUrl}">Voir le profil →</a>
+      </div>
+    `;
+
+    const marker = L.marker([r.lat, r.lng], { icon: markerIcon }).addTo(layers.riders);
+    marker.bindPopup(popup, { closeButton:true, autoClose:true, closeOnClick:true });
   });
 }
+
+
 
 
 /* Démarre réellement le partage + watchPosition */
