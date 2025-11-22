@@ -270,6 +270,70 @@
       header{padding:10px 12px;}
       .card{padding:18px 16px 16px;border-radius:18px;}
     }
+
+    /* bloc install PWA */
+    .install-block{
+      margin:10px 0 18px;
+      text-align:center;
+    }
+    .install-btn{
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:#022c16;
+      padding:9px 14px;
+      border-radius:999px;
+      font-size:.8rem;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 10px 26px rgba(0,0,0,.9);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .install-hint{
+      margin-top:6px;
+      font-size:.7rem;
+      color:var(--dim);
+    }
+
+    .store-link{
+      display:inline-flex;
+      margin-top:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      font-size:.75rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:#e5e7eb;
+      text-decoration:none;
+      gap:6px;
+      align-items:center;
+      justify-content:center;
+      opacity:.9;
+    }
+    .store-link:hover{
+      opacity:1;
+      border-color:#22c55e;
+      color:#bbf7d0;
+    }
+
+    /* lien mot de passe oublié */
+    .forgot-link{
+      text-align:right;
+      margin:4px 0 8px;
+    }
+    .forgot-link a{
+      color:var(--accent);
+      font-size:.72rem;
+      text-decoration:none;
+    }
+    .forgot-link a:hover{
+      text-decoration:underline;
+    }
   </style>
 </head>
 <body>
@@ -302,6 +366,24 @@
         Déjà membre ou nouveau ? Choisis juste comment tu veux te connecter.
       </div>
 
+      <!-- BLOC INSTALL APP -->
+      <div class="install-block" id="install-block">
+        <button type="button" class="install-btn" id="btn-install">
+          📲 Installer l’app RIDLY
+        </button>
+
+        <a href="#"
+           class="store-link"
+           onclick="alert('📥 L’app sera disponible bientôt sur Google Play.\nEn attendant, installe la version PWA 👌');return false;">
+          📥 Google Play (bientôt)
+        </a>
+
+        <div class="install-hint">
+          Android & iPhone — installation rapide.
+        </div>
+      </div>
+      <!-- FIN BLOC INSTALL -->
+
       <!-- DÉJÀ MEMBRE -->
       <div class="section">
         <div class="section-title">Déjà membre</div>
@@ -312,6 +394,11 @@
         <div class="field">
           <label for="password-existing">Mot de passe (facultatif si lien magique)</label>
           <input id="password-existing" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <!-- Lien mot de passe oublié -->
+        <div class="forgot-link">
+          <a id="forgot-pass" href="#">🔒 Mot de passe oublié ?</a>
         </div>
 
         <div class="btn-row">
@@ -378,11 +465,13 @@
   const btnSignup = document.getElementById("btn-signup");
   const statusSignup = document.getElementById("status-signup");
 
+  const forgotPass = document.getElementById("forgot-pass");
+
   function resetStatus(el){
     el.className = "status";
   }
 
-  // === CONFIG SUPABASE (avec TES données) ===
+  // === CONFIG SUPABASE ===
   const supabaseUrl = "https://jynxifufaauoxwzjapzq.supabase.co";
   const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
   // =========================================
@@ -419,6 +508,7 @@
       if (!email){
         resetStatus(statusExisting);
         statusExisting.textContent = "Entre ton e-mail pour recevoir le lien.";
+        statusExisting.classList.add("err");
         return;
       }
       btnMagic.disabled = true;
@@ -429,12 +519,13 @@
         const { error } = await sb.auth.signInWithOtp({
           email,
           options:{
-            emailRedirectTo: window.location.origin + "/ou_rider.html"
+            // ↪ redirection après lien magique
+            emailRedirectTo: "https://TON-DOMAINE/ou_rider.html" // ← remplace TON-DOMAINE
           }
         });
         if (error){
           console.error(error);
-          statusExisting.textContent = "Erreur : " + (error.message || "impossible d'envoyer le lien.");
+          statusExisting.textContent = "Erreur : " + (error.message || "Impossible d'envoyer le lien.");
           statusExisting.classList.add("err");
         } else {
           statusExisting.textContent = "Lien envoyé ! Vérifie ta boîte mail pour ouvrir la carte RIDLY.";
@@ -456,6 +547,7 @@
       if (!email || !password){
         resetStatus(statusExisting);
         statusExisting.textContent = "Entre ton e-mail ET ton mot de passe.";
+        statusExisting.classList.add("err");
         return;
       }
       btnLogin.disabled = true;
@@ -469,7 +561,7 @@
         });
         if (error){
           console.error(error);
-          statusExisting.textContent = "Erreur : " + (error.message || "connexion impossible.");
+          statusExisting.textContent = "Erreur : " + (error.message || "Connexion impossible.");
           statusExisting.classList.add("err");
         } else {
           statusExisting.textContent = "Connecté ! Redirection vers la carte…";
@@ -485,6 +577,42 @@
       }
     });
 
+    // 🔒 Mot de passe oublié
+    forgotPass.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = emailExisting.value.trim();
+
+      resetStatus(statusExisting);
+
+      if (!email){
+        statusExisting.textContent = "Entre ton e-mail pour réinitialiser ton mot de passe.";
+        statusExisting.classList.add("err");
+        return;
+      }
+
+      statusExisting.textContent = "Envoi du lien de réinitialisation…";
+
+      try {
+        const { error } = await sb.auth.resetPasswordForEmail(email, {
+          // ↪ redirection vers la page de reset
+          redirectTo: "https://TON-DOMAINE/reset_password.html" // ← remplace TON-DOMAINE
+        });
+
+        if (error){
+          console.error(error);
+          statusExisting.textContent = "Erreur : " + (error.message || "Impossible d’envoyer l’e-mail.");
+          statusExisting.classList.add("err");
+        } else {
+          statusExisting.textContent = "E-mail envoyé ! Vérifie ta boîte mail.";
+          statusExisting.classList.add("ok");
+        }
+      } catch (err){
+        console.error(err);
+        statusExisting.textContent = "Une erreur est survenue. Réessaie.";
+        statusExisting.classList.add("err");
+      }
+    });
+
     // Création de compte
     btnSignup.addEventListener("click", async () => {
       const email = emailSignup.value.trim();
@@ -492,6 +620,7 @@
       if (!email || !password){
         resetStatus(statusSignup);
         statusSignup.textContent = "Entre un e-mail et un mot de passe.";
+        statusSignup.classList.add("err");
         return;
       }
       btnSignup.disabled = true;
@@ -503,12 +632,12 @@
           email,
           password,
           options:{
-            emailRedirectTo: window.location.origin + "/ou_rider.html"
+            emailRedirectTo: "https://TON-DOMAINE/ou_rider.html" // ← remplace TON-DOMAINE
           }
         });
         if (error){
           console.error(error);
-          statusSignup.textContent = "Erreur : " + (error.message || "création impossible.");
+          statusSignup.textContent = "Erreur : " + (error.message || "Création impossible.");
           statusSignup.classList.add("err");
         } else {
           if (data.session){
@@ -527,6 +656,33 @@
       } finally {
         btnSignup.disabled = false;
       }
+    });
+  }
+</script>
+
+<!-- SCRIPT INSTALL PWA -->
+<script>
+  let deferredInstallPrompt = null;
+  const installBlock = document.getElementById('install-block');
+  const installBtn   = document.getElementById('btn-install');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (installBlock) installBlock.style.display = 'block';
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredInstallPrompt) {
+        alert("Sur ton navigateur, utilise le menu puis « Ajouter à l’écran d’accueil ».");
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      try {
+        await deferredInstallPrompt.userChoice;
+      } catch(e) {}
+      deferredInstallPrompt = null;
     });
   }
 </script>
