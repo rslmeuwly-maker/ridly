@@ -311,6 +311,31 @@
       color:var(--dim);
     }
 
+    /* Badge compte certifié */
+    .badge-verified{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:2px 8px;
+      margin-left:6px;
+      border-radius:999px;
+      background:rgba(56,189,248,.15);
+      border:1px solid rgba(56,189,248,.7);
+      font-size:10px;
+      font-weight:700;
+      color:#e0f2fe;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+    body.theme-light .badge-verified{
+      background:rgba(56,189,248,.12);
+      border-color:rgba(56,189,248,.55);
+      color:#075985;
+    }
+    .badge-verified span{
+      font-size:11px;
+    }
+
     .btn{
       appearance:none;
       border:1px solid var(--border);
@@ -808,15 +833,26 @@
             <input id="fCanton" class="input" type="text" placeholder="VD"/>
           </div>
           <div>
-            <label for="fCountry">Pays</label>
-            <select id="fCountry" class="input">
-              <option value="">—</option>
-              <option value="Suisse">Suisse</option>
-              <option value="France">France</option>
-              <option value="Allemagne">Allemagne</option>
-              <option value="Autre Europe">Autre Europe</option>
-              <option value="Monde">Monde</option>
-            </select>
+           <label for="fCountry">Pays</label>
+<select id="fCountry" class="input">
+  <option value="">Pays (tous)</option>
+  <option value="CH">Suisse</option><option value="FR">France</option><option value="DE">Allemagne</option>
+  <option value="IT">Italie</option><option value="ES">Espagne</option><option value="PT">Portugal</option>
+  <option value="BE">Belgique</option><option value="NL">Pays-Bas</option><option value="LU">Luxembourg</option>
+  <option value="UK">Royaume-Uni</option><option value="IE">Irlande</option><option value="AT">Autriche</option>
+  <option value="DK">Danemark</option><option value="SE">Suède</option><option value="NO">Norvège</option>
+  <option value="FI">Finlande</option><option value="IS">Islande</option><option value="PL">Pologne</option>
+  <option value="CZ">Tchéquie</option><option value="SK">Slovaquie</option><option value="SI">Slovénie</option>
+  <option value="HR">Croatie</option><option value="HU">Hongrie</option><option value="RO">Roumanie</option>
+  <option value="BG">Bulgarie</option><option value="GR">Grèce</option><option value="TR">Turquie</option>
+  <option value="US">États-Unis</option><option value="CA">Canada</option><option value="BR">Brésil</option>
+  <option value="AR">Argentine</option><option value="MX">Mexique</option><option value="AU">Australie</option>
+  <option value="NZ">Nouvelle-Zélande</option><option value="JP">Japon</option><option value="CN">Chine</option>
+  <option value="KR">Corée du Sud</option><option value="IL">Israël</option><option value="MA">Maroc</option>
+  <option value="TN">Tunisie</option><option value="DZ">Algérie</option><option value="EU">Autres Europe</option>
+  <option value="WORLD">Monde</option>
+</select>
+
           </div>
           <div>
             <label for="fGender">Genre</label>
@@ -1183,16 +1219,26 @@ followModal?.addEventListener('click', (e)=>{
 });
 
 /* Profil + stats counters */
+/* === MODIFIÉ : affiche total abonnés = réel + bonus + tooltip === */
 function updateStatsLine(){
   const avgTxt = (window._ridlyProfile?.accountAvg != null)
     ? `Moyenne compte : ${window._ridlyProfile.accountAvg.toFixed(1)} / 5`
     : `Moyenne compte : —`;
 
+  const realFollowers  = window._ridlyProfile?.followersCount  || 0;  // réels (rider_follows)
+  const bonusFollowers = window._ridlyProfile?.followersManual || 0;  // bonus (followers_manual)
+  const totalFollowers = realFollowers + bonusFollowers;
+
   const html = `
     ${window._ridlyProfile?.countPosts || 0} posts •
     ${window._ridlyProfile?.countFlashes || 0} flashs •
-    <button type="button" class="chip-link" id="followersBtn">${window._ridlyProfile?.followersCount || 0} abonnés</button> •
-    <button type="button" class="chip-link" id="followingBtn">${window._ridlyProfile?.followingCount || 0} abonnements</button> •
+    <button type="button" class="chip-link" id="followersBtn"
+      title="Réels : ${realFollowers} • Bonus : ${bonusFollowers}">
+      ${totalFollowers} abonnés
+    </button> •
+    <button type="button" class="chip-link" id="followingBtn">
+      ${window._ridlyProfile?.followingCount || 0} abonnements
+    </button> •
     ${avgTxt}
   `;
   pStats.innerHTML = html;
@@ -1247,9 +1293,11 @@ function updateStatsLine(){
     profileUserId,
     isOwn: !!(sessionUser && sessionUser.id === profileUserId),
     isAdmin:false,
+    isVerified:false,
     countPosts:0,
     countFlashes:0,
-    followersCount:0,
+    followersCount:0,      // abonnés réels
+    followersManual:0,     // bonus manuels
     followingCount:0,
     isFollowing:false,
     accountAvg:null,
@@ -1279,7 +1327,8 @@ async function loadProfile(){
     return;
   }
 
-  window._ridlyProfile.isAdmin = !!prof.is_admin;
+  window._ridlyProfile.isAdmin    = !!prof.is_admin;
+  window._ridlyProfile.isVerified = !!prof.is_verified;
 
   const displayName =
     prof.pseudo ||
@@ -1287,7 +1336,16 @@ async function loadProfile(){
     prof.full_name ||
     (sessionUser?.email || 'Rider');
 
-  pName.textContent = displayName;
+  if(window._ridlyProfile.isVerified){
+    pName.innerHTML = `
+      ${displayName}
+      <span class="badge-verified">
+        <span>✔</span> RIDLY certifié
+      </span>
+    `;
+  }else{
+    pName.textContent = displayName;
+  }
 
   const locParts = [];
   if(prof.city)    locParts.push(prof.city);
@@ -1312,26 +1370,42 @@ async function loadProfile(){
 }
 
 /* Follow state */
+/* === MODIFIÉ : récupère aussi followers_manual de profiles === */
 async function loadFollowState(){
   const { profileUserId, sessionUser } = window._ridlyProfile;
-  window._ridlyProfile.followersCount = 0;
-  window._ridlyProfile.followingCount = 0;
-  window._ridlyProfile.isFollowing    = false;
+  window._ridlyProfile.followersCount  = 0; // réel
+  window._ridlyProfile.followersManual = 0; // bonus
+  window._ridlyProfile.followingCount  = 0;
+  window._ridlyProfile.isFollowing     = false;
 
   if(!profileUserId){ updateStatsLine(); return; }
   try{
+    // Abonnés réels
     const { count:followers } = await supa
       .from('rider_follows')
       .select('*', { count:'exact', head:true })
       .eq('followed_id', profileUserId);
     window._ridlyProfile.followersCount = followers || 0;
 
+    // Bonus manuels (colonne followers_manual)
+    const { data:profBonus, error:bonusErr } = await supa
+      .from('profiles')
+      .select('followers_manual')
+      .eq('id', profileUserId)
+      .maybeSingle();
+
+    if(!bonusErr && profBonus){
+      window._ridlyProfile.followersManual = profBonus.followers_manual || 0;
+    }
+
+    // Nombre d’abonnements
     const { count:following } = await supa
       .from('rider_follows')
       .select('*', { count:'exact', head:true })
       .eq('follower_id', profileUserId);
     window._ridlyProfile.followingCount = following || 0;
 
+    // Est-ce que le user connecté suit ce profil ?
     if(sessionUser){
       const { data:rows } = await supa
         .from('rider_follows')
@@ -1351,7 +1425,7 @@ async function loadFollowState(){
 }
 
 function buildActions(){
-  const { isOwn, isAdmin, profileUserId, sessionUser, isFollowing } = window._ridlyProfile;
+  const { isOwn, isAdmin, profileUserId, sessionUser, isFollowing, isVerified } = window._ridlyProfile;
   actionsBox.innerHTML = "";
   if(isOwn){
     if(isAdmin){
@@ -1375,7 +1449,18 @@ function buildActions(){
       const followBtn = makeBtn(isFollowing ? "Se désabonner" : "S’abonner", toggleFollow);
       followBtn.id = "followBtn";
       if(isFollowing) followBtn.classList.add('green');
-      actionsBox.append(chatBtn, followBtn);
+
+      if(isAdmin){
+        const verifyBtn = makeBtn(
+          isVerified ? "Enlever la certification" : "Certifier ce compte",
+          toggleVerify
+        );
+        verifyBtn.id = "verifyBtn";
+        if(isVerified) verifyBtn.classList.add('green');
+        actionsBox.append(chatBtn, followBtn, verifyBtn);
+      }else{
+        actionsBox.append(chatBtn, followBtn);
+      }
     }else{
       actionsBox.append(
         makeBtn("Se connecter pour suivre", ()=>{ window.location.href = "compte.html"; })
@@ -1436,6 +1521,39 @@ async function toggleFollow(){
       btn.textContent = "S’abonner";
       btn.classList.remove('green');
     }
+  }
+}
+
+/* Certifier / retirer la certification */
+async function toggleVerify(){
+  const { isAdmin, profileUserId } = window._ridlyProfile;
+  if(!isAdmin) return;
+
+  const btn = document.getElementById('verifyBtn');
+  if(!btn) return;
+  btn.disabled = true;
+
+  try{
+    const newVal = !window._ridlyProfile.isVerified;
+
+    const { error } = await supa
+      .from('profiles')
+      .update({ is_verified:newVal })
+      .eq('id', profileUserId);
+
+    if(error){
+      console.error(error);
+      showToast("Erreur lors de la mise à jour de la certification.");
+      return;
+    }
+
+    window._ridlyProfile.isVerified = newVal;
+    showToast(newVal ? "Compte certifié ✅" : "Certification retirée.");
+
+    await loadProfile();
+    buildActions();
+  }finally{
+    btn.disabled = false;
   }
 }
 
