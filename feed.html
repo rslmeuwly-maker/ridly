@@ -100,7 +100,7 @@
       z-index:1;
     }
 
-    /* TOP NAV (aligné sur ajouter.html) */
+    /* TOP NAV */
     nav.nav{
       position:sticky;
       top:0;
@@ -197,19 +197,7 @@
       border-color:var(--accent);
       color:var(--accent);
     }
-    .chat-dot{
-      position:absolute;
-      top:5px;
-      right:5px;
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:#22c55e;
-      box-shadow:0 0 8px rgba(34,197,94,.8);
-      opacity:0;
-    }
 
-    /* badge 1v1 */
     .badge{
       position:absolute;
       top:-3px;
@@ -232,13 +220,6 @@
     .main{
       flex:1;
       padding:4px 10px 80px;
-    }
-
-    .mini-title{
-      padding:8px 4px 4px;
-      font-size:13px;
-      font-weight:600;
-      color:var(--text-dim);
     }
 
     .card{
@@ -321,6 +302,175 @@
       background:rgba(15,23,42,.85);
     }
 
+    /* STORY VIEWER */
+    .story-viewer-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.92);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      padding:20px;
+    }
+    .story-viewer-backdrop.open{
+      display:flex;
+    }
+    .story-viewer-inner{
+      position:relative;
+      max-width:420px;
+      width:100%;
+      max-height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .story-viewer-media img,
+    .story-viewer-media video{
+      width:100%;
+      max-height:60vh;
+      object-fit:contain;
+      border-radius:16px;
+      background:#000;
+      display:block;
+    }
+    .story-viewer-caption{
+      font-size:13px;
+      color:#e5e7eb;
+      max-height:60px;
+      overflow:auto;
+      padding:4px 2px;
+      word-wrap:break-word;
+      white-space:pre-wrap;
+    }
+    .story-viewer-close{
+      position:absolute;
+      top:-10px;
+      right:-10px;
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      border:none;
+      background:#111827;
+      color:#f9fafb;
+      font-size:15px;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(0,0,0,.7);
+    }
+    .story-viewer-counter{
+      position:absolute;
+      top:-10px;
+      left:8px;
+      right:40px;
+      text-align:center;
+      font-size:11px;
+      color:#9ca3af;
+    }
+    .story-viewer-nav{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      pointer-events:none;
+    }
+    .story-viewer-nav-btn{
+      width:40%;
+      height:100%;
+      pointer-events:auto;
+      border:none;
+      background:transparent;
+      cursor:pointer;
+    }
+    .story-viewer-nav-btn span{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:26px;
+      height:26px;
+      border-radius:999px;
+      background:rgba(15,23,42,.85);
+      color:#e5e7eb;
+      font-size:16px;
+      box-shadow:0 8px 18px rgba(0,0,0,.7);
+    }
+    .story-viewer-nav-btn.disabled{
+      pointer-events:none;
+      opacity:0.15;
+    }
+
+    /* mini carte du post dans la story */
+    .story-viewer-postcard-wrap{
+      max-height:120px;
+      overflow:auto;
+    }
+    .story-viewer-postcard{
+      margin-top:4px;
+      padding:6px 8px;
+      border-radius:12px;
+      background:#111827;
+      border:1px solid rgba(55,65,81,.9);
+      font-size:12px;
+      display:flex;
+      gap:8px;
+      align-items:flex-start;
+      cursor:pointer;
+    }
+    .story-viewer-postcard:hover{
+      border-color:var(--accent);
+    }
+    .story-viewer-postcard-avatar{
+      flex-shrink:0;
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      overflow:hidden;
+      background:#020617;
+      border:2px solid #020617;
+    }
+    .story-viewer-postcard-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .story-viewer-postcard-body{
+      flex:1;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .story-viewer-postcard-user{
+      font-weight:600;
+      color:#e5e7eb;
+      font-size:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .story-viewer-postcard-spot{
+      font-size:11px;
+      color:#9ca3af;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .story-viewer-postcard-caption{
+      font-size:11px;
+      color:#e5e7eb;
+      max-height:40px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+    }
+    .story-viewer-postcard-cta{
+      margin-top:2px;
+      font-size:11px;
+      color:var(--accent);
+    }
+
     /* FEED POSTS */
     .feed-list{
       margin-top:10px;
@@ -335,10 +485,16 @@
       border:1px solid rgba(15,23,42,.9);
       box-shadow:0 18px 45px rgba(0,0,0,.6);
       overflow:hidden;
+      transition:box-shadow .2s, transform .2s, border-color .2s;
     }
     body.theme-light .post{
       border-color:rgba(209,213,219,.9);
       box-shadow:0 14px 30px rgba(15,23,42,.15);
+    }
+    .post-highlight{
+      box-shadow:0 0 0 2px var(--accent),0 18px 45px rgba(0,0,0,.9);
+      border-color:var(--accent);
+      transform:scale(1.01);
     }
 
     .post-header{
@@ -430,6 +586,33 @@
       font-size:13px;
       color:var(--text);
       word-wrap:break-word;
+    }
+
+    /* ROW PARTAGE */
+    .post-share-row{
+      padding:0 10px 4px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-size:11px;
+      color:var(--text-dim);
+    }
+    .post-share-btn{
+      border:none;
+      background:transparent;
+      padding:2px 0;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      cursor:pointer;
+      color:inherit;
+    }
+    .post-share-btn .ic{
+      font-size:14px;
+      line-height:1;
+    }
+    .post-share-btn:hover{
+      color:var(--accent);
     }
 
     /* RATING WHEELS */
@@ -585,7 +768,6 @@
       color:var(--accent);
     }
 
-    /* Toast en haut (pour notifs 1v1 + commentaires) */
     .toast{
       position:fixed;
       left:50%;
@@ -611,6 +793,179 @@
       transform:translateX(-50%) translateY(4px);
     }
 
+    /* ===== MODAL PARTAGE DM ===== */
+    .share-dm-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.8);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:70;
+      padding:16px;
+    }
+    .share-dm-backdrop.open{
+      display:flex;
+    }
+    .share-dm-panel{
+      width:100%;
+      max-width:420px;
+      max-height:80vh;
+      background:var(--bg-soft);
+      border-radius:18px;
+      border:1px solid var(--border);
+      box-shadow:0 18px 45px rgba(0,0,0,.7);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .share-dm-header{
+      padding:10px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid var(--border);
+      gap:8px;
+    }
+    .share-dm-title{
+      font-size:14px;
+      font-weight:700;
+    }
+    .share-dm-close{
+      border:none;
+      background:transparent;
+      color:var(--text-dim);
+      font-size:18px;
+      cursor:pointer;
+    }
+    .share-dm-search-wrap{
+      padding:8px 14px;
+      border-bottom:1px solid var(--border);
+    }
+    .share-dm-search{
+      width:100%;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      font-size:13px;
+      padding:6px 10px;
+      outline:none;
+    }
+    body.theme-light .share-dm-search{
+      background:#f9fafb;
+    }
+    .share-dm-lists{
+      flex:1;
+      overflow:auto;
+      padding:6px 4px 8px;
+    }
+    .share-dm-section-title{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--text-dim);
+      padding:4px 14px;
+    }
+    .share-dm-empty{
+      font-size:12px;
+      color:var(--text-dim);
+      padding:6px 14px 10px;
+    }
+    .share-dm-item{
+      width:100%;
+      border:none;
+      background:transparent;
+      text-align:left;
+      padding:6px 10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+    }
+    .share-dm-item:hover{
+      background:rgba(15,23,42,.8);
+    }
+    body.theme-light .share-dm-item:hover{
+      background:#e5e7eb;
+    }
+    .share-dm-avatar{
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      overflow:hidden;
+      background:#020617;
+      border:2px solid #020617;
+      flex-shrink:0;
+    }
+    .share-dm-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .share-dm-texts{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+      flex:1;
+    }
+    .share-dm-name{
+      font-size:13px;
+      font-weight:600;
+      color:var(--text);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .share-dm-sub{
+      font-size:11px;
+      color:var(--text-dim);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .share-dm-check{
+      width:20px;
+      height:20px;
+      border-radius:999px;
+      border:2px solid rgba(148,163,184,.7);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      flex-shrink:0;
+    }
+    .share-dm-item.selected .share-dm-check{
+      background:var(--accent);
+      border-color:var(--accent);
+      color:#022c16;
+    }
+
+    .share-dm-footer{
+      padding:8px 14px 10px;
+      border-top:1px solid var(--border);
+      display:flex;
+      justify-content:flex-end;
+    }
+    .share-dm-send-btn{
+      border:none;
+      border-radius:999px;
+      padding:7px 14px;
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      background:var(--accent-soft);
+      color:var(--accent);
+      cursor:pointer;
+    }
+    .share-dm-send-btn:disabled{
+      opacity:.4;
+      cursor:not-allowed;
+    }
+
     @media(min-width:700px){
       nav.nav .row{
         padding-inline:20px;
@@ -622,6 +977,15 @@
         border-radius:22px 22px 0 0;
       }
     }
+    /* FIX TRANSITION STORY */
+.story-viewer-media img,
+.story-viewer-media video {
+  transition: opacity 0s !important;
+}
+.story-viewer-media {
+  opacity: 1 !important;
+}
+
   </style>
 </head>
 <body class="theme-dark">
@@ -649,26 +1013,21 @@
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
 
-        <!-- Nouveau bouton 1v1 -->
         <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
           💌
           <span class="badge" id="badge1v1"></span>
         </a>
 
-        <!-- Chat global -->
         <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
           💬
         </a>
-        
       </div>
     </div>
   </nav>
 
   <!-- CONTENU PRINCIPAL -->
   <main class="main">
-    
-
-    <!-- STORIES : toujours 300 ronds max -->
+    <!-- STORIES -->
     <section id="storiesCard" class="card">
       <div class="stories-header">Feed Riders</div>
       <div id="storiesStrip" class="stories-strip"></div>
@@ -681,6 +1040,52 @@
       Astuce : tu peux noter chaque post de <b>1 à 5 roues</b> 🛞 pour booster les meilleurs riders.
     </p>
   </main>
+</div>
+
+<!-- STORY VIEWER -->
+<div id="storyViewer" class="story-viewer-backdrop" onclick="backdropStoryClick(event)">
+  <div class="story-viewer-inner">
+    <button type="button" class="story-viewer-close" onclick="closeStoryViewer()">✕</button>
+    <div class="story-viewer-counter"></div>
+    <div class="story-viewer-media"></div>
+    <div class="story-viewer-caption"></div>
+    <div class="story-viewer-postcard-wrap"></div>
+
+    <div class="story-viewer-nav">
+      <button type="button" class="story-viewer-nav-btn" id="storyPrevBtn" onclick="storyPrev(event)">
+        <span>⬅</span>
+      </button>
+      <button type="button" class="story-viewer-nav-btn" id="storyNextBtn" onclick="storyNext(event)">
+        <span>➡</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PARTAGE DM -->
+<div id="shareDmModal" class="share-dm-backdrop">
+  <div class="share-dm-panel" onclick="event.stopPropagation()">
+    <div class="share-dm-header">
+      <div class="share-dm-title">Envoyer en message privé</div>
+      <button type="button" class="share-dm-close" onclick="closeShareDmModal()">✕</button>
+    </div>
+    <div class="share-dm-search-wrap">
+      <input
+        type="text"
+        id="shareDmSearch"
+        class="share-dm-search"
+        placeholder="Cherche un rider par pseudo..."
+        autocomplete="off"
+      />
+    </div>
+    <div class="share-dm-lists">
+      <div id="shareDmFriendsList"></div>
+      <div id="shareDmSearchResults"></div>
+    </div>
+    <div class="share-dm-footer">
+      <button type="button" id="shareDmSendBtn" class="share-dm-send-btn" disabled>Envoyer (0)</button>
+    </div>
+  </div>
 </div>
 
 <!-- NAVIGATION BAS -->
@@ -705,11 +1110,10 @@
   </a>
 </nav>
 
-<!-- Toast global -->
 <div id="toast" class="toast"></div>
 
 <script>
-/* ===== Thème clair / sombre ===== */
+/* ===== Thème ===== */
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -727,7 +1131,6 @@
     const isLight = document.body.classList.contains('theme-light');
     document.body.classList.toggle('theme-light', !isLight);
     document.body.classList.toggle('theme-dark',  isLight);
-    // on enregistre le NOUVEAU thème (même logique que ajouter.html)
     localStorage.setItem('ridlyTheme', isLight ? 'dark' : 'light');
     updateIcon();
   });
@@ -735,7 +1138,7 @@
 </script>
 
 <script>
-/* ===== Supabase init + BG vidéo ===== */
+/* ===== Supabase + BG ===== */
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -762,13 +1165,12 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 </script>
 
 <script>
-/* ===== Toast + notifs 1v1 + commentaires ===== */
+/* ===== Toast + notifs ===== */
 const toastDiv  = document.getElementById('toast');
 const badge1v1  = document.getElementById('badge1v1');
 const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
 let unreadToastShown = false;
 
-// compte global : privés + commentaires
 let globalUnreadPrivate = 0;
 let globalUnreadComments = 0;
 
@@ -776,7 +1178,6 @@ function refresh1v1Badge(){
   const total = globalUnreadPrivate + globalUnreadComments;
   update1v1Badge(total);
 }
-
 function showToast(msg){
   if(!toastDiv) return;
   toastDiv.textContent = msg;
@@ -852,7 +1253,6 @@ function subscribePrivateAlerts(me){
     .subscribe();
 }
 
-/* ===== Unread commentaires sur MES posts ===== */
 async function checkCommentUnread(me){
   if(!me) return;
   try{
@@ -902,13 +1302,11 @@ function subscribeCommentAlerts(me){
     }, async payload=>{
       const c = payload.new;
       if(!c) return;
-
-      // pas de notif si c'est moi qui commente
       if(c.user_id === me.id) return;
 
       const post = FEED_POSTS.find(p=>p.id === c.post_id);
       if(!post) return;
-      if(post.user_id !== me.id) return; // pas mon post → pas de notif
+      if(post.user_id !== me.id) return;
 
       let senderName = 'Rider';
       try{
@@ -943,7 +1341,11 @@ const STORY_SLOTS = 300;
 function isVideoUrl(url){
   return /\.(mp4|webm|mov)$/i.test(url || '');
 }
-function escapeHTML(s){return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
+function escapeHTML(s){
+  return (s||'').replace(/[&<>"']/g,m=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+}
 function timeAgo(iso){
   if(!iso) return '';
   const t = new Date(iso).getTime();
@@ -958,6 +1360,14 @@ function timeAgo(iso){
   if(h < 24) return `il y a ${h} h`;
   const d = Math.floor(h/24);
   return `il y a ${d} j`;
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 </script>
 
@@ -990,13 +1400,202 @@ function timeAgo(iso){
 </script>
 
 <script>
-/* ===== Stories : 300 ronds max ===== */
+/* ===== Story viewer multi-stories + auto enchaînement + lien vers post ===== */
+const storyViewerEl = document.getElementById('storyViewer');
+const storyViewerMedia = storyViewerEl.querySelector('.story-viewer-media');
+const storyViewerCaption = storyViewerEl.querySelector('.story-viewer-caption');
+const storyViewerCounter = storyViewerEl.querySelector('.story-viewer-counter');
+const storyPrevBtn = document.getElementById('storyPrevBtn');
+const storyNextBtn = document.getElementById('storyNextBtn');
+const storyViewerPostcardWrap = storyViewerEl.querySelector('.story-viewer-postcard-wrap');
+
+let STORY_VIEWER_STATE = {
+  userId: null,
+  stories: [],
+  index: 0
+};
+let storyAutoTimer = null;
+
+async function openStoryViewerForUser(userId){
+  try{
+    const nowIso = new Date().toISOString();
+    const { data, error } = await supa
+      .from('flashes')
+      .select('id,post_id,media_url,caption,created_at,expires_at')
+      .eq('user_id', userId)
+      .gt('expires_at', nowIso)
+      .order('created_at',{ ascending:true });
+
+    if(error || !data || !data.length){
+      showToast("Aucune story à afficher.");
+      return;
+    }
+
+    STORY_VIEWER_STATE = {
+      userId,
+      stories: data,
+      index: 0
+    };
+
+    storyViewerEl.classList.add('open');
+    renderCurrentStory();
+  }catch(e){
+    console.error('openStoryViewerForUser error', e);
+    showToast("Erreur chargement story.");
+  }
+}
+
+function clearStoryAutoTimer(){
+  if(storyAutoTimer){
+    clearTimeout(storyAutoTimer);
+    storyAutoTimer = null;
+  }
+}
+
+function renderCurrentStory(){
+  const { stories, index } = STORY_VIEWER_STATE;
+  if(!stories || !stories.length) return;
+  const current = stories[index];
+
+  clearStoryAutoTimer();
+
+  storyViewerMedia.innerHTML = '';
+  storyViewerPostcardWrap.innerHTML = '';
+
+  if(isVideoUrl(current.media_url)){
+    const v = document.createElement('video');
+    v.src = current.media_url;
+    v.controls = true;
+    v.autoplay = true;
+    v.playsInline = true;
+    v.preload = 'metadata';
+    v.addEventListener('ended', ()=>{
+      storyNext();
+    });
+    storyViewerMedia.appendChild(v);
+  }else{
+    const img = document.createElement('img');
+    img.src = current.media_url;
+    img.alt = current.caption || '';
+    storyViewerMedia.appendChild(img);
+
+    // Auto-next après 5s pour les images
+    storyAutoTimer = setTimeout(()=>storyNext(), 5000);
+  }
+
+  storyViewerCaption.textContent = current.caption || '';
+
+  if(storyViewerCounter){
+    storyViewerCounter.textContent = `${index+1} / ${stories.length}`;
+  }
+
+  if(storyPrevBtn){
+    storyPrevBtn.classList.toggle('disabled', index === 0);
+  }
+  if(storyNextBtn){
+    storyNextBtn.classList.toggle('disabled', index === stories.length - 1);
+  }
+
+  if(current.post_id){
+    const post = FEED_POSTS.find(p => p.id === current.post_id);
+    if(post){
+      const card = document.createElement('div');
+      card.className = 'story-viewer-postcard';
+      card.addEventListener('click', ()=>{
+        window.location.href = 'feed.html?p=' + encodeURIComponent(post.id);
+      });
+
+      const avWrap = document.createElement('div');
+      avWrap.className = 'story-viewer-postcard-avatar';
+      const avImg = document.createElement('img');
+      avImg.src = post.avatar || DEFAULT_AVATAR;
+      avImg.alt = post.pseudo || 'Rider';
+      avWrap.appendChild(avImg);
+
+      const body = document.createElement('div');
+      body.className = 'story-viewer-postcard-body';
+
+      const u = document.createElement('div');
+      u.className = 'story-viewer-postcard-user';
+      u.textContent = post.pseudo || 'Rider';
+
+      const spot = document.createElement('div');
+      spot.className = 'story-viewer-postcard-spot';
+      spot.textContent = post.spotLabel || 'Spot non lié';
+
+      const cap = document.createElement('div');
+      cap.className = 'story-viewer-postcard-caption';
+      cap.textContent = post.caption || '';
+
+      const cta = document.createElement('div');
+      cta.className = 'story-viewer-postcard-cta';
+      cta.textContent = 'Voir le post complet sur le feed';
+
+      body.appendChild(u);
+      body.appendChild(spot);
+      if(post.caption){
+        body.appendChild(cap);
+      }
+      body.appendChild(cta);
+
+      card.appendChild(avWrap);
+      card.appendChild(body);
+
+      storyViewerPostcardWrap.appendChild(card);
+    }
+  }
+}
+
+function closeStoryViewer(){
+  storyViewerEl.classList.remove('open');
+  clearStoryAutoTimer();
+  const v = storyViewerMedia.querySelector('video');
+  if(v){
+    try{ v.pause(); }catch(e){}
+  }
+  STORY_VIEWER_STATE = {
+    userId:null,
+    stories:[],
+    index:0
+  };
+}
+
+function backdropStoryClick(evt){
+  if(evt.target === storyViewerEl){
+    closeStoryViewer();
+  }
+}
+
+function storyNext(evt){
+  if(evt) evt.stopPropagation();
+  const { stories, index } = STORY_VIEWER_STATE;
+  if(!stories || !stories.length) return;
+  if(index >= stories.length - 1){
+    closeStoryViewer();
+    return;
+  }
+  STORY_VIEWER_STATE.index++;
+  renderCurrentStory();
+}
+
+function storyPrev(evt){
+  if(evt) evt.stopPropagation();
+  const { stories, index } = STORY_VIEWER_STATE;
+  if(!stories || !stories.length) return;
+  if(index <= 0) return;
+  STORY_VIEWER_STATE.index--;
+  renderCurrentStory();
+}
+</script>
+
+<script>
+/* ===== Stories : Moi à gauche + amis avec story ===== */
 const storiesStrip = document.getElementById('storiesStrip');
 
 async function loadStories(){
   try{
-    // stories actives
     const nowIso = new Date().toISOString();
+
     const { data:flashes } = await supa
       .from('flashes')
       .select('id,user_id,media_url,caption,created_at,expires_at')
@@ -1010,7 +1609,16 @@ async function loadStories(){
     });
     const usersWithStory = new Set(Object.keys(latestByUser));
 
-    // riders pour remplir tous les rangs
+    let friendsSet = new Set();
+    if(me){
+      const { data:friends } = await supa
+        .from('friends')
+        .select('friend_id')
+        .eq('user_id', me.id);
+
+      friendsSet = new Set((friends || []).map(f=>f.friend_id));
+    }
+
     const { data:riders } = await supa
       .from('profiles')
       .select('id,pseudo,full_name,avatar_url')
@@ -1018,21 +1626,44 @@ async function loadStories(){
 
     storiesStrip.innerHTML = '';
 
-    const list = riders || [];
-
-    if(!list.length){
-      // personne → au moins mon rond
-      const fake = { id: me?.id || 'me', pseudo: displayName || 'Moi', full_name:null, avatar_url: null };
+    if(!riders || !riders.length){
+      const fake = {
+        id: me?.id || 'me',
+        pseudo: displayName || 'Moi',
+        full_name:null,
+        avatar_url:null
+      };
       renderStoryItem(fake, usersWithStory);
-      // et compléments vides
       addStoryPlaceholders(STORY_SLOTS - 1);
       return;
     }
 
-    list.forEach(r => renderStoryItem(r, usersWithStory));
+    const meProfile = (me && riders.find(r => r.id === me.id)) || {
+      id: me.id,
+      pseudo: displayName || "Moi",
+      full_name:null,
+      avatar_url:null
+    };
 
-    if(list.length < STORY_SLOTS){
-      addStoryPlaceholders(STORY_SLOTS - list.length);
+    const others = riders.filter(r => !me || r.id !== me.id);
+
+    const withStory = others.filter(r => usersWithStory.has(r.id));
+    const noStory   = others.filter(r => !usersWithStory.has(r.id));
+
+    const withStoryFriends    = withStory.filter(r => friendsSet.has(r.id));
+    const withStoryNonFriends = withStory.filter(r => !friendsSet.has(r.id));
+
+    const ordered = [
+      meProfile,
+      ...shuffle(withStoryFriends),
+      ...shuffle(withStoryNonFriends),
+      ...shuffle(noStory)
+    ];
+
+    ordered.forEach(r => renderStoryItem(r, usersWithStory));
+
+    if(ordered.length < STORY_SLOTS){
+      addStoryPlaceholders(STORY_SLOTS - ordered.length);
     }
   }catch(e){
     console.error('Erreur stories', e);
@@ -1072,8 +1703,7 @@ function renderStoryItem(profile, usersWithStory){
 
   item.addEventListener('click', ()=>{
     if(hasStory){
-      // plus tard : viewer de stories
-      console.log('Story', id);
+      openStoryViewerForUser(id);
     }else if(id === me?.id){
       window.location.href = 'ajouter.html#story';
     }else{
@@ -1109,12 +1739,328 @@ function addStoryPlaceholders(n){
 </script>
 
 <script>
-/* ===== Feed + roues 1–5 + commentaires ===== */
+/* ===== Feed + notes + comments + PARTAGE (post complet en story & DM) ===== */
 const feedList = document.getElementById('feedList');
 let FEED_POSTS = [];
 let PROFILES_BY_ID = {};
 const MAX_COMMENT_LEN = 2199;
 
+/* ===== Partage DM (multi-sélection amis + recherche) ===== */
+let SHARE_DM_POST = null;
+let SHARE_DM_FRIENDS = [];
+let SHARE_DM_SEARCH = [];
+let SHARE_DM_FRIENDS_LOADED = false;
+let SHARE_DM_SELECTED = new Set();
+
+const shareDmModal = document.getElementById('shareDmModal');
+const shareDmSearchInput = document.getElementById('shareDmSearch');
+const shareDmFriendsList = document.getElementById('shareDmFriendsList');
+const shareDmSearchResults = document.getElementById('shareDmSearchResults');
+const shareDmSendBtn = document.getElementById('shareDmSendBtn');
+
+function updateShareDmSendBtn(){
+  if(!shareDmSendBtn) return;
+  const count = SHARE_DM_SELECTED.size;
+  shareDmSendBtn.disabled = count === 0;
+  shareDmSendBtn.textContent = `Envoyer (${count})`;
+}
+
+function openShareDmModal(post){
+  if(!me) return;
+  SHARE_DM_POST = post;
+  SHARE_DM_SELECTED = new Set();
+  if(shareDmSearchInput){
+    shareDmSearchInput.value = '';
+  }
+  SHARE_DM_SEARCH = [];
+  renderShareDmLists();
+  updateShareDmSendBtn();
+  if(shareDmModal){
+    shareDmModal.classList.add('open');
+  }
+
+  if(!SHARE_DM_FRIENDS_LOADED){
+    loadShareDmFriends();
+  }
+}
+
+function closeShareDmModal(){
+  if(shareDmModal){
+    shareDmModal.classList.remove('open');
+  }
+  SHARE_DM_POST = null;
+  SHARE_DM_SELECTED = new Set();
+  updateShareDmSendBtn();
+}
+
+if(shareDmModal){
+  shareDmModal.addEventListener('click', ()=>{
+    closeShareDmModal();
+  });
+}
+
+let shareDmSearchTimeout = null;
+if(shareDmSearchInput){
+  shareDmSearchInput.addEventListener('input', ()=>{
+    clearTimeout(shareDmSearchTimeout);
+    shareDmSearchTimeout = setTimeout(()=>doShareDmSearch(), 300);
+  });
+}
+
+if(shareDmSendBtn){
+  shareDmSendBtn.addEventListener('click', ()=>{
+    if(!SHARE_DM_POST || SHARE_DM_SELECTED.size === 0) return;
+    const ids = Array.from(SHARE_DM_SELECTED);
+    sendPostToDMUsers(SHARE_DM_POST, ids);
+  });
+}
+
+async function loadShareDmFriends(){
+  if(!me) return;
+  try{
+    const { data:friends, error } = await supa
+      .from('friends')
+      .select('friend_id')
+      .eq('user_id', me.id);
+
+    if(error){
+      console.error('loadShareDmFriends error', error);
+      return;
+    }
+
+    const ids = (friends || []).map(f=>f.friend_id).filter(Boolean);
+    if(!ids.length){
+      SHARE_DM_FRIENDS = [];
+      SHARE_DM_FRIENDS_LOADED = true;
+      renderShareDmLists();
+      return;
+    }
+
+    const { data:prof } = await supa
+      .from('profiles')
+      .select('id,pseudo,full_name,avatar_url')
+      .in('id', ids);
+
+    SHARE_DM_FRIENDS = (prof || []).map(p=>({
+      id: p.id,
+      pseudo: p.pseudo || p.full_name || 'Rider',
+      full_name: p.full_name || '',
+      avatar_url: p.avatar_url || DEFAULT_AVATAR
+    }));
+    SHARE_DM_FRIENDS_LOADED = true;
+    renderShareDmLists();
+  }catch(e){
+    console.error('loadShareDmFriends error', e);
+  }
+}
+
+async function doShareDmSearch(){
+  if(!shareDmSearchInput) return;
+  const q = (shareDmSearchInput.value || '').trim();
+  if(!q){
+    SHARE_DM_SEARCH = [];
+    renderShareDmLists();
+    return;
+  }
+  try{
+    const { data:prof, error } = await supa
+      .from('profiles')
+      .select('id,pseudo,full_name,avatar_url')
+      .ilike('pseudo', q + '%')
+      .limit(20);
+
+    if(error){
+      console.error('doShareDmSearch error', error);
+      return;
+    }
+
+    const friendIds = new Set(SHARE_DM_FRIENDS.map(f=>f.id));
+    SHARE_DM_SEARCH = (prof || [])
+      .filter(p=>p.id !== me.id && !friendIds.has(p.id))
+      .map(p=>({
+        id: p.id,
+        pseudo: p.pseudo || p.full_name || 'Rider',
+        full_name: p.full_name || '',
+        avatar_url: p.avatar_url || DEFAULT_AVATAR
+      }));
+
+    renderShareDmLists();
+  }catch(e){
+    console.error('doShareDmSearch error', e);
+  }
+}
+
+function toggleShareDmSelect(userId){
+  if(SHARE_DM_SELECTED.has(userId)){
+    SHARE_DM_SELECTED.delete(userId);
+  }else{
+    SHARE_DM_SELECTED.add(userId);
+  }
+  renderShareDmLists();
+  updateShareDmSendBtn();
+}
+
+function renderShareDmLists(){
+  if(!shareDmFriendsList || !shareDmSearchResults) return;
+
+  shareDmFriendsList.innerHTML = '';
+  shareDmSearchResults.innerHTML = '';
+
+  const hasFriends = SHARE_DM_FRIENDS && SHARE_DM_FRIENDS.length;
+  const hasSearch = SHARE_DM_SEARCH && SHARE_DM_SEARCH.length;
+
+  if(hasFriends){
+    const title = document.createElement('div');
+    title.className = 'share-dm-section-title';
+    title.textContent = 'Tes amis';
+    shareDmFriendsList.appendChild(title);
+
+    SHARE_DM_FRIENDS.forEach(f=>{
+      const btn = createShareDmItem(f);
+      shareDmFriendsList.appendChild(btn);
+    });
+  }else if(SHARE_DM_FRIENDS_LOADED){
+    const empty = document.createElement('div');
+    empty.className = 'share-dm-empty';
+    empty.textContent = "Tu n'as pas encore d'amis ajoutés. Tu peux quand même chercher un pseudo.";
+    shareDmFriendsList.appendChild(empty);
+  }
+
+  if(hasSearch){
+    const title2 = document.createElement('div');
+    title2.className = 'share-dm-section-title';
+    title2.textContent = 'Autres riders';
+    shareDmSearchResults.appendChild(title2);
+
+    SHARE_DM_SEARCH.forEach(f=>{
+      const btn = createShareDmItem(f);
+      shareDmSearchResults.appendChild(btn);
+    });
+  }else if((shareDmSearchInput?.value || '').trim()){
+    const empty2 = document.createElement('div');
+    empty2.className = 'share-dm-empty';
+    empty2.textContent = 'Aucun rider trouvé pour ce pseudo.';
+    shareDmSearchResults.appendChild(empty2);
+  }
+}
+
+function createShareDmItem(user){
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'share-dm-item';
+  if(SHARE_DM_SELECTED.has(user.id)){
+    btn.classList.add('selected');
+  }
+  btn.addEventListener('click', ()=>{
+    toggleShareDmSelect(user.id);
+  });
+
+  const av = document.createElement('div');
+  av.className = 'share-dm-avatar';
+  const img = document.createElement('img');
+  img.src = user.avatar_url || DEFAULT_AVATAR;
+  img.alt = user.pseudo || 'Rider';
+  av.appendChild(img);
+
+  const texts = document.createElement('div');
+  texts.className = 'share-dm-texts';
+
+  const name = document.createElement('div');
+  name.className = 'share-dm-name';
+  name.textContent = user.pseudo || 'Rider';
+
+  const sub = document.createElement('div');
+  sub.className = 'share-dm-sub';
+  sub.textContent = user.full_name || '';
+
+  texts.appendChild(name);
+  if(user.full_name){
+    texts.appendChild(sub);
+  }
+
+  const check = document.createElement('div');
+  check.className = 'share-dm-check';
+  check.textContent = SHARE_DM_SELECTED.has(user.id) ? '✓' : '';
+
+  btn.appendChild(av);
+  btn.appendChild(texts);
+  btn.appendChild(check);
+
+  return btn;
+}
+
+/* DM multiple destinataires */
+async function sendPostToDMUsers(post, userIds){
+  if(!me || !userIds || !userIds.length) return;
+  try{
+    const contentPrefix = isVideoUrl(post.media_url) ? 'VID:' : 'IMG:';
+    const content = contentPrefix + post.media_url;
+
+    const rows = userIds.map(uid=>({
+      from_id: me.id,
+      to_id: uid,
+      content
+    }));
+
+    const { error } = await supa
+      .from('ridly_private_messages')
+      .insert(rows);
+
+    if(error){
+      console.error('sendPostToDMUsers error', error);
+      showToast("Impossible d'envoyer le message.");
+      return;
+    }
+    showToast(`Envoyé à ${userIds.length} rider(s) ✅`);
+    closeShareDmModal();
+
+    // Notif au propriétaire du post aussi
+    notifyPostOwnerShared(post, 'DM');
+  }catch(e){
+    console.error('sendPostToDMUsers error', e);
+    showToast("Erreur pendant l'envoi du message.");
+  }
+}
+</script>
+
+<script>
+/* ====== Notif DM au propriétaire : partage & commentaires ====== */
+async function notifyPostOwnerShared(post, type){
+  if(!me || !post || !post.user_id || post.user_id === me.id) return;
+  try{
+    const content = `POST_SHARED_${type || 'GEN'}:${post.id}`;
+    await supa
+      .from('ridly_private_messages')
+      .insert([{
+        from_id: me.id,
+        to_id: post.user_id,
+        content
+      }]);
+  }catch(e){
+    console.error('notifyPostOwnerShared error', e);
+  }
+}
+
+async function notifyPostOwnerComment(postId, postOwnerId, commentText){
+  if(!me || !postOwnerId || postOwnerId === me.id) return;
+  try{
+    const snippet = (commentText || '').slice(0,140);
+    const content = `POST_COMMENT:${postId}:${snippet}`;
+    await supa
+      .from('ridly_private_messages')
+      .insert([{
+        from_id: me.id,
+        to_id: postOwnerId,
+        content
+      }]);
+  }catch(e){
+    console.error('notifyPostOwnerComment error', e);
+  }
+}
+</script>
+
+<script>
+/* ===== Chargement du feed ===== */
 async function loadFeed(){
   feedList.innerHTML = '';
 
@@ -1123,7 +2069,7 @@ async function loadFeed(){
       .from('spot_posts')
       .select('id,user_id,user_display,media_url,caption,created_at,spot_id,spot_type')
       .order('created_at',{ascending:false})
-      .limit(300);  // <-- jusqu’à 300 posts dans le feed
+      .limit(300);
 
     if(error){
       console.error(error);
@@ -1139,7 +2085,6 @@ async function loadFeed(){
 
     const postIds = list.map(p=>p.id);
 
-    // ===== Commentaires reliés aux posts =====
     let commentsByPost = {};
     let commentUserIds = [];
     if(postIds.length){
@@ -1166,7 +2111,6 @@ async function loadFeed(){
     const uniqueUserIds = [...new Set(userIds)];
     const spotIds = [...new Set(list.map(p=>p.spot_id).filter(Boolean))];
 
-    // Profils
     PROFILES_BY_ID = {};
     if(uniqueUserIds.length){
       const { data:profs } = await supa
@@ -1176,7 +2120,6 @@ async function loadFeed(){
       (profs || []).forEach(p=>{ PROFILES_BY_ID[p.id] = p; });
     }
 
-    // Spots
     let parkById = {};
     let streetById = {};
     if(spotIds.length){
@@ -1193,7 +2136,6 @@ async function loadFeed(){
       (streets || []).forEach(sp=>{ streetById[sp.id] = sp; });
     }
 
-    // Likes / roues
     let likesByPost = {};
     if(postIds.length){
       const { data:likes } = await supa
@@ -1222,13 +2164,11 @@ async function loadFeed(){
         const sp = parkById[p.spot_id];
         spotLabel = sp.nom || 'Skatepark';
         if(sp.ville) spotLabel += ' — ' + sp.ville;
-        // 👉 lien vers spot.html (park)
         spotLink = `spot.html?id=${encodeURIComponent(p.spot_id)}`;
       }else if(p.spot_id && streetById[p.spot_id]){
         const sp = streetById[p.spot_id];
         spotLabel = sp.nom || 'Street spot';
         if(sp.ville) spotLabel += ' — ' + sp.ville;
-        // 👉 lien vers spot.html (street)
         spotLink = `spot.html?id=${encodeURIComponent(p.spot_id)}&street=1`;
       }
 
@@ -1282,7 +2222,6 @@ function renderFeed(){
     art.className = 'post';
     art.dataset.id = post.id;
 
-    /* Header */
     const header = document.createElement('div');
     header.className = 'post-header';
 
@@ -1316,7 +2255,7 @@ function renderFeed(){
     spot.className = 'post-spot';
     spot.textContent = post.spotLabel || 'Spot non lié';
     if(post.spotLink){
-      spot.href = post.spotLink;  // 👉 maintenant vers spot.html
+      spot.href = post.spotLink;
     }else{
       spot.style.opacity = .8;
     }
@@ -1329,7 +2268,6 @@ function renderFeed(){
     header.appendChild(hMain);
     art.appendChild(header);
 
-    /* Media */
     const mediaWrap = document.createElement('div');
     mediaWrap.className = 'post-media';
     if(isVideoUrl(post.media_url)){
@@ -1347,7 +2285,6 @@ function renderFeed(){
     }
     art.appendChild(mediaWrap);
 
-    /* Caption */
     if(post.caption){
       const cap = document.createElement('div');
       cap.className = 'post-caption';
@@ -1355,7 +2292,32 @@ function renderFeed(){
       art.appendChild(cap);
     }
 
-    /* Rating row — roues 1–5 */
+    const shareRow = document.createElement('div');
+    shareRow.className = 'post-share-row';
+
+    const btnStory = document.createElement('button');
+    btnStory.type = 'button';
+    btnStory.className = 'post-share-btn';
+    btnStory.innerHTML = '<span class="ic">📸</span><span>Story</span>';
+    btnStory.addEventListener('click', ()=>sharePostToStory(post));
+
+    const btnDM = document.createElement('button');
+    btnDM.type = 'button';
+    btnDM.className = 'post-share-btn';
+    btnDM.innerHTML = '<span class="ic">📩</span><span>Message privé</span>';
+    btnDM.addEventListener('click', ()=>sharePostToDM(post));
+
+    const btnLink = document.createElement('button');
+    btnLink.type = 'button';
+    btnLink.className = 'post-share-btn';
+    btnLink.innerHTML = '<span class="ic">🔗</span><span>Lien</span>';
+    btnLink.addEventListener('click', ()=>sharePostExternal(post));
+
+    shareRow.appendChild(btnStory);
+    shareRow.appendChild(btnDM);
+    shareRow.appendChild(btnLink);
+    art.appendChild(shareRow);
+
     const ratingRow = document.createElement('div');
     ratingRow.className = 'post-rating-row';
 
@@ -1381,7 +2343,6 @@ function renderFeed(){
 
     art.appendChild(ratingRow);
 
-    /* Commentaires */
     const commentsWrap = document.createElement('div');
     commentsWrap.className = 'post-comments';
 
@@ -1443,13 +2404,108 @@ function renderFeed(){
 
     feedList.appendChild(art);
 
-    // si c'est MON post et qu'il y a des commentaires, on les marque lus
     if(me && post.user_id === me.id && post.comments && post.comments.length){
       markCommentsReadForPost(post.id);
     }
   });
+
+  // Quand on arrive avec ?p=xxx → scroll direct sur le bon post
+  scrollToPostFromQuery();
 }
 
+function scrollToPostFromQuery(){
+  const params = new URLSearchParams(window.location.search);
+  const pid = params.get('p');
+  if(!pid) return;
+
+  const el = feedList.querySelector(`.post[data-id="${pid}"]`);
+  if(!el) return;
+
+  // Hauteur de la barre du haut
+  const nav = document.querySelector('nav.nav');
+  const navH = nav ? nav.offsetHeight : 0;
+
+  const rect = el.getBoundingClientRect();
+  const absoluteY = rect.top + window.scrollY;
+  const targetY = Math.max(absoluteY - navH - 10, 0);
+
+  window.scrollTo({
+    top: targetY,
+    behavior: 'smooth'
+  });
+
+  el.classList.add('post-highlight');
+  setTimeout(()=>el.classList.remove('post-highlight'), 2000);
+}
+
+
+/* === PARTAGE : Story = post complet (avec post_id) + DM au owner === */
+async function sharePostToStory(post){
+  if(!me) return;
+  try{
+    const now = new Date();
+    const expires = new Date(now.getTime() + 24*60*60*1000).toISOString();
+
+    const payload = {
+      user_id: me.id,
+      post_id: post.id,
+      media_url: post.media_url,
+      caption: post.caption || '',
+      expires_at: expires
+    };
+
+    const { error } = await supa
+      .from('flashes')
+      .insert([payload]);
+
+    if(error){
+      console.error('sharePostToStory error', error);
+      showToast("Impossible d'ajouter en story.");
+      return;
+    }
+    showToast("Ajouté à ta story ✅");
+    loadStories();
+
+    // Notif DM au propriétaire du post
+    notifyPostOwnerShared(post, 'STORY');
+  }catch(e){
+    console.error('sharePostToStory error', e);
+    showToast("Erreur pendant l'ajout en story.");
+  }
+}
+
+/* === PARTAGE : DM via modal amis + recherche === */
+function sharePostToDM(post){
+  openShareDmModal(post);
+}
+
+/* === PARTAGE : lien externe + notif owner === */
+function sharePostExternal(post){
+  const baseUrl = window.location.origin + '/feed.html';
+  const url = baseUrl + '?p=' + encodeURIComponent(post.id);
+  const text = post.caption ? post.caption.slice(0, 120) : 'Post RIDLY';
+
+  if(navigator.share){
+    navigator.share({
+      title: 'Post RIDLY',
+      text,
+      url
+    }).catch(()=>{});
+  }else if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url)
+      .then(()=>showToast("Lien du post copié dans le presse-papiers 🔗"))
+      .catch(()=>{
+        alert("Lien du post : " + url);
+      });
+  }else{
+    alert("Lien du post : " + url);
+  }
+
+  // Notif DM au propriétaire du post
+  notifyPostOwnerShared(post, 'LINK');
+}
+
+/* ====== Vote roues ====== */
 function ratingLabel(p){
   if(p.likesCount && typeof p.avgRating === 'number'){
     return `${p.avgRating.toFixed(1)}/5 roues — ${p.likesCount} vote${p.likesCount>1?'s':''}`;
@@ -1502,6 +2558,7 @@ async function setPostRating(postId, wheels){
   }
 }
 
+/* ====== Commentaires + DM au owner ====== */
 async function submitComment(postId, postOwnerId, form, commentsWrap){
   if(!me) return;
   const input = form.querySelector('.comment-input');
@@ -1520,7 +2577,6 @@ async function submitComment(postId, postOwnerId, form, commentsWrap){
     post_id: postId,
     user_id: me.id,
     content,
-    // si je commente mon propre post → pas "non lu" pour moi
     is_read: (me.id === postOwnerId)
   };
 
@@ -1559,7 +2615,6 @@ async function submitComment(postId, postOwnerId, form, commentsWrap){
       post.comments.push(cObj);
       post.commentsCount = (post.commentsCount || 0) + 1;
 
-      // ajoute la ligne juste au-dessus du formulaire
       const line = document.createElement('div');
       line.className = 'comment-line';
 
@@ -1580,8 +2635,10 @@ async function submitComment(postId, postOwnerId, form, commentsWrap){
     }
 
     if(me.id === postOwnerId){
-      // pour être sûr que ça ne reste pas en non-lu
       markCommentsReadForPost(postId);
+    }else{
+      // DM au propriétaire du post
+      notifyPostOwnerComment(postId, postOwnerId, content);
     }
   }catch(e){
     console.error('Erreur submitComment', e);
@@ -1612,16 +2669,55 @@ function markCommentsReadForPost(postId){
 }
 </script>
 
-<!-- Firebase Notifications -->
-<script src="js/firebase.js" type="module"></script>
+<!-- FIREBASE FCM -->
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-messaging-compat.js"></script>
+
 <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWFExlphYDlDjOpgOjpbYUROsN_hcBuLs",
+    authDomain: "ridly-app.firebaseapp.com",
+    projectId: "ridly-app",
+    storageBucket: "ridly-app.appspot.com",
+    messagingSenderId: "402614688384",
+    appId: "1:402614688384:web:a79d007ffeffa94afd92465",
+    measurementId: "G-K4S628L7TK"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging();
+
+  async function initFCM() {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        console.log("❌ Notifications refusées");
+        return;
+      }
+
+      console.log("✔ Notifications autorisées !");
+      const token = await messaging.getToken({
+        vapidKey: "BBocWMR1t11ZxsgkuDQw_JzklkTwxa5VATFjt6V2P5GJzsjh16wxuJEuwifZgzIfhSpxzIhug-aIPJUDTFK6G_o"
+      });
+
+      console.log("🔥 Token FCM :", token);
+    } catch (err) {
+      console.error("❌ Erreur FCM :", err);
+    }
+  }
+
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/firebase-messaging-sw.js")
-      .then(reg => console.log("SW FCM OK"))
-      .catch(err => console.error("SW FCM ERROR", err));
+    navigator.serviceWorker
+      .register("/firebase-messaging-sw.js")
+      .then(reg => {
+        console.log("✔ SW FCM OK", reg);
+        initFCM();
+      })
+      .catch(err => console.error("❌ SW FCM ERROR :", err));
+  } else {
+    console.log("❌ Service worker non supporté");
   }
 </script>
-</body>
-</html>
+
 </body>
 </html>
