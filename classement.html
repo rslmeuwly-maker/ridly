@@ -6,7 +6,7 @@
 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#22c55e">
-  <title>Classement Game of Scoot — RIDLY</title>
+  <title>Classements — RIDLY</title>
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -18,71 +18,57 @@
 
   <style>
     :root{
+      --green:#22c55e;
+      --green-dark:#16a34a;
+
       --bg:#020617;
       --bg-soft:#030712;
-      --card:#020617;
-      --accent:#22c55e;
-      --accent-soft:rgba(34,197,94,.08);
-      --accent-strong:rgba(34,197,94,.25);
+      --panel:#020617;
+      --panel-soft:#020617;
       --text:#f9fafb;
-      --text-dim:#9ca3af;
-      --border:rgba(148,163,184,.35);
+      --dim:#9ca3af;
+      --border:rgba(148,163,184,.4);
       --radius-xl:18px;
     }
 
     body.theme-dark{
       --bg:#020617;
       --bg-soft:#030712;
-      --card:#020617;
+      --panel:#020617;
+      --panel-soft:#020617;
       --text:#f9fafb;
-      --text-dim:#9ca3af;
-      --border:rgba(148,163,184,.35);
+      --dim:#9ca3af;
+      --border:rgba(148,163,184,.4);
     }
     body.theme-light{
-      --bg:#f4f4f5;
+      --bg:#f3f4f6;
       --bg-soft:#e5e7eb;
-      --card:#ffffff;
+      --panel:#ffffff;
+      --panel-soft:#e5e7eb;
       --text:#020617;
-      --text-dim:#6b7280;
+      --dim:#4b5563;
       --border:rgba(148,163,184,.25);
     }
 
-    *{
-      box-sizing:border-box;
-      -webkit-tap-highlight-color:transparent;
-    }
-    html,body{
-      margin:0;
-      padding:0;
-      height:100%;
-    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;margin:0;padding:0}
     body{
-      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
       background:#000;
       color:var(--text);
+      font-family:"Outfit",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       display:flex;
       flex-direction:column;
     }
 
-    /* ===== BG VIDÉO ===== */
-    .rsl-bg-wrap{
-      position:fixed;
-      inset:0;
-      z-index:0;
-      pointer-events:none;
-    }
+    /* BG vidéo */
+    .rsl-bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
     .rsl-bg-video{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      background:#000;
+      position:absolute;inset:0;width:100%;height:100%;
+      object-fit:cover;background:#000;
       filter:brightness(.48) saturate(1.05);
     }
     .rsl-bg-dim{
-      position:absolute;
-      inset:0;
+      position:absolute;inset:0;
       background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7));
     }
     body.theme-light .rsl-bg-dim{
@@ -93,14 +79,14 @@
       flex:1;
       display:flex;
       flex-direction:column;
-      max-width:640px;
+      max-width:1000px;
       margin:0 auto;
       width:100%;
       position:relative;
       z-index:1;
     }
 
-    /* ===== TOP NAV ===== */
+    /* NAV top */
     nav.nav{
       position:sticky;
       top:0;
@@ -118,13 +104,11 @@
       justify-content:space-between;
       padding:8px 14px;
     }
-
     .nav-left{
       display:flex;
       align-items:center;
       gap:8px;
     }
-
     .brand{
       display:flex;
       align-items:center;
@@ -145,7 +129,6 @@
       letter-spacing:-0.03em;
       font-size:20px;
     }
-
     .add-btn{
       border:none;
       outline:none;
@@ -162,9 +145,7 @@
       color:#022c16;
       box-shadow:0 10px 22px rgba(34,197,94,.7);
     }
-    .add-btn span{
-      transform:translateY(-1px);
-    }
+    .add-btn span{transform:translateY(-1px);}
 
     .nav-tools{
       display:flex;
@@ -177,9 +158,8 @@
       background:rgba(15,23,42,.9);
       color:var(--text);
       border-radius:999px;
-      min-width:32px;
+      width:32px;
       height:32px;
-      padding:0 10px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -187,29 +167,18 @@
       text-decoration:none;
       position:relative;
       cursor:pointer;
-      gap:4px;
+      gap:6px;
     }
     body.theme-light .icon-btn{
       background:#e5e7eb;
       border-color:rgba(148,163,184,.6);
     }
     .icon-btn:hover{
-      border-color:var(--accent);
-      color:var(--accent);
+      border-color:var(--green);
+      color:var(--green);
     }
-    .chat-dot{
-      position:absolute;
-      top:5px;
-      right:5px;
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:#22c55e;
-      box-shadow:0 0 8px rgba(34,197,94,.8);
-      opacity:0;
-    }
-    /* Badge 1v1 (même que ajouter.html) */
-    .badge{
+
+    .nav-badge{
       position:absolute;
       top:-3px;
       right:-3px;
@@ -227,169 +196,7 @@
       box-shadow:0 0 8px rgba(0,0,0,.6);
     }
 
-    /* ===== MAIN ===== */
-    .main{
-      flex:1;
-      padding:4px 10px 80px;
-    }
-
-    .mini-title{
-      padding:8px 4px 2px;
-      font-size:13px;
-      font-weight:600;
-      color:var(--text-dim);
-    }
-
-    .page-intro{
-      font-size:13px;
-      color:var(--text-dim);
-      padding:0 4px 8px;
-      line-height:1.4;
-    }
-
-    /* ===== LEADERBOARD CARD ===== */
-    .panel{
-      background:var(--card);
-      border-radius:var(--radius-xl);
-      border:1px solid rgba(15,23,42,.9);
-      box-shadow:0 18px 45px rgba(0,0,0,.6);
-      padding:10px 10px 12px;
-      margin-top:4px;
-    }
-    body.theme-light .panel{
-      border-color:rgba(209,213,219,.9);
-      box-shadow:0 14px 30px rgba(15,23,42,.15);
-    }
-
-    .panel-header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:8px;
-    }
-    .panel-title{
-      font-size:15px;
-      font-weight:700;
-    }
-    .reload-btn{
-      border:none;
-      border-radius:999px;
-      padding:5px 10px;
-      font-size:12px;
-      font-weight:700;
-      cursor:pointer;
-      background:rgba(15,23,42,.95);
-      color:var(--text-dim);
-      display:flex;
-      align-items:center;
-      gap:4px;
-    }
-    body.theme-light .reload-btn{
-      background:#e5e7eb;
-    }
-    .reload-btn span.ic{
-      font-size:13px;
-    }
-
-    .lb-body{
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.95);
-      overflow:hidden;
-      background:radial-gradient(circle at 0 0,rgba(34,197,94,.08),transparent 65%);
-    }
-    body.theme-light .lb-body{
-      border-color:rgba(148,163,184,.7);
-      background:#f9fafb;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-    }
-    th,td{
-      padding:8px 8px;
-      text-align:left;
-      font-size:12px;
-    }
-    th{
-      color:var(--text-dim);
-      text-transform:uppercase;
-      letter-spacing:.05em;
-      border-bottom:1px solid rgba(15,23,42,.95);
-      background:rgba(15,23,42,.85);
-    }
-    body.theme-light th{
-      background:#e5e7eb;
-      border-bottom-color:rgba(148,163,184,.8);
-    }
-    td{
-      border-bottom:1px solid rgba(15,23,42,.85);
-      color:var(--text);
-    }
-    body.theme-light td{
-      border-bottom-color:rgba(226,232,240,.95);
-      color:#020617;
-    }
-    tr:last-child td{
-      border-bottom:none;
-    }
-    tr:hover{
-      background:rgba(34,197,94,.08);
-    }
-
-    .rank{
-      font-weight:700;
-      width:30px;
-      text-align:center;
-      font-size:11px;
-      color:#bfdbfe;
-    }
-    body.theme-light .rank{
-      color:#1d4ed8;
-    }
-
-    .rider{
-      font-weight:600;
-    }
-    .rider a{
-      color:inherit;
-      text-decoration:none;
-    }
-    .rider a:hover{
-      text-decoration:underline;
-      color:var(--accent);
-    }
-
-    .wins{
-      color:#bbf7d0;
-      font-weight:600;
-    }
-    body.theme-light .wins{
-      color:#15803d;
-    }
-    .losses{
-      color:#fecaca;
-      font-weight:500;
-    }
-    body.theme-light .losses{
-      color:#b91c1c;
-    }
-    .ratio{
-      font-weight:600;
-      color:#facc15;
-    }
-    body.theme-light .ratio{
-      color:#d97706;
-    }
-
-    .loading{
-      padding:10px;
-      font-size:13px;
-      color:var(--text-dim);
-      text-align:center;
-    }
-
-    /* ===== TOAST (notif 1v1) ===== */
+    /* Toast notifs */
     .toast{
       position:fixed;
       left:50%;
@@ -415,63 +222,269 @@
       transform:translateX(-50%) translateY(4px);
     }
 
-    /* ===== TABBAR ===== */
+    .page-intro{
+      font-size:13px;
+      color:var(--dim);
+      padding:10px 10px 0;
+      line-height:1.4;
+    }
+
+    main.main{
+      flex:1;
+      padding:6px 10px 90px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius-xl);
+      box-shadow:0 22px 60px rgba(0,0,0,.85);
+      padding:14px;
+      margin-top:4px;
+    }
+    body.theme-light .card{
+      box-shadow:0 18px 45px rgba(15,23,42,.15);
+    }
+
+    /* Filtres / top bar */
+    .top-row{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    @media(min-width:720px){
+      .top-row{
+        flex-direction:row;
+        align-items:flex-start;
+        justify-content:space-between;
+      }
+    }
+    .filters{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .filters label{
+      font-size:11px;
+      font-weight:600;
+      color:var(--dim);
+    }
+    .filters select,
+    .filters input{
+      background:var(--panel-soft);
+      border:1px solid var(--border);
+      border-radius:999px;
+      color:var(--text);
+      font-size:12px;
+      padding:6px 10px;
+      min-width:120px;
+    }
+    body.theme-light .filters select,
+    body.theme-light .filters input{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.4);
+    }
+    .filters input{
+      min-width:160px;
+    }
+
+    .mode-toggle{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .pill{
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--panel-soft);
+      color:var(--dim);
+      font-size:11px;
+      padding:4px 8px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .pill.active{
+      color:#022c16;
+      background:linear-gradient(180deg,var(--green),var(--green-dark));
+      border:none;
+      box-shadow:0 10px 24px rgba(0,0,0,.5);
+    }
+
+    .summary{
+      font-size:12px;
+      color:var(--dim);
+      margin-top:6px;
+    }
+
+    /* Table */
+    .table-wrap{
+      margin-top:8px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      overflow:hidden;
+      background:rgba(15,23,42,.7);
+    }
+    body.theme-light .table-wrap{
+      background:#f9fafb;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    thead{
+      background:rgba(15,23,42,.9);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.07em;
+      color:#9ca3af;
+    }
+    body.theme-light thead{
+      background:#e5e7eb;
+    }
+    th,td{
+      padding:8px 10px;
+      border-bottom:1px solid rgba(15,23,42,.7);
+    }
+    body.theme-light th,
+    body.theme-light td{
+      border-bottom:1px solid rgba(148,163,184,.4);
+    }
+    tbody tr:nth-child(even){
+      background:rgba(15,23,42,.6);
+    }
+    body.theme-light tbody tr:nth-child(even){
+      background:rgba(243,244,246,0.9);
+    }
+
+    .rank-col{
+      width:52px;
+      text-align:center;
+      font-weight:700;
+      font-size:13px;
+    }
+    .center{
+      text-align:center;
+    }
+    .nowrap{
+      white-space:nowrap;
+    }
+
+    .rider-cell{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+    .rider-main{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+    .rider-name{
+      font-weight:700;
+      font-size:13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .rider-loc{
+      font-size:11px;
+      color:var(--dim);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .avatar{
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      background:#020617;
+      flex-shrink:0;
+    }
+    body.theme-light .avatar{
+      background:#e5e7eb;
+    }
+    .avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .empty{
+      color:var(--dim);
+      text-align:center;
+      margin:14px 0 4px;
+      font-size:13px;
+    }
+
+    /* Tabbar */
     .tabbar{
       position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
+      left:0;right:0;bottom:0;
       z-index:30;
+      display:flex;
+      align-items:center;
+      justify-content:space-around;
+      padding:6px 8px 10px;
       border-top:1px solid var(--border);
       background:rgba(2,6,23,.97);
       backdrop-filter:blur(18px);
-      display:flex;
-      justify-content:space-around;
-      align-items:center;
-      padding:6px 8px 10px;
     }
     body.theme-light .tabbar{
       background:rgba(244,244,245,.97);
     }
-
     .tab{
       flex:1;
       display:flex;
       flex-direction:column;
       align-items:center;
-      justify-content:center;
       gap:2px;
       text-decoration:none;
-      color:var(--text-dim);
+      color:var(--dim);
       font-size:9px;
       letter-spacing:.04em;
       text-transform:uppercase;
       padding:4px 0;
     }
-    .tab .ic{
-      font-size:20px;
-      line-height:1;
-    }
-    .tab.active{
-      color:var(--accent);
+    .tab .ic{font-size:20px;line-height:1;}
+    .tab.active{color:var(--green);}
+    @media(min-width:900px){
+      nav.nav .row{padding-inline:20px;}
+      main.main{padding-inline:14px;}
+      .tabbar{border-radius:22px 22px 0 0;}
     }
 
-    @media(min-width:700px){
-      nav.nav .row{
-        padding-inline:20px;
-      }
-      .main{
-        padding-inline:14px;
-      }
-      .tabbar{
-        border-radius:22px 22px 0 0;
-      }
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:var(--panel-soft);
+      color:var(--text);
+      font-weight:700;
+      font-size:13px;
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+    }
+    body.theme-light .btn{
+      background:#e5e7eb;
     }
   </style>
 </head>
 <body class="theme-dark">
 
-<!-- BG vidéo -->
+<!-- BG vidéo RIDLY -->
 <div class="rsl-bg-wrap" aria-hidden="true">
   <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
   <div class="rsl-bg-dim"></div>
@@ -479,7 +492,7 @@
 
 <div class="page-wrap">
 
-  <!-- NAV TOP -->
+  <!-- Nav top -->
   <nav class="nav">
     <div class="row">
       <div class="nav-left">
@@ -487,57 +500,91 @@
           <img src="image/1logo_ridly.png" alt="RIDLY"/>
           <span>RIDLY</span>
         </a>
-        <!-- Bouton + comme dans le feed -->
-        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post">
+        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouvelle publication">
           <span>+</span>
         </button>
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
 
-        <!-- Bouton 1v1 EXACTEMENT comme ajouter.html -->
         <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
           💌
-          <span class="badge" id="badge1v1"></span>
+          <span class="nav-badge" id="badge1v1"></span>
         </a>
 
-        <!-- Chat global -->
-        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
-          <span class="chat-dot" id="chatDot"></span>
-          💬
-        </a>
+        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">💬</a>
       </div>
     </div>
   </nav>
 
-  <!-- CONTENU PRINCIPAL -->
+  <p class="page-intro">
+    Classement des riders sur RIDLY. Filtre par pays, spot ou recherche de pseudo / ville.
+  </p>
+
   <main class="main">
-    <div class="mini-title">Classement Game of Scoot</div>
-    <p class="page-intro">
-      Top riders sur les parties Game of Scoot jouées sur RIDLY. Victoires, défaites et ratio de wins.
-    </p>
+    <section class="card">
+      <div class="top-row">
+        <div class="filters">
+          <label for="countryFilter">Pays</label>
+          <select id="countryFilter">
+            <option value="WORLD">Monde</option>
+            <option value="CH">Suisse</option>
+            <option value="FR">France</option>
+            <option value="DE">Allemagne</option>
+            <option value="IT">Italie</option>
+            <option value="ES">Espagne</option>
+            <option value="PT">Portugal</option>
+            <option value="BE">Belgique</option>
+            <option value="NL">Pays-Bas</option>
+            <option value="LU">Luxembourg</option>
+            <option value="EU">Autres Europe</option>
+            <option value="US">États-Unis</option>
+            <option value="CA">Canada</option>
+            <option value="BR">Brésil</option>
+            <option value="AR">Argentine</option>
+            <option value="MX">Mexique</option>
+            <option value="AU">Australie</option>
+            <option value="NZ">Nouvelle-Zélande</option>
+            <option value="JP">Japon</option>
+            <option value="WORLD_OTHER">Autres</option>
+          </select>
 
-    <section class="panel">
-      <header class="panel-header">
-        <div class="panel-title">🏆 Leaderboard</div>
-        <button id="btnReload" class="reload-btn" type="button">
-          <span class="ic">🔄</span>
-          <span>Actualiser</span>
-        </button>
-      </header>
+          <label for="spotFilter">Spot</label>
+          <select id="spotFilter">
+            <option value="">Tous les spots</option>
+          </select>
 
-      <div id="leaderboard" class="lb-body">
-        <div class="loading">Chargement du classement...</div>
+          <input id="searchInput" type="search" placeholder="Rechercher un rider (pseudo, ville…)" />
+        </div>
+
+        <div class="mode-toggle">
+          <button type="button" class="pill active" id="modeGlobal">🌍 Global</button>
+          <button type="button" class="pill" id="modeLocal">📍 Par spot</button>
+        </div>
       </div>
+
+      <div class="summary" id="summaryText">—</div>
+
+      <div id="tableWrap" class="table-wrap" style="display:none">
+        <table>
+          <thead>
+            <tr>
+              <th class="rank-col">#</th>
+              <th>Rider</th>
+              <th class="center">Pays</th>
+              <th class="center">Temps</th>
+              <th class="center">Points</th>
+            </tr>
+          </thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+      </div>
+      <p id="emptyState" class="empty" style="display:none">Chargement…</p>
     </section>
   </main>
-
 </div>
 
-<!-- Toast notif 1v1 -->
-<div id="toast" class="toast"></div>
-
-<!-- TABBAR (même ordre que le reste) -->
+<!-- Tabbar -->
 <nav class="tabbar" aria-label="Navigation">
   <a class="tab" href="ou_rider.html" title="Spots">
     <div class="ic">📍</div><span>Spots</span>
@@ -559,14 +606,16 @@
   </a>
 </nav>
 
-<!-- THEME clair / sombre -->
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Thème -->
 <script>
 (function(){
   const saved = localStorage.getItem('ridlyTheme') || 'dark';
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
-  document.body.classList.toggle('theme-light', theme === 'light');
-  document.body.classList.toggle('theme-dark', theme !== 'light');
+  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
 
   const btnTheme = document.getElementById('btnTheme');
   const updateIcon = () => {
@@ -586,12 +635,11 @@
 </script>
 
 <script>
-/* ===== Supabase init ===== */
 const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-/* BG vidéo RIDLY */
+/* BG vidéo */
 (function(){
   const v = document.getElementById('rslBg');
   if(!v) return;
@@ -603,15 +651,12 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   play();
   document.addEventListener('visibilitychange',()=>{ document.hidden ? v.pause() : play(); });
 })();
-</script>
 
-<script>
-/* ===== Toast + notifs 1v1 (même logique que ajouter.html) ===== */
-const toastDiv  = document.getElementById('toast');
-const badge1v1  = document.getElementById('badge1v1');
+/* Toast + notifs 1v1 */
+const toastDiv   = document.getElementById('toast');
+const badge1v1   = document.getElementById('badge1v1');
 const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
 let unreadToastShown = false;
-let me = null;
 
 function showToast(msg){
   if(!toastDiv) return;
@@ -635,13 +680,13 @@ function update1v1Badge(count){
     badge1v1.style.display = 'none';
   }
 }
-async function checkPrivateUnread(){
-  if(!me) return;
+async function checkPrivateUnread(user){
+  if(!user) return;
   try{
     const { data, error } = await supa
       .from('ridly_private_unread_counts')
       .select('unread_count')
-      .eq('user_id', me.id);
+      .eq('user_id', user.id);
 
     if(error){
       console.error('unread error', error);
@@ -659,16 +704,16 @@ async function checkPrivateUnread(){
     console.error(e);
   }
 }
-function subscribePrivateAlerts(){
-  if(!me) return;
-  supa.channel('ridly_private_alert_'+me.id)
+function subscribePrivateAlerts(user){
+  if(!user) return;
+  supa.channel('ridly_private_alert_'+user.id)
     .on('postgres_changes',{
       event:'INSERT',
       schema:'public',
       table:'ridly_private_messages'
     }, async payload => {
       const m = payload.new;
-      if(m.to_id !== me.id) return;
+      if(m.to_id !== user.id) return;
 
       let senderName = 'Rider';
       try{
@@ -682,117 +727,393 @@ function subscribePrivateAlerts(){
 
       playNotifSound();
       showToast('Nouveau message privé de ' + senderName);
-      checkPrivateUnread();
+      checkPrivateUnread(user);
     })
     .subscribe();
 }
-</script>
 
-<script>
-/* ===== Classement Game of Scoot ===== */
-const board     = document.getElementById('leaderboard');
-const btnReload = document.getElementById('btnReload');
-const chatDot   = document.getElementById('chatDot');
+/* ====== Classement ====== */
 
-async function loadClassement(){
-  board.innerHTML = '<div class="loading">Chargement du classement...</div>';
-  try{
-    const { data, error } = await supa
-      .from('scoot_stats')
-      .select('user_id, wins, losses')
-      .order('wins', { ascending:false })
-      .limit(50);
+const summaryText   = document.getElementById('summaryText');
+const rankBody      = document.getElementById('rankBody');
+const tableWrap     = document.getElementById('tableWrap');
+const emptyState    = document.getElementById('emptyState');
+const searchInput   = document.getElementById('searchInput');
+const countryFilter = document.getElementById('countryFilter');
+const spotFilter    = document.getElementById('spotFilter');
+const modeGlobalBtn = document.getElementById('modeGlobal');
+const modeLocalBtn  = document.getElementById('modeLocal');
 
-    if(error) throw error;
+let sessionUser   = null;
+let profiles      = [];
+let statsRaw      = [];
+let spots         = [];
+let statsByUser   = {}; // user_id -> { totalSeconds, totalPoints, perSpot:{spotId:{seconds,points}} }
+let spotsMap      = {}; // spot_id -> spot row
+let usedSpots     = []; // [{id,nom,ville,canton}...]
 
-    if(!data || !data.length){
-      board.innerHTML = '<div class="loading">Aucune partie jouée pour l’instant.</div>';
-      return;
+let modeLocal     = false; // false = global, true = par spot
+
+// Codes Europe pour "Autres Europe"
+const EU_CODES = [
+  'FR','DE','IT','ES','PT','BE','NL','LU','UK','IE','AT',
+  'DK','SE','NO','FI','IS','PL','CZ','SK','SI','HR','HU',
+  'RO','BG','GR','TR'
+];
+
+// Normalisation pays DB -> code
+function normalizeCountry(val){
+  if(!val) return '';
+  let v = String(val).trim().toUpperCase();
+  if(v.length > 2) v = v.slice(0,2);
+  if(v === 'SU' || v === 'SW') v = 'CH';
+  return v;
+}
+
+function fmtHours(seconds){
+  if(!seconds || seconds <= 0) return '—';
+  const h = seconds/3600;
+  if(h < 1){
+    const min = Math.round(seconds/60);
+    return (min||1) + ' min';
+  }
+  const v = h.toFixed(1);
+  return v.endsWith('.0') ? v.replace('.0','')+' h' : v+' h';
+}
+
+function fmtPoints(pts){
+  if(pts == null || pts <= 0) return '—';
+  return pts+' pts';
+}
+
+function buildStatsAgg(){
+  statsByUser = {};
+  (statsRaw||[]).forEach(row=>{
+    const uid = row.user_id;
+    if(!uid) return;
+    const sec = row.total_seconds || 0;
+    let p    = (row.points != null) ? row.points : Math.floor(sec/3600);
+
+    if(!statsByUser[uid]){
+      statsByUser[uid] = {
+        totalSeconds:0,
+        totalPoints:0,
+        perSpot:{}
+      };
     }
+    const u = statsByUser[uid];
+    u.totalSeconds += sec;
+    u.totalPoints  += p;
 
-    const userIds = data.map(d => d.user_id);
-    const { data: users } = await supa
-      .from('profiles')
-      .select('id,pseudo,full_name,email')
-      .in('id', userIds);
+    if(row.spot_id){
+      if(!u.perSpot[row.spot_id]){
+        u.perSpot[row.spot_id] = { seconds:0, points:0 };
+      }
+      u.perSpot[row.spot_id].seconds += sec;
+      u.perSpot[row.spot_id].points  += p;
+    }
+  });
+}
 
-    const mapUsers = {};
-    (users||[]).forEach(u => {
-      let label =
-        u.pseudo ||
-        u.full_name ||
-        u.email ||
-        ('Rider ' + (u.id || '').slice(0,6));
-      if(label && label.includes('@')) label = 'Rider';
-      mapUsers[u.id] = label;
-    });
+function buildSpotFilter(){
+  spotsMap = {};
+  usedSpots = [];
+  (spots||[]).forEach(s=>{
+    spotsMap[s.id] = s;
+  });
 
-    let html = '<table><thead><tr>' +
-      '<th>#</th>' +
-      '<th>Rider</th>' +
-      '<th>Victoires</th>' +
-      '<th>Défaites</th>' +
-      '<th>Ratio</th>' +
-      '</tr></thead><tbody>';
+  const seen = new Set();
+  (statsRaw||[]).forEach(r=>{
+    if(!r.spot_id) return;
+    const s = spotsMap[r.spot_id];
+    if(!s) return;
+    if(seen.has(s.id)) return;
+    seen.add(s.id);
+    usedSpots.push(s);
+  });
 
-    data.forEach((d, i) => {
-      const wins   = d.wins   || 0;
-      const losses = d.losses || 0;
-      const total  = wins + losses;
-      const ratio  = total ? (wins / total * 100).toFixed(1) + '%' : '-';
-      const name   = mapUsers[d.user_id] || 'Rider';
-      const profileUrl = 'profil_ou_rider.html?id=' + encodeURIComponent(d.user_id);
+  usedSpots.sort((a,b)=>{
+    const na = (a.nom||'').toLowerCase();
+    const nb = (b.nom||'').toLowerCase();
+    if(na<nb) return -1;
+    if(na>nb) return 1;
+    return 0;
+  });
 
-      html += `
-        <tr>
-          <td class="rank">${i+1}</td>
-          <td class="rider">
-            <a href="${profileUrl}">${name}</a>
-          </td>
-          <td class="wins">${wins}</td>
-          <td class="losses">${losses}</td>
-          <td class="ratio">${ratio}</td>
-        </tr>`;
-    });
+  spotFilter.innerHTML = '<option value="">Tous les spots</option>';
+  usedSpots.forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    let txt = s.nom || 'Skatepark';
+    if(s.ville) txt += ' — '+s.ville;
+    spotFilter.appendChild(opt).textContent = txt;
+  });
+}
 
-    html += '</tbody></table>';
-    board.innerHTML = html;
-  }catch(e){
-    console.error(e);
-    board.innerHTML = '<div class="loading">Erreur de chargement du classement.</div>';
+function updateModeButtons(){
+  if(modeLocal){
+    modeLocalBtn.classList.add('active');
+    modeGlobalBtn.classList.remove('active');
+  }else{
+    modeGlobalBtn.classList.add('active');
+    modeLocalBtn.classList.remove('active');
   }
 }
 
-btnReload.addEventListener('click', e => {
-  e.preventDefault();
-  loadClassement();
-});
-
-/* init page : auth + notifs + classement */
-(async function initPage(){
-  try{
-    const { data:{ user } } = await supa.auth.getUser();
-    me = user || null;
-    if(me){
-      if(chatDot) chatDot.style.opacity = 1;
-      await checkPrivateUnread();
-      subscribePrivateAlerts();
-    }else{
-      update1v1Badge(0);
-    }
-  }catch(e){
-    console.error(e);
-    update1v1Badge(0);
+function renderRanking(){
+  if(!profiles || !profiles.length){
+    tableWrap.style.display = 'none';
+    emptyState.style.display = 'block';
+    emptyState.textContent = "Aucun rider enregistré.";
+    summaryText.textContent = "—";
+    return;
   }
 
-  loadClassement();
+  const search = (searchInput.value||'').trim().toLowerCase();
+
+  // pays choisi
+  let rawCountry = (countryFilter.value||'').trim().toUpperCase();
+
+  // petit cas "Autres" -> on filtrera plus loin
+  let specialOther = false;
+  if(rawCountry === 'WORLD_OTHER'){
+    rawCountry = 'WORLD';
+    specialOther = true;
+  }
+
+  const country = (rawCountry === 'WORLD') ? '' : rawCountry;
+
+  const spotId  = (spotFilter.value||'').trim();
+
+  // si un spot choisi -> mode local forcé
+  if(spotId){
+    modeLocal = true;
+  }
+  updateModeButtons();
+
+  const rows = [];
+
+  profiles.forEach(p=>{
+    const uid = p.id;
+    const s   = statsByUser[uid] || { totalSeconds:0,totalPoints:0,perSpot:{} };
+
+    let seconds = 0;
+    let points  = 0;
+
+    if(modeLocal && spotId){
+      const sp = s.perSpot[spotId] || {seconds:0,points:0};
+      seconds = sp.seconds || 0;
+      points  = (sp.points != null ? sp.points : Math.floor(seconds/3600));
+    }else{
+      seconds = s.totalSeconds || 0;
+      points  = (s.totalPoints != null ? s.totalPoints : Math.floor(seconds/3600));
+    }
+
+    // ==== FILTRE PAYS ====
+    const code = normalizeCountry(p.country);
+
+    if(country){
+      if(country === 'EU'){
+        if(!EU_CODES.includes(code)) return;
+      }else{
+        if(code !== country) return;
+      }
+    }
+
+    if(specialOther){
+      // "Autres" = ni codes EU, ni CH, FR, DE, IT, ES, PT, BE, NL, LU, US, CA, BR, AR, MX, AU, NZ, JP
+      const mainCodes = [
+        'CH','FR','DE','IT','ES','PT','BE','NL','LU',
+        'US','CA','BR','AR','MX','AU','NZ','JP'
+      ];
+      if(EU_CODES.includes(code) || mainCodes.includes(code)){
+        return;
+      }
+    }
+    // =====================
+
+    // recherche
+    const name = (p.pseudo || p.username || p.full_name || 'Rider') + ' ' + (p.city||'') + ' ' + (p.canton||'');
+    if(search && !name.toLowerCase().includes(search)) return;
+
+    // TOUS LES RIDERS (même 0 points)
+    rows.push({
+      profile:p,
+      seconds,
+      points
+    });
+  });
+
+  if(!rows.length){
+    tableWrap.style.display = 'none';
+    emptyState.style.display = 'block';
+    emptyState.textContent = "Aucun rider trouvé pour ces filtres.";
+    summaryText.textContent = "—";
+    return;
+  }
+
+  // tri : points, temps, nom
+  rows.sort((a,b)=>{
+    const pa = a.points || 0;
+    const pb = b.points || 0;
+    if(pb !== pa) return pb - pa;
+    const sa = a.seconds || 0;
+    const sb = b.seconds || 0;
+    if(sb !== sa) return sb - sa;
+    const na = (a.profile.pseudo || a.profile.username || a.profile.full_name || '').toLowerCase();
+    const nb = (b.profile.pseudo || b.profile.username || b.profile.full_name || '').toLowerCase();
+    if(na<nb) return -1;
+    if(na>nb) return 1;
+    return 0;
+  });
+
+  rankBody.innerHTML = "";
+  let rank = 0;
+  rows.forEach(row=>{
+    const p = row.profile;
+    const secs = row.seconds || 0;
+    const pts  = row.points || 0;
+
+    let rankDisplay = '—';
+    if(secs>0 || pts>0){
+      rank = rank + 1;
+      rankDisplay = rank;
+    }
+
+    const tr = document.createElement('tr');
+
+    const tdRank = document.createElement('td');
+    tdRank.className = 'rank-col';
+    tdRank.textContent = rankDisplay;
+
+    const tdRider = document.createElement('td');
+    tdRider.className = 'nowrap';
+    const riderCell = document.createElement('div');
+    riderCell.className = 'rider-cell';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    const img = document.createElement('img');
+    img.src = p.avatar_url || 'image/logo_pn360.png';
+    img.alt = p.pseudo || p.username || p.full_name || 'Rider';
+    avatar.appendChild(img);
+
+    const rMain = document.createElement('div');
+    rMain.className = 'rider-main';
+    const rName = document.createElement('div');
+    rName.className  = 'rider-name';
+    rName.textContent = p.pseudo || p.username || p.full_name || 'Rider';
+
+    const locParts = [];
+    if(p.city)   locParts.push(p.city);
+    if(p.canton) locParts.push(p.canton);
+    const locTxt = locParts.join(' • ') || '—';
+    const rLoc = document.createElement('div');
+    rLoc.className = 'rider-loc';
+    rLoc.textContent = locTxt;
+
+    rMain.appendChild(rName);
+    rMain.appendChild(rLoc);
+
+    riderCell.appendChild(avatar);
+    riderCell.appendChild(rMain);
+    tdRider.appendChild(riderCell);
+
+    const tdCountry = document.createElement('td');
+    tdCountry.className = 'center nowrap';
+    tdCountry.textContent = normalizeCountry(p.country) || '—';
+
+    const tdTime = document.createElement('td');
+    tdTime.className = 'center nowrap';
+    tdTime.textContent = fmtHours(secs);
+
+    const tdPts = document.createElement('td');
+    tdPts.className = 'center nowrap';
+    tdPts.textContent = fmtPoints(pts);
+
+    tr.appendChild(tdRank);
+    tr.appendChild(tdRider);
+    tr.appendChild(tdCountry);
+    tr.appendChild(tdTime);
+    tr.appendChild(tdPts);
+
+    rankBody.appendChild(tr);
+  });
+
+  tableWrap.style.display = 'block';
+  emptyState.style.display = 'none';
+
+  const totalRiders = rows.length;
+  const withStats   = rows.filter(r=> (r.seconds>0 || r.points>0)).length;
+  if(modeLocal && spotFilter.value){
+    const s = spotsMap[spotFilter.value];
+    const name = s ? (s.nom || 'Skatepark') : 'Skatepark';
+    summaryText.textContent =
+      `${withStats} rider(s) avec temps sur ${name} • ${totalRiders} rider(s) affiché(s)`;
+  }else{
+    summaryText.textContent =
+      `${withStats} rider(s) avec points • ${totalRiders} rider(s) affiché(s)`;
+  }
+}
+
+searchInput?.addEventListener('input', ()=>renderRanking());
+countryFilter?.addEventListener('change', ()=>renderRanking());
+spotFilter?.addEventListener('change', ()=>renderRanking());
+modeGlobalBtn?.addEventListener('click', ()=>{
+  modeLocal = false;
+  updateModeButtons();
+  renderRanking();
+});
+modeLocalBtn?.addEventListener('click', ()=>{
+  modeLocal = true;
+  updateModeButtons();
+  renderRanking();
+});
+
+(async function init(){
+  const { data:{ user } } = await supa.auth.getUser();
+  sessionUser = user || null;
+
+  if(sessionUser){
+    checkPrivateUnread(sessionUser);
+    subscribePrivateAlerts(sessionUser);
+  }
+
+  try{
+    const [profRes, statsRes, spotsRes] = await Promise.all([
+      supa.from('profiles')
+        .select('id,pseudo,username,full_name,city,canton,country,avatar_url')
+        .order('created_at',{ascending:false})
+        .limit(500),
+      supa.from('rider_spot_stats')
+        .select('user_id,total_seconds,points,spot_id'),
+      supa.from('spots')
+        .select('id,nom,ville,canton,country')
+    ]);
+
+    profiles = profRes.data || [];
+    statsRaw = statsRes.data  || [];
+    spots    = spotsRes.data  || [];
+
+    buildStatsAgg();
+    buildSpotFilter();
+    renderRanking();
+  }catch(e){
+    console.error(e);
+    summaryText.textContent = "Erreur de chargement des classements.";
+    emptyState.style.display = 'block';
+    emptyState.textContent = "Impossible de charger les données.";
+  }
 })();
 </script>
 
+<!-- Firebase Notifications -->
+<script src="js/firebase.js" type="module"></script>
 <script>
-  // Service worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/firebase-messaging-sw.js")
+      .then(reg => console.log("SW FCM OK"))
+      .catch(err => console.error("SW FCM ERROR", err));
   }
 </script>
 

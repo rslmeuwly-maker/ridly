@@ -604,12 +604,17 @@
         <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post"><span>+</span></button>
       </div>
       <div class="nav-tools">
-        <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-        <button type="button" class="icon-btn" id="btnPwa" title="Installer l'app RIDLY">📲 <span class="label">App</span></button>
-        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">💌<span class="badge" id="badge1v1"></span></a>
-        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">💬</a>
-      </div>
-    </div>
+  <!-- Compteur membres -->
+  <div class="member-counter" id="memberCounter">
+    👥 <span id="mcTotal">0</span> inscrits • <span id="mcOnline">0</span> en ligne
+  </div>
+
+  <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+  <button type="button" class="icon-btn" id="btnPwa" title="Installer l'app RIDLY">📲 <span class="label">App</span></button>
+  <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">💌<span class="badge" id="badge1v1"></span></a>
+  <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">💬</a>
+</div>
+
   </nav>
 
   <!-- CONTENU PRINCIPAL -->
@@ -845,6 +850,33 @@ const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.
 const SUPABASE_ANON = window.env?.SUPABASE_ANON || "YOUR_ANON_KEY_IF_NOT_IN_env_js";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 let currentUser = null;
+const mcTotalEl  = document.getElementById('mcTotal');
+const mcOnlineEl = document.getElementById('mcOnline');
+
+function updateMemberTotal(n){
+  if(!mcTotalEl) return;
+  mcTotalEl.textContent = (typeof n === 'number' && !isNaN(n)) ? n : '0';
+}
+function updateMemberOnline(n){
+  if(!mcOnlineEl) return;
+  mcOnlineEl.textContent = (typeof n === 'number' && !isNaN(n)) ? n : '0';
+}
+
+/* Total membres = nombre de lignes dans "profiles" */
+async function refreshTotalMembers(){
+  try{
+    const { count, error } = await supa
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+    if(!error && typeof count === 'number'){
+      updateMemberTotal(count);
+    }
+  }catch(e){
+    console.warn('refreshTotalMembers error', e);
+  }
+}
+</script>
+
 </script>
 
 <script>
@@ -906,7 +938,7 @@ function subscribePrivateAlerts(me){
     try{ await supa.auth.exchangeCodeForSession(); }catch(e){}
     history.replaceState({}, document.title, location.pathname);
   }
-  const { data:{ user } } = await supa.auth.getUser();
+   const { data:{ user } } = await supa.auth.getUser();
   if(!user){
     window.location.href='connexion.html';
     return;
@@ -914,7 +946,11 @@ function subscribePrivateAlerts(me){
   currentUser=user;
   checkPrivateUnread(user);
   subscribePrivateAlerts(user);
+
+  // On met à jour le total des membres une fois connecté
+  refreshTotalMembers();
 })();
+
 </script>
 
 <script>
@@ -940,20 +976,30 @@ function subscribePrivateAlerts(me){
 
 <script>
 /* PWA */
-let deferredInstallPrompt=null;
-window.addEventListener('beforeinstallprompt',(e)=>{
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
-  deferredInstallPrompt=e;
+  deferredInstallPrompt = e;
 });
-document.getElementById('btnPwa').addEventListener('click',async()=>{
-  if(deferredInstallPrompt){
+
+document.getElementById('btnPwa').addEventListener('click', async () => {
+  if (deferredInstallPrompt) {
+    // On propose l'installation PWA
     deferredInstallPrompt.prompt();
-    try{await deferredInstallPrompt.userChoice;}catch(e){}
-    deferredInstallPrompt=null;
-  }else{
-    alert("Pour installer RIDLY, utilise « Ajouter à l'écran d'accueil » dans ton navigateur.");
+    try {
+      await deferredInstallPrompt.userChoice;
+    } catch (e) {}
+    deferredInstallPrompt = null;
+
+    // Après l'installation (ou tentative), on renvoie quand même vers index.html
+    window.location.href = 'index.html';
+  } else {
+    // Si le prompt n'est pas dispo → on envoie direct sur index.html
+    window.location.href = 'index.html';
   }
 });
+
 </script>
 
 <script>
@@ -1384,18 +1430,28 @@ async function removeMyLocation(){
 async function loadRiders(){
   console.log("loadRiders…");
 
-  // 1) Positions des riders
+  // seuil : maintenant - 30 minutes
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+
   const { data: rows, error } = await supa
     .from('rider_locations')
-    .select('*'); // <== plus de filtre expires_at
+    .select('*')
+    .gte('updated_at', thirtyMinutesAgo);  // <= ne garde que ceux actifs récemment
 
   if (error) {
     console.error("loadRiders error", error);
+    updateMemberOnline(0);
     return;
   }
 
+  console.log("rider_locations rows (30min):", rows);
   layers.riders.clearLayers();
+
+  // "en ligne" = riders qui ont mis à jour leur position dans les 30 dernières minutes
+  updateMemberOnline(rows ? rows.length : 0);
+
   if (!rows || !rows.length) return;
+
 
   const ids = rows.map(r => r.user_id);
 
@@ -1487,68 +1543,77 @@ async function loadRiders(){
       iconAnchor:[17,17]
     });
 
-    const profilUrl = `profil_ou_rider.html?id=${encodeURIComponent(r.user_id)}`;
+       const profilUrl = `profil_ou_rider.html?id=${encodeURIComponent(r.user_id)}`;
 
-    // Popup avec avatar + pseudo + dernier post
+    // Popup : texte à gauche, image carrée à droite
     const popup = `
       <div class="rsl-pop" style="max-width:260px;">
-        <!-- Header avatar + pseudo -->
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-          <div style="
-            width:36px;height:36px;
-            border-radius:50%;
-            overflow:hidden;
-            background:#020617;
-            border:2px solid #22c55e;
-            flex-shrink:0;
-          ">
-            ${
-              avatar
-                ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;">`
-                : `<span style="font-size:18px;color:#fff;display:flex;align-items:center;justify-content:center;">👤</span>`
-            }
-          </div>
-          <div>
-            <div class="rsl-pop-title">${name}</div>
-            <div style="font-size:11px;color:#9ca3af;">Actif récemment</div>
-          </div>
-        </div>
-
-        <!-- Dernier post (image / vidéo) -->
-        ${
-          mediaUrl
-            ? `
+        <div style="display:flex;gap:10px;align-items:stretch;">
+          
+          <!-- Colonne gauche : avatar + pseudo + points -->
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
               <div style="
-                position:relative;
-                width:100%;
-                padding-top:56%; /* 16/9 */
-                border-radius:12px;
+                width:30px;height:30px;
+                border-radius:50%;
                 overflow:hidden;
-                margin-bottom:6px;
                 background:#020617;
+                border:2px solid #22c55e;
+                flex-shrink:0;
               ">
                 ${
-                  isVideo
-                    ? `<video src="${mediaUrl}" muted playsinline
-                        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>`
-                    : `<img src="${mediaUrl}" alt=""
-                        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">`
+                  avatar
+                    ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;">`
+                    : `<span style="font-size:18px;color:#fff;display:flex;align-items:center;justify-content:center;">👤</span>`
                 }
               </div>
-            `
-            : ``
-        }
+              <div style="min-width:0;">
+                <a href="${profilUrl}"
+                   class="rsl-pop-title"
+                   style="color:inherit;text-decoration:none;cursor:pointer;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  ${name}
+                </a>
+                <div style="font-size:11px;color:#9ca3af;">Actif récemment</div>
+              </div>
+            </div>
 
-        <div class="rsl-pop-desc">
-          <b>${pointsLabel}</b><br>
-          ${hoursTxt} sur les spots
+            <div class="rsl-pop-desc" style="font-size:11px;line-height:1.3;">
+              <b>${pointsLabel}</b><br>
+              ${hoursTxt} sur les spots
+            </div>
+          </div>
+
+          <!-- Colonne droite : dernier post en carré 1:1 -->
+          ${
+            mediaUrl
+              ? `
+            <div style="
+              flex:0 0 90px;
+              height:90px;
+              border-radius:12px;
+              overflow:hidden;
+              background:#020617;
+              align-self:stretch;
+              display:flex;
+            ">
+              ${
+                isVideo
+                  ? `<video src="${mediaUrl}" muted playsinline
+                        style="width:100%;height:100%;object-fit:cover;"></video>`
+                  : `<img src="${mediaUrl}" alt=""
+                        style="width:100%;height:100%;object-fit:cover;display:block;">`
+              }
+            </div>
+              `
+              : ``
+          }
         </div>
-        <a class="rsl-pop-btn" href="${profilUrl}">Voir le profil →</a>
       </div>
     `;
 
     const marker = L.marker([r.lat, r.lng], { icon: markerIcon }).addTo(layers.riders);
     marker.bindPopup(popup, { closeButton:true, autoClose:true, closeOnClick:true });
+
   });
 }
 
