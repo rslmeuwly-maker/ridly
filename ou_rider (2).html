@@ -6,7 +6,7 @@
   <title>Où rider ? — RIDLY</title>
 
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#22c55e">
+  <meta name="theme-color" content="#cc0000">
 
   <!-- Icônes PWA / mobile -->
   <link rel="icon" type="image/png" sizes="192x192" href="image/1logo_ridly.png">
@@ -22,7 +22,7 @@
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -49,7 +49,7 @@
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{margin:0;padding:0;height:100%}
     body{
-      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      font-family:"Barlow Condensed",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
       background:#000;
       color:var(--text);
       display:flex;
@@ -200,7 +200,7 @@
       color:var(--text);
       border-radius:999px;
       padding:8px 14px;
-      font:800 12px Outfit;
+      font:800 12px Barlow Condensed;
       cursor:pointer;white-space:nowrap;
     }
     .btn.green{
@@ -245,7 +245,7 @@
       background:rgba(15,23,42,.9);
       border:1px solid rgba(148,163,184,.7);
       padding:8px 10px;border-radius:10px;
-      font:700 12px Outfit;
+      font:700 12px Barlow Condensed;
     }
     body.theme-light .chip{
       background:#e5e7eb;border-color:rgba(148,163,184,.9);
@@ -259,7 +259,7 @@
       border-radius:10px;
       color:var(--text);
       padding:8px 10px;
-      font:600 13px Outfit;
+      font:600 13px Barlow Condensed;
     }
     body.theme-light .input,
     body.theme-light .select{
@@ -271,7 +271,7 @@
       display:flex;flex-wrap:wrap;
       gap:8px;margin-top:10px;align-items:center;
     }
-    #shareState{font:600 11px Outfit;color:var(--text-dim)}
+    #shareState{font:600 11px Barlow Condensed;color:var(--text-dim)}
 
     .leaflet-popup-content-wrapper{
       background:rgba(0,0,0,.9);
@@ -285,12 +285,12 @@
       border:1px solid rgba(34,197,94,.5);
     }
     .leaflet-popup-content{margin:10px;min-width:200px;max-width:240px}
-    .rsl-pop-title{font:700 14px/1.25 Outfit}
-    .rsl-pop-loc{color:#9aa5b1;font:600 12px/1.3 Outfit;margin:2px 0 6px}
-    .rsl-pop-desc{color:#cdd6ff;font:500 12px/1.4 Outfit;margin-bottom:8px}
+    .rsl-pop-title{font:700 14px/1.25 Barlow Condensed}
+    .rsl-pop-loc{color:#9aa5b1;font:600 12px/1.3 Barlow Condensed;margin:2px 0 6px}
+    .rsl-pop-desc{color:#cdd6ff;font:500 12px/1.4 Barlow Condensed;margin-bottom:8px}
     .rsl-pop-btn{
       display:inline-block;
-      font:800 12px/1.2 Outfit;
+      font:800 12px/1.2 Barlow Condensed;
       padding:7px 10px;border-radius:8px;
       background:linear-gradient(180deg,#22c55e,#16a34a);
       color:#062312;text-decoration:none;
@@ -316,7 +316,7 @@
       pointer-events:auto;
       border-radius:14px;
       padding:8px 14px;
-      font:800 14px Outfit;
+      font:800 14px Barlow Condensed;
       border:1px solid rgba(0,0,0,.18);
       box-shadow:0 6px 16px rgba(0,0,0,.35);
       flex:0 0 auto;
@@ -374,7 +374,7 @@
       color:#0f172a;
       border-radius:999px;
       padding:8px 12px;
-      font:800 12px Outfit;
+      font:800 12px Barlow Condensed;
       border:1px solid rgba(15,23,42,.12);
       box-shadow:0 10px 30px rgba(0,0,0,.25);
       display:none;
@@ -439,7 +439,7 @@
       color:#f9fafb;
       padding:4px 8px;
       border-radius:999px;
-      font:700 11px Outfit;
+      font:700 11px Barlow Condensed;
       white-space:nowrap;
       opacity:0;
       pointer-events:none;
@@ -524,7 +524,7 @@
       width:100%;padding:9px 11px;
       border-radius:10px;
       background:#020617;border:1px solid(var(--border));
-      color:#fff;font:600 14px Outfit;
+      color:#fff;font:600 14px Barlow Condensed;
     }
     body.theme-light .modal input,
     body.theme-light .modal select,
@@ -581,6 +581,395 @@
       0%{opacity:.5;transform:scale(.8)}
       100%{opacity:0;transform:scale(1.3)}
     }
+
+
+    /* RIDLY x RSL — DA REFRESH 2026 */
+    :root{
+      --bg:#080808;
+      --bg-soft:#0d0d0d;
+      --card:#111111;
+      --accent:#cc0000;
+      --accent-soft:rgba(204,0,0,.10);
+      --accent-strong:rgba(204,0,0,.28);
+      --text:#f0f0f0;
+      --text-dim:#8a8a8a;
+      --border:rgba(255,255,255,.11);
+    }
+    body.theme-dark{
+      --bg:#080808;--bg-soft:#0d0d0d;--card:#111111;
+      --accent:#cc0000;--accent-soft:rgba(204,0,0,.10);--accent-strong:rgba(204,0,0,.28);
+      --text:#f0f0f0;--text-dim:#8a8a8a;--border:rgba(255,255,255,.11);
+    }
+    body.theme-light{
+      --bg:#f4f4f4;--bg-soft:#e9e9e9;--card:#ffffff;
+      --accent:#cc0000;--accent-soft:rgba(204,0,0,.08);--accent-strong:rgba(204,0,0,.18);
+      --text:#101010;--text-dim:#676767;--border:rgba(0,0,0,.13);
+    }
+    body{
+      font-family:"Barlow Condensed",system-ui,-apple-system,"Segoe UI",sans-serif;
+      background:#080808;
+    }
+    body.theme-light{background:#f4f4f4}
+    .brand span,
+    .modal-card h3,
+    .rsl-pop-title{
+      font-family:"Bebas Neue","Barlow Condensed",sans-serif;
+      letter-spacing:.045em;
+    }
+    .brand span{font-size:22px;letter-spacing:.055em}
+    button,input,select,textarea,.btn,.chip,.tab,.icon-btn{
+      font-family:"Barlow Condensed",system-ui,sans-serif !important;
+    }
+    nav.nav{
+      background:rgba(8,8,8,.92);
+      border-bottom-color:rgba(255,255,255,.10);
+    }
+    body.theme-light nav.nav{background:rgba(255,255,255,.94)}
+    .brand img{
+      background:#000;
+      box-shadow:0 0 18px rgba(204,0,0,.42);
+    }
+    .add-btn{
+      background:linear-gradient(180deg,#e51010,#cc0000 60%,#960000);
+      color:#fff;
+      box-shadow:0 10px 24px rgba(204,0,0,.32);
+    }
+    .icon-btn{
+      border-color:rgba(255,255,255,.10);
+      background:rgba(17,17,17,.94);
+    }
+    body.theme-light .icon-btn{background:#efefef;border-color:rgba(0,0,0,.12)}
+    .map-card{
+      background:rgba(17,17,17,.94);
+      border-color:rgba(255,255,255,.10);
+      box-shadow:0 20px 55px rgba(0,0,0,.42);
+    }
+    body.theme-light .map-card{background:#fff;border-color:rgba(0,0,0,.10)}
+    .btn.green,
+    .rsl-pop-btn{
+      background:linear-gradient(180deg,#e51010,#cc0000);
+      color:#fff;
+      box-shadow:0 8px 22px rgba(204,0,0,.24);
+    }
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip{
+      border-color:rgba(204,0,0,.52);
+    }
+    .chip-green{background:#ffe9e9;color:#7c1010}
+    .btn-share{background:linear-gradient(145deg,#e51010,#960000)}
+    .btn-nearby{background:linear-gradient(145deg,#ef4444,#cc0000)}
+    #asMsg{color:#ff8d8d}
+    .tabbar{
+      background:rgba(8,8,8,.97);
+      border-top-color:rgba(255,255,255,.11);
+      box-shadow:0 -12px 30px rgba(0,0,0,.22);
+    }
+    body.theme-light .tabbar{background:rgba(255,255,255,.97)}
+    .tab{font-weight:700}
+    .tab.active{color:#cc0000}
+    #tabLya{
+      position:relative;
+      color:#d7d7d7;
+    }
+    #tabLya .ic{
+      width:28px;height:28px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(204,0,0,.16);
+      border:1px solid rgba(229,16,16,.42);
+      color:#fff;
+      box-shadow:0 0 18px rgba(204,0,0,.18);
+    }
+    #tabLya:hover,#tabLya:focus{color:#e51010}
+    .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(0,0,0,.48),rgba(0,0,0,.82));
+    }
+    body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(255,255,255,.84),rgba(255,255,255,.96));
+    }
+    .filters-card{
+      background:rgba(10,10,10,.94);
+      border-color:rgba(255,255,255,.15);
+    }
+    body.theme-light .filters-card{background:#fff;border-color:rgba(0,0,0,.13)}
+    .chip{
+      background:rgba(17,17,17,.94);
+      border-color:rgba(255,255,255,.14);
+    }
+    body.theme-light .chip{background:#efefef;border-color:rgba(0,0,0,.13)}
+    .input,.select,
+    .modal input,.modal select,.modal textarea{
+      background:#0d0d0d;
+      border-color:rgba(255,255,255,.13);
+    }
+    body.theme-light .input,
+    body.theme-light .select,
+    body.theme-light .modal input,
+    body.theme-light .modal select,
+    body.theme-light .modal textarea{
+      background:#f3f3f3;color:#101010;border-color:rgba(0,0,0,.13);
+    }
+    .modal-card{
+      background:rgba(12,12,12,.97);
+      border-color:rgba(255,255,255,.15);
+    }
+    body.theme-light .modal-card{background:#fff;color:#101010;border-color:rgba(0,0,0,.13)}
+    ::selection{background:#cc0000;color:#fff}
+
+  
+
+    /* ============================================================
+       RIDLY — MINIMAL MAP UI 2026
+       Visual-only overrides. No Supabase / Leaflet / app logic here.
+       ============================================================ */
+    :root,
+    body.theme-dark,
+    body.theme-light{
+      --bg:#080808;
+      --bg-soft:#0d0d0d;
+      --card:#101010;
+      --accent:#cc0000;
+      --accent-soft:rgba(204,0,0,.10);
+      --accent-strong:rgba(204,0,0,.24);
+      --text:#f2f2f2;
+      --text-dim:#8b8b8b;
+      --border:rgba(255,255,255,.09);
+      --radius-xl:18px;
+    }
+
+    html,body{background:#080808 !important;color:#f2f2f2}
+    body,body.theme-light{
+      font-family:"Barlow Condensed",system-ui,-apple-system,"Segoe UI",sans-serif;
+      background:#080808 !important;
+    }
+
+    /* Background calmer: map, not video, is the visual focus. */
+    .rsl-bg-video{filter:brightness(.20) saturate(.45) !important}
+    .rsl-bg-dim,
+    body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(0,0,0,.70),rgba(0,0,0,.94)) !important;
+    }
+
+    .page-wrap{
+      max-width:1180px;
+      min-height:100svh;
+    }
+
+    /* Minimal header */
+    nav.nav,
+    body.theme-light nav.nav{
+      background:rgba(8,8,8,.88) !important;
+      border-bottom:1px solid rgba(255,255,255,.07) !important;
+      backdrop-filter:blur(18px);
+    }
+    nav.nav .row{min-height:56px;padding:7px 12px}
+    .brand{gap:9px}
+    .brand img{
+      width:34px;height:34px;border-radius:10px;
+      padding:2px;background:#000;
+      box-shadow:none !important;
+    }
+    .brand span{
+      font-family:"Bebas Neue","Barlow Condensed",sans-serif;
+      font-size:25px;letter-spacing:.075em;
+    }
+    .add-btn{display:none !important}
+    #memberCounter,#btnTheme,#btnPwa{display:none !important}
+    .nav-tools{gap:6px}
+    .icon-btn,
+    body.theme-light .icon-btn{
+      width:36px;height:36px;min-width:36px;padding:0;
+      border:1px solid rgba(255,255,255,.08) !important;
+      background:rgba(255,255,255,.045) !important;
+      color:#f2f2f2 !important;
+      box-shadow:none !important;
+    }
+    .icon-btn:hover{border-color:rgba(204,0,0,.65) !important;color:#fff !important}
+    .icon-btn .label{display:none !important}
+
+    /* Map occupies the page */
+    .main{padding:8px 8px 76px !important}
+    .hero,.mini-title{display:none !important}
+    .map-card,
+    body.theme-light .map-card{
+      margin:0 !important;
+      padding:0 !important;
+      background:transparent !important;
+      border:0 !important;
+      border-radius:20px !important;
+      box-shadow:none !important;
+    }
+    .map-wrap{border-radius:20px;overflow:hidden;background:#0d0d0d}
+    #map,
+    body.theme-light #map{
+      height:calc(100svh - 140px) !important;
+      min-height:500px;
+      border:0 !important;
+      border-radius:20px !important;
+      background:#0d0d0d;
+    }
+
+    /* One discreet Filters action. Existing JS continues to open the same panel. */
+    .filters-fab{
+      display:block !important;
+      left:12px !important;top:12px !important;
+      z-index:3400 !important;
+    }
+    .filters-fab .btn,
+    .filters-fab button{
+      height:38px;
+      padding:0 14px !important;
+      border-radius:12px !important;
+      border:1px solid rgba(255,255,255,.11) !important;
+      background:rgba(8,8,8,.88) !important;
+      color:#fff !important;
+      box-shadow:0 8px 24px rgba(0,0,0,.24) !important;
+      backdrop-filter:blur(12px);
+      font-weight:700 !important;
+    }
+    .filters-fab .btn::before{content:"☰  ";color:#cc0000}
+
+    /* Remove permanent category pills. Categories remain available in Filters. */
+    .chips-row{display:none !important}
+
+    /* Keep only Position + Add, with one monochrome visual language. */
+    .side-actions{
+      right:12px !important;
+      top:auto !important;
+      bottom:18px !important;
+      gap:8px !important;
+      transform:none !important;
+    }
+    .side-btn{display:none !important;animation:none !important}
+    #btnSidePersonal,#btnSideAdd{
+      display:flex !important;
+      width:44px;height:44px;
+      border-radius:14px !important;
+      border:1px solid rgba(255,255,255,.10) !important;
+      background:rgba(8,8,8,.90) !important;
+      color:#fff !important;
+      box-shadow:0 8px 24px rgba(0,0,0,.28) !important;
+      backdrop-filter:blur(12px);
+    }
+    #btnSideAdd{
+      background:#cc0000 !important;
+      border-color:#cc0000 !important;
+    }
+    .side-btn span{animation:none !important;transform:none !important}
+    .side-btn::after{display:none !important}
+
+    /* Map style is secondary and subtle. */
+    .fab-style,
+    body.theme-dark .fab-style{
+      left:auto !important;right:12px !important;
+      bottom:120px !important;
+      width:38px !important;height:38px !important;
+      border-radius:12px !important;
+      background:rgba(8,8,8,.78) !important;
+      border:1px solid rgba(255,255,255,.08) !important;
+      color:#d4d4d4 !important;
+      box-shadow:none !important;
+      font-size:16px !important;
+      backdrop-filter:blur(10px);
+    }
+    .mapstyle-tip{display:none !important}
+
+    /* Filters/modal: clean sheets, no colorful decoration. */
+    .filters-wrap{top:58px !important;left:12px !important;right:12px !important}
+    .filters-card,
+    body.theme-light .filters-card,
+    .modal-card,
+    body.theme-light .modal-card{
+      background:rgba(12,12,12,.97) !important;
+      color:#f2f2f2 !important;
+      border:1px solid rgba(255,255,255,.10) !important;
+      box-shadow:0 24px 64px rgba(0,0,0,.46) !important;
+      backdrop-filter:blur(18px);
+    }
+    .chip,
+    body.theme-light .chip,
+    .input,.select,
+    body.theme-light .input,body.theme-light .select,
+    .modal input,.modal select,.modal textarea,
+    body.theme-light .modal input,body.theme-light .modal select,body.theme-light .modal textarea{
+      background:#151515 !important;
+      color:#f2f2f2 !important;
+      border-color:rgba(255,255,255,.10) !important;
+    }
+    .btn,
+    body.theme-light .btn{
+      background:#171717 !important;
+      color:#ededed !important;
+      border-color:rgba(255,255,255,.10) !important;
+      box-shadow:none !important;
+    }
+    .btn.green,.rsl-pop-btn{
+      background:#cc0000 !important;
+      color:#fff !important;
+      border-color:#cc0000 !important;
+      box-shadow:none !important;
+    }
+
+    /* Popup */
+    .leaflet-popup-content-wrapper,.leaflet-popup-tip{
+      background:#101010 !important;
+      color:#fff !important;
+      border-color:rgba(204,0,0,.40) !important;
+    }
+
+    /* Simplified five-item bottom nav. */
+    .tabbar,
+    body.theme-light .tabbar{
+      left:50% !important;right:auto !important;
+      width:min(100%,680px);
+      transform:translateX(-50%);
+      min-height:64px;
+      padding:6px max(8px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left)) !important;
+      background:rgba(8,8,8,.96) !important;
+      border:1px solid rgba(255,255,255,.08) !important;
+      border-bottom:0 !important;
+      border-radius:18px 18px 0 0 !important;
+      box-shadow:0 -14px 34px rgba(0,0,0,.28) !important;
+      backdrop-filter:blur(20px);
+    }
+    .tab{
+      min-width:0;
+      color:#777 !important;
+      font-size:9px !important;
+      font-weight:700 !important;
+      letter-spacing:.06em;
+      padding:5px 2px !important;
+      gap:3px !important;
+    }
+    .tab .ic{
+      width:25px;height:25px;
+      display:flex;align-items:center;justify-content:center;
+      font-family:"Barlow Condensed",sans-serif;
+      font-size:21px !important;line-height:1 !important;
+      color:#8b8b8b;
+    }
+    .tab.active,.tab.active .ic{color:#cc0000 !important}
+    #tabLya{color:#777 !important}
+    #tabLya .ic{
+      width:25px !important;height:25px !important;
+      border:0 !important;border-radius:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      color:#8b8b8b !important;
+    }
+    #tabLya:hover,#tabLya:focus,#tabLya:hover .ic,#tabLya:focus .ic{color:#cc0000 !important}
+
+    @media (max-width:600px){
+      .page-wrap{max-width:none}
+      nav.nav .row{padding:6px 9px}
+      .main{padding:6px 6px 72px !important}
+      .map-wrap,#map{border-radius:16px !important}
+      #map{height:calc(100svh - 126px) !important;min-height:460px}
+      .filters-fab{left:9px !important;top:9px !important}
+      .side-actions{right:9px !important;bottom:14px !important}
+      .fab-style{right:9px !important;bottom:112px !important}
+      .tabbar{width:100%;border-left:0 !important;border-right:0 !important;border-radius:16px 16px 0 0 !important}
+    }
+
   </style>
 </head>
 <body class="theme-dark">
@@ -636,7 +1025,7 @@
         <div class="filters-wrap" id="filtersWrap">
           <div class="filters-card">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-              <b style="font:800 13px Outfit">Filtres</b>
+              <b style="font:800 13px Barlow Condensed">Filtres</b>
               <button id="btnCloseFilters" class="btn" style="padding:4px 10px">✕</button>
             </div>
 
@@ -812,15 +1201,12 @@
 
 <!-- TABBAR -->
 <nav class="tabbar" aria-label="Navigation">
-  <a class='tab active' href='/ou_rider' title='Spots'><div class="ic">📍</div><span>Spots</span></a>
-  <a class='tab' href='/feed' title='Feed'><div class="ic">🎬</div><span>Feed</span></a>
-  <a class='tab' href='/recherche' title='Recherche'><div class="ic">🔎</div><span>Search</span></a>
-  <a class='tab' href='/games' title='Games'><div class="ic">🎮</div><span>Game</span></a>
-  <a class='tab' href='ridly-lya.html' title='Lya'><div class="ic">✨</div><span>Lya</span></a>
-  <a class='tab' href='/classement' title='Classement'><div class="ic">🏆</div><span>Rank</span></a>
-  <a class='tab' href='/profil_ou_rider' title='Profil'><div class="ic">👤</div><span>Profil</span></a>
+  <a class="tab active" href="ou_rider.html" title="Spots"><div class="ic">⌖</div><span>Spots</span></a>
+  <a class="tab" href="feed.html" title="Feed"><div class="ic">▶</div><span>Feed</span></a>
+  <a class="tab" href="recherche.html" title="Recherche"><div class="ic">⌕</div><span>Recherche</span></a>
+  <a class="tab" id="tabLya" href="ridly-lya.html" title="Lya"><div class="ic">✦</div><span>Lya</span></a>
+  <a class="tab" href="profil_ou_rider.html" title="Profil"><div class="ic">○</div><span>Profil</span></a>
 </nav>
-
 <!-- Toast global -->
 <div id="toast" class="toast"></div>
 
@@ -876,8 +1262,6 @@ async function refreshTotalMembers(){
     console.warn('refreshTotalMembers error', e);
   }
 }
-</script>
-
 </script>
 
 <script>
