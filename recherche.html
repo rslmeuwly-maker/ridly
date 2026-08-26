@@ -6,7 +6,7 @@
   <title>Recherche — RIDLY</title>
 
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#22c55e">
+  <meta name="theme-color" content="#cc0000">
 
   <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -580,7 +580,204 @@
         border-radius:22px 22px 0 0;
       }
     }
+  
+    /* RIDLY_RECHERCHE_DA_2026_BEGIN */
+    :root,
+    body.theme-dark,
+    body.theme-light{
+      --bg:#080808;
+      --bg-soft:#0d0d0d;
+      --card:#101010;
+      --accent:#cc0000;
+      --accent-soft:rgba(204,0,0,.11);
+      --accent-strong:rgba(204,0,0,.24);
+      --text:#f2f2f2;
+      --text-dim:#8b8b8b;
+      --border:rgba(255,255,255,.09);
+      --radius-xl:16px;
+    }
+    html,body{background:#080808 !important;color:#f2f2f2}
+    body,body.theme-light{
+      font-family:"Barlow Condensed",system-ui,-apple-system,"Segoe UI",sans-serif !important;
+      background:#080808 !important;
+    }
+    button,input,textarea,select{font-family:"Barlow Condensed",system-ui,sans-serif !important}
+    .rsl-bg-video{filter:brightness(.20) saturate(.45) !important}
+    .rsl-bg-dim,body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(0,0,0,.70),rgba(0,0,0,.94)) !important;
+    }
+    .page-wrap{max-width:680px;min-height:100svh}
+
+    /* Header identique à ou_rider */
+    nav.nav,body.theme-light nav.nav{
+      background:rgba(8,8,8,.88) !important;
+      border-bottom:1px solid rgba(255,255,255,.07) !important;
+      backdrop-filter:blur(18px);
+    }
+    nav.nav .row{min-height:56px;padding:7px 12px}
+    .brand{gap:0}
+    .brand-wordmark{width:132px;height:auto;max-width:48vw;display:block}
+    .brand img,.brand span,.add-btn{display:none !important}
+    .nav-tools{gap:6px;position:relative}
+    #btnTheme{display:none !important}
+    .icon-btn,body.theme-light .icon-btn{
+      width:36px;height:36px;min-width:36px;padding:0;
+      border:1px solid rgba(255,255,255,.08) !important;
+      background:rgba(255,255,255,.045) !important;
+      color:#f2f2f2 !important;
+      box-shadow:none !important;
+    }
+    .icon-btn:hover{border-color:rgba(204,0,0,.65) !important;color:#fff !important}
+    .more-btn{
+      width:36px;height:36px;min-width:36px;padding:0;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.045);
+      color:#f2f2f2;border-radius:999px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:18px;font-weight:800;cursor:pointer;
+    }
+    .more-btn:hover,.more-btn:focus{border-color:#cc0000;color:#fff}
+    .more-menu{
+      position:absolute;top:44px;right:0;width:170px;padding:6px;
+      background:rgba(12,12,12,.98);border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;box-shadow:0 18px 45px rgba(0,0,0,.45);
+      backdrop-filter:blur(16px);display:none;z-index:9999;
+    }
+    .more-menu.show{display:block}
+    .more-menu a{
+      display:flex;align-items:center;gap:10px;padding:10px 11px;
+      border-radius:10px;color:#f0f0f0;text-decoration:none;
+      font:700 14px "Barlow Condensed",system-ui,sans-serif;
+    }
+    .more-menu a:hover{background:rgba(204,0,0,.14)}
+    .more-menu .mi{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:18px}
+
+    /* Recherche */
+    .main{padding:10px 8px 78px !important}
+    .mini-title{
+      padding:4px 4px 8px !important;
+      color:#777 !important;
+      font-size:11px !important;
+      font-weight:800 !important;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .card,body.theme-light .card{
+      background:transparent !important;
+      border:0 !important;
+      box-shadow:none !important;
+      border-radius:0 !important;
+      padding:0 2px 10px !important;
+      margin-top:0 !important;
+    }
+    .main-title{
+      margin:0 4px 3px !important;
+      font-family:"Bebas Neue","Barlow Condensed",sans-serif !important;
+      font-size:27px !important;
+      letter-spacing:.045em;
+      color:#f2f2f2;
+    }
+    .muted{color:#838383 !important;font-size:13px !important;line-height:1.35;margin:0 4px 10px !important}
+    .search-bar{
+      background:#101010 !important;
+      border:1px solid rgba(255,255,255,.07) !important;
+      border-radius:14px !important;
+      padding:8px !important;
+      margin:0 0 10px !important;
+      box-shadow:none !important;
+    }
+    .input,.select,body.theme-light .input,body.theme-light .select{
+      background:#0b0b0b !important;
+      border:1px solid rgba(255,255,255,.10) !important;
+      color:#f2f2f2 !important;
+      border-radius:11px !important;
+      padding:9px 10px !important;
+      font-size:13px !important;
+      outline:none;
+    }
+    .input:focus,.select:focus{border-color:rgba(204,0,0,.65) !important;box-shadow:0 0 0 2px rgba(204,0,0,.08)}
+    .count,body.theme-light .count{color:#b8b8b8 !important;font-size:12px !important;margin:2px 2px 7px !important}
+    .grid{gap:6px !important}
+    .post-tile{
+      border-radius:12px !important;
+      border:1px solid rgba(255,255,255,.07) !important;
+      background:#0b0b0b !important;
+      box-shadow:none !important;
+      transition:transform .15s ease,border-color .15s ease;
+    }
+    .post-tile:hover{border-color:rgba(204,0,0,.48) !important;transform:translateY(-1px)}
+    .post-type-badge{
+      background:rgba(8,8,8,.86) !important;
+      color:#ddd !important;
+      border:1px solid rgba(255,255,255,.08);
+      padding:3px 6px !important;
+    }
+    .post-user-badge{
+      background:rgba(8,8,8,.88) !important;
+      color:#f0f0f0 !important;
+      border:1px solid rgba(255,255,255,.08);
+      padding:3px 6px !important;
+    }
+    .hint-bottom{display:none !important}
+
+    /* Reel viewer */
+    .viewer{background:rgba(0,0,0,.97) !important}
+    .viewer-media img,.viewer-media video{
+      border-radius:16px !important;
+      border:1px solid rgba(255,255,255,.08) !important;
+      background:#000 !important;
+      box-shadow:none !important;
+    }
+    .viewer-caption{color:#f0f0f0 !important}
+    .viewer-user{color:#f0f0f0 !important}
+    .viewer-user:hover{color:#cc0000 !important}
+    .viewer-info{color:#888 !important}
+    .viewer-close{
+      background:#111 !important;color:#fff !important;
+      border:1px solid rgba(255,255,255,.10) !important;
+      box-shadow:none !important;
+    }
+    .wheel-label{color:#888 !important}
+
+    /* Bottom bar identique à ou_rider */
+    .tabbar,body.theme-light .tabbar{
+      left:50% !important;right:auto !important;
+      width:min(100%,680px);transform:translateX(-50%);
+      min-height:64px;
+      padding:6px max(8px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left)) !important;
+      background:rgba(8,8,8,.96) !important;
+      border:1px solid rgba(255,255,255,.08) !important;
+      border-bottom:0 !important;
+      border-radius:18px 18px 0 0 !important;
+      box-shadow:0 -14px 34px rgba(0,0,0,.28) !important;
+      backdrop-filter:blur(20px);
+    }
+    .tab{
+      min-width:0;color:#777 !important;font-size:9px !important;font-weight:700 !important;
+      letter-spacing:.06em;padding:5px 2px !important;gap:3px !important;
+    }
+    .tab .ic{
+      width:25px;height:25px;display:flex;align-items:center;justify-content:center;
+      font-family:"Barlow Condensed",sans-serif;font-size:21px !important;line-height:1 !important;color:#8b8b8b;
+    }
+    .tab.active,.tab.active .ic{color:#cc0000 !important}
+    #tabLya{color:#777 !important}
+    #tabLya .ic{width:25px !important;height:25px !important;border:0 !important;border-radius:0 !important;background:transparent !important;box-shadow:none !important;color:#8b8b8b !important}
+    #tabLya:hover,#tabLya:focus,#tabLya:hover .ic,#tabLya:focus .ic{color:#cc0000 !important}
+    ::selection{background:#cc0000;color:#fff}
+    @media(max-width:640px){
+      nav.nav .row{padding:6px 9px}
+      .brand-wordmark{width:112px;max-width:52vw}
+      .main{padding:8px 6px 72px !important}
+      .tabbar{width:100%;border-left:0 !important;border-right:0 !important;border-radius:16px 16px 0 0 !important}
+      .main-title{font-size:24px !important}
+    }
+    /* RIDLY_RECHERCHE_DA_2026_END */
+
   </style>
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body class="theme-dark">
 
@@ -597,28 +794,37 @@
     <div class="row">
       <div class="nav-left">
         <a class="brand" href="ou_rider.html">
-          <img src="image/1logo_ridly.png" alt="RIDLY"/>
-          <span>RIDLY</span>
+          <svg class="brand-wordmark" viewBox="0 0 560 170" role="img" aria-label="RIDLY by RSL" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMid meet">
+            <defs>
+              <linearGradient id="ridlyRedSearch" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0%" stop-color="#ff1a1a"/>
+                <stop offset="100%" stop-color="#cc0000"/>
+              </linearGradient>
+            </defs>
+            <g transform="translate(6 10)">
+              <path d="M84 0C46 0 15 31 15 69c0 15 5 29 13 40l46 47c5 5 13 5 18 0l46-47c8-11 13-25 13-40C151 31 120 0 84 0zm0 40c16 0 29 13 29 29S100 98 84 98 55 85 55 69s13-29 29-29z" fill="url(#ridlyRedSearch)"/>
+            </g>
+            <g fill="#f4f4f4" font-family="Arial, Helvetica, sans-serif" font-weight="900">
+              <text x="170" y="92" font-size="78" letter-spacing="3">RIDLY</text>
+            </g>
+            <g font-family="Arial, Helvetica, sans-serif" font-style="italic" font-weight="800" font-size="30">
+              <line x1="188" y1="123" x2="234" y2="123" stroke="#cc0000" stroke-width="5" stroke-linecap="round"/>
+              <text x="252" y="133" fill="#cc0000">BY</text>
+              <text x="314" y="133" fill="#f4f4f4" font-style="normal">RSL</text>
+              <line x1="392" y1="123" x2="438" y2="123" stroke="#cc0000" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </svg>
         </a>
-        <!-- Bouton + -->
-        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post">
-          <span>+</span>
-        </button>
       </div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
-
-        <!-- Bouton 1v1 -->
-        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
-          💌
-          <span class="badge" id="badge1v1"></span>
-        </a>
-
-        <!-- Chat global -->
-        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">
-          <span class="chat-dot" id="chatDot"></span>
-          💬
-        </a>
+        <a class="icon-btn" href="chat1v1.html" id="btn1v1" title="Messages privés">💌<span class="badge" id="badge1v1"></span></a>
+        <a class="icon-btn" href="chat.html" id="btnChat" title="Chat riders">💬</a>
+        <button type="button" class="more-btn" id="btnMore" title="Plus">•••</button>
+        <div class="more-menu" id="moreMenu" aria-hidden="true">
+          <a href="games.html"><span class="mi">🎮</span><span>Game</span></a>
+          <a href="classement.html"><span class="mi">🏆</span><span>Classement</span></a>
+        </div>
       </div>
     </div>
   </nav>
@@ -681,25 +887,27 @@
 
 <!-- NAVIGATION BAS -->
 <nav class="tabbar" aria-label="Navigation">
-  <a class="tab" href="ou_rider.html" title="Spots">
-    <div class="ic">📍</div><span>Spots</span>
-  </a>
-  <a class="tab" href="feed.html" title="Feed">
-    <div class="ic">🎬</div><span>Feed</span>
-  </a>
-  <a class="tab active" href="recherche.html" title="Recherche">
-    <div class="ic">🔎</div><span>Search</span>
-  </a>
-  <a class="tab" href="games.html" title="Games">
-    <div class="ic">🎮</div><span>Game</span>
-  </a>
-  <a class="tab" href="classement.html" title="Classement">
-    <div class="ic">🏆</div><span>Rank</span>
-  </a>
-  <a class="tab" href="profil_ou_rider.html" title="Profil">
-    <div class="ic">👤</div><span>Profil</span>
-  </a>
+  <a class="tab" href="ou_rider.html" title="Spots"><div class="ic">⌖</div><span>Spots</span></a>
+  <a class="tab" href="feed.html" title="Feed"><div class="ic">▶</div><span>Feed</span></a>
+  <a class="tab active" href="recherche.html" title="Recherche"><div class="ic">⌕</div><span>Recherche</span></a>
+  <a class="tab" id="tabLya" href="ridly-lya.html" title="Lya"><div class="ic">✦</div><span>Lya</span></a>
+  <a class="tab" href="profil_ou_rider.html" title="Profil"><div class="ic">○</div><span>Profil</span></a>
 </nav>
+
+
+<script>
+/* Menu Plus Recherche */
+(function(){
+  const btn=document.getElementById('btnMore');
+  const menu=document.getElementById('moreMenu');
+  if(!btn||!menu)return;
+  const close=()=>{menu.classList.remove('show');menu.setAttribute('aria-hidden','true');};
+  btn.addEventListener('click',e=>{e.stopPropagation();const open=menu.classList.toggle('show');menu.setAttribute('aria-hidden',open?'false':'true');});
+  menu.addEventListener('click',e=>e.stopPropagation());
+  document.addEventListener('click',close);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+})();
+</script>
 
 <!-- Toast global -->
 <div id="toast" class="toast"></div>
