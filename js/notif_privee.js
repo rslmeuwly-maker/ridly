@@ -4,7 +4,7 @@
 // ex. const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ===== Son de notif =====
-const notifAudioGlobal = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+const notifAudioGlobal = new Audio('/sons/sonsnotif.mp3');
 
 function playNotifSoundGlobal(){
   try{

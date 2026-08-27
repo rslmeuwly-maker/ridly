@@ -990,7 +990,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 /* Toast + notifs 1v1 */
 const toastDiv   = document.getElementById('toast');
 const badge1v1   = document.getElementById('badge1v1');
-const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+const notifAudio = new Audio('/sons/sonsnotif.mp3');
 let unreadToastShown = false;
 
 function showToast(msg){
@@ -1845,7 +1845,10 @@ async function loadSpotStats(){
 </script>
 
 <!-- Firebase Notifications -->
-<script src="js/firebase.js" type="module"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase.js"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/firebase-messaging-sw.js")

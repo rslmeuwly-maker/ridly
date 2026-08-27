@@ -970,7 +970,7 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 /* ===== Toast + notifs 1v1 ===== */
 const toastDiv  = document.getElementById('toast');
 const badge1v1  = document.getElementById('badge1v1');
-const notifAudio = new Audio('https://ridly.ch/sons/sonsnotif.mp3');
+const notifAudio = new Audio('/sons/sonsnotif.mp3');
 let unreadToastShown = false;
 
 function showToast(msg){

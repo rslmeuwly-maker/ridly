@@ -1,4 +1,3 @@
-// firebase-messaging-sw.js
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
 
@@ -14,10 +13,29 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  console.log("📩 [SW] Message reçu en background:", payload);
   const notif = payload.notification || {};
+  const data  = payload.data || {};
+
   self.registration.showNotification(notif.title || "RIDLY", {
-    body: notif.body || "",
-    icon: "/image/1logo_ridly.png"
+    body:  notif.body || "",
+    icon:  "/image/icon-192.png",
+    badge: "/image/icon-192.png",
+    tag:   data.tag || "ridly",
+    data:  { url: data.url || "/feed" }
   });
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || "/feed";
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true })
+      .then((list) => {
+        for (const c of list) {
+          if (c.url.includes(target) && "focus" in c) return c.focus();
+        }
+        return clients.openWindow(target);
+      })
+  );
 });
