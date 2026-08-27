@@ -161,3 +161,18 @@ absent de `recherche.html`, et masqué par `display:none` dans les blocs DA de
 `admin_spots.html` a reçu le bloc DA mais garde sa structure `<header>` propre :
 ni wordmark ni bouton +, faute de conteneur `nav-left`.
 
+
+## Incident — connexion cassée (corrigé)
+
+Mon script de normalisation PWA supprimait les blocs `<script>` contenant
+l'enregistrement du service worker. Sur `compte.html`, ce bloc contenait aussi
+**tout le code d'authentification** : 9 002 octets supprimés, dont le client
+Supabase, `signInWithPassword`, `signUp` et le reset de mot de passe.
+La page de connexion était donc inerte.
+
+Corrigé : le retrait se fait maintenant en comptant les accolades, pour ne
+supprimer que le bloc `if("serviceWorker" in navigator){...}` lui-même.
+238 octets retirés au lieu de 9 002. Audit passé sur les 20 pages : aucune
+autre fonction perdue, seuls `register`, `log` et `then` du service worker
+ont disparu, ce qui est voulu.
+
