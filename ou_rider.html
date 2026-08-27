@@ -793,7 +793,13 @@
         max-width:52vw;
       }
     }
-    .add-btn{display:none !important}
+    .add-btn{
+      display:flex !important;width:36px;height:36px;min-width:36px;border-radius:999px;
+      align-items:center;justify-content:center;border:none;cursor:pointer;
+      background:linear-gradient(180deg,#e51010,#cc0000) !important;color:#fff !important;
+      font-size:21px;font-weight:700;box-shadow:0 8px 20px rgba(204,0,0,.28) !important;
+    }
+    .add-btn span{transform:translateY(-1px)}
     #memberCounter,#btnTheme,#btnPwa{display:none !important}
     .nav-tools{gap:6px}
     .icon-btn,

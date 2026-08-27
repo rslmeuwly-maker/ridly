@@ -124,3 +124,40 @@ ramène exactement là, via `history.back()` pour préserver son scroll.
 La barre du bas n'est toujours pas posée sur cette page : son champ de saisie
 est fixé en bas et serait recouvert.
 
+
+## Personnage Lya — problème de pixel
+
+Cause identifiée : **le détourage des sprites a keyé sur le noir.** Le canal
+alpha corrèle à +0,57 avec la luminosité, et 13 713 pixels sombres — luminance
+moyenne 55, soit le hoodie et le pantalon — ont été rendus transparents.
+Lya s'affichait donc en fantôme, seuls son visage, ses cheveux et les accents
+rouges restant visibles.
+
+Les 16 sprites d'animation **ne sont pas récupérables** : les pixels des
+vêtements valent exactement (0,0,0), identiques au fond. L'information est
+détruite. Il faut les ré-exporter depuis la source, avec un détourage qui ne
+se base pas sur la luminosité, et les enregistrer en WebP *lossless* ou en PNG.
+
+L'illustration principale et l'avatar ont été régénérés depuis `imagegen.png` :
+- alpha normalisé (le maximum était à 254, rien n'était réellement opaque)
+- purge du blanc sous les zones transparentes par `inpaint`, sinon le
+  redimensionnement aspire le fond et crée un halo autour de la silhouette
+- export en WebP lossless, en fichiers externes plutôt qu'en base64
+
+`image/lya-hero.webp` (257 Ko) et `image/lya-avatar.webp` (126 Ko) sont mis en
+cache un an par `vercel.json`, alors que le base64 était retéléchargé à chaque
+visite. Le HTML passe de 1087 à 955 Ko.
+
+## DA 2026 généralisée
+
+Bloc `RIDLY_DA_2026_GENERIC` appliqué à `game`, `games1`, `game_scoot_classic`,
+`classement`, `chat`, `chat1v1`, `ajouter`, `spot`, `games`, `admin_spots`.
+Wordmark SVG dans l'en-tête de ces pages, à la place du logo + texte.
+
+Bouton **+** rouge présent et visible sur les 13 pages applicatives. Il était
+absent de `recherche.html`, et masqué par `display:none` dans les blocs DA de
+`feed.html` et `ou_rider.html`.
+
+`admin_spots.html` a reçu le bloc DA mais garde sa structure `<header>` propre :
+ni wordmark ni bouton +, faute de conteneur `nav-left`.
+

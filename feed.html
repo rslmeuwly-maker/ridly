@@ -1047,7 +1047,8 @@
     .brand-wordmark{
       width:132px;height:auto;max-width:48vw;display:block;
     }
-    .brand img,.brand span,.add-btn{display:none !important}
+    .brand img,.brand span{display:none !important}
+    .add-btn{display:flex !important;width:36px;height:36px;min-width:36px;border-radius:999px;align-items:center;justify-content:center;border:none;background:linear-gradient(180deg,#e51010,#cc0000) !important;color:#fff !important;font-size:21px;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(204,0,0,.28) !important}
     .nav-tools{gap:6px;position:relative}
     #btnTheme{display:none !important}
     .icon-btn,body.theme-light .icon-btn{
@@ -1294,7 +1295,8 @@
             </g>
           </svg>
         </a>
-      </div>
+      
+        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouvelle publication"><span>+</span></button></div>
       <div class="nav-tools">
         <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
         <a class="icon-btn" href="chat1v1.html" id="btn1v1" title="Messages privés">💌<span class="badge" id="badge1v1"></span></a>
