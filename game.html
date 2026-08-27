@@ -2,10 +2,22 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#22c55e">
+  <!-- RIDLY_PWA_HEAD_BEGIN -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#080808">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" sizes="192x192" href="/image/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/image/icon-512.png">
+  <link rel="apple-touch-icon" href="/image/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RIDLY">
+  <meta name="format-detection" content="telephone=no">
+  <!-- RIDLY_PWA_HEAD_END -->
+
   <title>Games — RIDLY</title>
 
   <!-- Supabase -->
@@ -430,6 +442,38 @@
     .tab.active{
       color:var(--accent);
     }
+  
+    /* RIDLY_MOBILE_BASE_BEGIN */
+    html{
+      -webkit-text-size-adjust:100%;
+      overscroll-behavior-y:none;
+    }
+    body{
+      min-height:100svh;
+      overscroll-behavior-y:none;
+      -webkit-font-smoothing:antialiased;
+    }
+    /* Encoches iPhone : header et barre du bas */
+    nav.nav{
+      padding-top:env(safe-area-inset-top);
+      padding-left:env(safe-area-inset-left);
+      padding-right:env(safe-area-inset-right);
+    }
+    .tabbar{
+      padding-bottom:calc(7px + env(safe-area-inset-bottom)) !important;
+    }
+    /* Zones tactiles : 44px minimum (recommandation Apple) */
+    .tab,.icon-btn,.more-btn,.add-btn,button,a.btn{
+      touch-action:manipulation;
+    }
+    .icon-btn,.more-btn,.add-btn{min-height:36px}
+    /* Empeche le zoom iOS a la mise au point d'un champ (<16px = zoom auto) */
+    input,textarea,select{font-size:16px}
+    /* Pas de scroll horizontal parasite */
+    body,.page-wrap{max-width:100%;overflow-x:hidden}
+    img,video,svg{max-width:100%}
+    /* RIDLY_MOBILE_BASE_END */
+  
   </style>
 </head>
 <body class="theme-dark">
@@ -514,24 +558,11 @@
 
 <!-- NAVIGATION BAS -->
 <nav class="tabbar" aria-label="Navigation">
-  <a class="tab" href="ou_rider.html" title="Spots">
-    <div class="ic">📍</div><span>Spots</span>
-  </a>
-  <a class="tab" href="feed.html" title="Feed">
-    <div class="ic">🎬</div><span>Feed</span>
-  </a>
-  <a class="tab" href="recherche.html" title="Recherche">
-    <div class="ic">🔎</div><span>Search</span>
-  </a>
-  <a class="tab active" href="games.html" title="Games">
-    <div class="ic">🎮</div><span>Game</span>
-  </a>
-  <a class="tab" href="classement.html" title="Classement">
-    <div class="ic">🏆</div><span>Rank</span>
-  </a>
-  <a class="tab" href="profil_ou_rider.html" title="Profil">
-    <div class="ic">👤</div><span>Profil</span>
-  </a>
+  <a class="tab" href="ou_rider.html" title="Spots"><div class="ic">⌖</div><span>Spots</span></a>
+  <a class="tab" href="feed.html" title="Feed"><div class="ic">▶</div><span>Feed</span></a>
+  <a class="tab" href="recherche.html" title="Recherche"><div class="ic">⌕</div><span>Recherche</span></a>
+  <a class="tab" id="tabLya" href="ridly-lya.html" title="Lya"><div class="ic">✦</div><span>Lya</span></a>
+  <a class="tab" href="profil_ou_rider.html" title="Profil"><div class="ic">○</div><span>Profil</span></a>
 </nav>
 
 <script>
@@ -840,5 +871,6 @@ pseudoInviteInput.addEventListener('keydown', e=>{
   }
 </script>
 
+<script src="/js/pwa.js"></script>
 </body>
 </html>

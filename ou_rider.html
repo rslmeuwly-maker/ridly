@@ -2,15 +2,25 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+  <!-- RIDLY_PWA_HEAD_BEGIN -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#080808">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" sizes="192x192" href="/image/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/image/icon-512.png">
+  <link rel="apple-touch-icon" href="/image/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RIDLY">
+  <meta name="format-detection" content="telephone=no">
+  <!-- RIDLY_PWA_HEAD_END -->
+
   <title>Où rider ? — RIDLY</title>
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#cc0000">
-
   <!-- Icônes PWA / mobile -->
-  <link rel="icon" type="image/png" sizes="192x192" href="image/1logo_ridly.png">
-  <link rel="apple-touch-icon" href="image/1logo_ridly.png">
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -1008,6 +1018,38 @@
     .more-menu a:hover{background:rgba(204,0,0,.14)}
     .more-menu .mi{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:18px}
 
+  
+    /* RIDLY_MOBILE_BASE_BEGIN */
+    html{
+      -webkit-text-size-adjust:100%;
+      overscroll-behavior-y:none;
+    }
+    body{
+      min-height:100svh;
+      overscroll-behavior-y:none;
+      -webkit-font-smoothing:antialiased;
+    }
+    /* Encoches iPhone : header et barre du bas */
+    nav.nav{
+      padding-top:env(safe-area-inset-top);
+      padding-left:env(safe-area-inset-left);
+      padding-right:env(safe-area-inset-right);
+    }
+    .tabbar{
+      padding-bottom:calc(7px + env(safe-area-inset-bottom)) !important;
+    }
+    /* Zones tactiles : 44px minimum (recommandation Apple) */
+    .tab,.icon-btn,.more-btn,.add-btn,button,a.btn{
+      touch-action:manipulation;
+    }
+    .icon-btn,.more-btn,.add-btn{min-height:36px}
+    /* Empeche le zoom iOS a la mise au point d'un champ (<16px = zoom auto) */
+    input,textarea,select{font-size:16px}
+    /* Pas de scroll horizontal parasite */
+    body,.page-wrap{max-width:100%;overflow-x:hidden}
+    img,video,svg{max-width:100%}
+    /* RIDLY_MOBILE_BASE_END */
+  
   </style>
 </head>
 <body class="theme-dark">
@@ -2412,5 +2454,6 @@ if (btnSideNearby) {
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/firebase.js"></script>
+<script src="/js/pwa.js"></script>
 </body>
 </html>

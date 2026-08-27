@@ -87,3 +87,10 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+// Active immediatement la nouvelle version quand js/pwa.js le demande
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});

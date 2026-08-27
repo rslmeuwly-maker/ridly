@@ -70,3 +70,57 @@ Ces pages n'ont jamais été committées. `js/cours.js` existe mais n'est charg�
 
 **5 pages encore en DA verte** — `spot`, `games`, `ajouter`, `chat`, `chat1v1`, `admin_spots`,
 `classement`. Seule la barre du bas a été alignée.
+
+## Socle PWA et mobile (uniformisé sur les 20 pages)
+
+Chaque page porte désormais le même bloc `RIDLY_PWA_HEAD` :
+manifest, `theme-color` noir, icônes 192/512, `apple-touch-icon`,
+`apple-mobile-web-app-capable`, `format-detection`.
+
+`viewport` normalisé partout avec `viewport-fit=cover` (nécessaire pour
+gérer les encoches iPhone). Trois pages avaient `user-scalable=no`, qui
+bloque le zoom — retiré.
+
+Bloc CSS `RIDLY_MOBILE_BASE` sur chaque page : `safe-area-inset` sur le
+header et la barre du bas, `min-height:100svh`, `overscroll-behavior` pour
+supprimer le rebond, `font-size:16px` sur les champs (en dessous, iOS zoome
+automatiquement à la mise au point), et suppression du scroll horizontal.
+
+Le service worker était enregistré en ligne sur 8 pages, avec des variantes.
+Tout passe par `js/pwa.js`, chargé sur les 20 pages, qui gère aussi la mise à
+jour automatique (`SKIP_WAITING` + rechargement unique).
+
+Barre du bas identique sur les 14 pages applicatives : 5 onglets
+(Spots, Feed, Recherche, Lya, Profil). `game.html`, `games1.html` et
+`game_scoot_classic.html` étaient encore à 6 onglets ; `admin_spots.html`
+n'en avait aucune.
+
+### Pages volontairement sans barre du bas
+`index`, `compte`, `reset_password` — pages d'entrée, avant connexion.
+`conditions`, `confidentialite` — pages légales.
+
+### ridly-lya.html
+Interface de chat plein écran avec son propre champ de saisie fixé en bas :
+la barre du bas la recouvrirait. Elle est donc laissée telle quelle.
+Problème à traiter : c'est une cible de la navigation (onglet Lya), mais son
+seul lien de sortie est `index.html`. Il lui faut un bouton retour dans son
+en-tête, ou un décalage du bas de page pour accueillir la barre.
+
+
+## ridly-lya.html — version v69 + bouton retour
+
+Version `v69-swiss-skate-rsl` intégrée (1,11 Mo, remplace la précédente).
+Le socle PWA et le CSS mobile lui ont été appliqués comme aux autres pages.
+
+Un bouton retour existait déjà dans son en-tête (`← RIDLY`, `id="backLink"`,
+déjà stylé, y compris en version carrée sur mobile) mais il pointait vers
+`index.html` — la page d'accueil d'avant connexion. Un utilisateur connecté
+arrivant par l'onglet Lya se retrouvait donc sur le mur de login.
+
+Il pointe maintenant vers `feed.html` par défaut, et un script vérifie le
+`referrer` : si l'utilisateur vient d'une page RIDLY connue, le bouton le
+ramène exactement là, via `history.back()` pour préserver son scroll.
+
+La barre du bas n'est toujours pas posée sur cette page : son champ de saisie
+est fixé en bas et serait recouvert.
+
