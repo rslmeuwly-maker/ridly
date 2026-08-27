@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+
+<title>RIDLY — By RSL</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+  --red:#cc0000;
+  --red2:#e51010;
+  --bg:#080808;
+  --panel:#101010;
+  --text:#f2f2f2;
+  --muted:#8a8a8a;
+  --border:rgba(255,255,255,.10);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  background:var(--bg);
+}
+
+body{
+  margin:0;
+  min-height:100svh;
+  background:
+    radial-gradient(
+      900px 500px at 50% -10%,
+      rgba(204,0,0,.18),
+      transparent 65%
+    ),
+    var(--bg);
+
+  color:var(--text);
+
+  font-family:
+    "Barlow Condensed",
+    Arial,
+    sans-serif;
+}
+
+
+/* =========================
+   LOADER
+========================= */
+
+#loader{
+  position:fixed;
+  inset:0;
+
+  background:#000;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  z-index:99999;
+
+  transition:
+    opacity .35s ease,
+    visibility .35s ease;
+}
+
+#loader.hide{
+  opacity:0;
+  visibility:hidden;
+}
+
+.loader-logo{
+  width:115px;
+}
+
+.loader-pin{
+  fill:none;
+  stroke:#e51010;
+  stroke-width:12;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.loader-dot{
+  fill:#fff;
+  transform-origin:center;
+  animation:pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse{
+
+  0%,100%{
+    transform:scale(.75);
+    opacity:.65;
+  }
+
+  50%{
+    transform:scale(1.15);
+    opacity:1;
+  }
+
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+header{
+  height:76px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 clamp(20px,5vw,60px);
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgba(8,8,8,.82);
+
+  backdrop-filter:
+    blur(15px);
+
+  position:relative;
+  z-index:10;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+
+  gap:12px;
+
+  text-decoration:none;
+  color:#fff;
+}
+
+
+.brand-logo{
+  display:block;
+  width:118px;
+  height:56px;
+  object-fit:contain;
+  mix-blend-mode:screen;
+}
+
+
+.brand-icon{
+  width:38px;
+  height:42px;
+}
+
+.brand-name{
+  font-family:
+    "Bebas Neue",
+    sans-serif;
+
+  font-size:28px;
+  letter-spacing:.07em;
+}
+
+.brand-name span{
+  color:var(--red);
+}
+
+.rsl-link{
+  color:#888;
+
+  text-decoration:none;
+
+  text-transform:uppercase;
+
+  font-size:13px;
+  font-weight:800;
+
+  letter-spacing:.15em;
+
+  transition:.2s;
+}
+
+.rsl-link:hover{
+  color:#fff;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+  width:min(1200px,calc(100% - 40px));
+
+  min-height:
+    calc(100svh - 76px);
+
+  margin:auto;
+
+  display:grid;
+
+  grid-template-columns:
+    1.05fr .95fr;
+
+  align-items:center;
+
+  gap:70px;
+
+  padding:
+    60px 0;
+}
+
+
+/* LEFT */
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    100px;
+
+  padding:
+    7px 12px;
+
+  background:
+    rgba(255,255,255,.03);
+
+  color:
+    #aaa;
+
+  font-size:
+    12px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    .13em;
+
+  text-transform:
+    uppercase;
+}
+
+.badge::before{
+  content:"";
+
+  width:
+    7px;
+
+  height:
+    7px;
+
+  border-radius:
+    50%;
+
+  background:
+    var(--red);
+
+  box-shadow:
+    0 0 15px var(--red);
+}
+
+h1{
+  margin:
+    25px 0 18px;
+
+  font-family:
+    "Bebas Neue",
+    sans-serif;
+
+  font-size:
+    clamp(72px,10vw,145px);
+
+  line-height:
+    .80;
+
+  font-weight:
+    400;
+
+  letter-spacing:
+    .015em;
+}
+
+h1 span{
+  color:
+    var(--red);
+}
+
+.description{
+  max-width:
+    580px;
+
+  margin:
+    0 0 30px;
+
+  color:
+    #999;
+
+  font-size:
+    clamp(20px,2vw,28px);
+
+  line-height:
+    1.12;
+}
+
+.description strong{
+  color:#fff;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.actions{
+  display:flex;
+
+  gap:10px;
+
+  flex-wrap:wrap;
+}
+
+.btn{
+  min-height:
+    52px;
+
+  display:inline-flex;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:
+    0 24px;
+
+  border-radius:
+    9px;
+
+  text-decoration:none;
+
+  text-transform:
+    uppercase;
+
+  font-size:
+    15px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    .06em;
+
+  transition:
+    .18s ease;
+}
+
+.btn:hover{
+  transform:
+    translateY(-2px);
+}
+
+.btn-main{
+  color:#fff;
+
+  background:
+    var(--red);
+
+  box-shadow:
+    0 15px 40px rgba(204,0,0,.24);
+}
+
+.btn-main:hover{
+  background:
+    var(--red2);
+}
+
+.btn-second{
+  color:#fff;
+
+  background:
+    #111;
+
+  border:
+    1px solid var(--border);
+}
+
+.btn-second:hover{
+  border-color:
+    rgba(204,0,0,.6);
+}
+
+
+/* =========================
+   LOGO CARD
+========================= */
+
+.visual{
+  position:relative;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  min-height:
+    480px;
+}
+
+.visual::before{
+  content:"";
+
+  position:absolute;
+
+  width:
+    380px;
+
+  height:
+    380px;
+
+  border-radius:
+    50%;
+
+  background:
+    rgba(204,0,0,.13);
+
+  filter:
+    blur(90px);
+}
+
+.logo-card{
+  position:relative;
+
+  width:
+    min(500px,100%);
+
+  padding:
+    55px 40px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #101010,
+      #050505
+    );
+
+  box-shadow:
+    0 35px 100px rgba(0,0,0,.55);
+
+  text-align:center;
+}
+
+
+/* =========================
+   RIDLY LOGO
+========================= */
+
+.main-logo-img{
+  display:block;
+  width:min(410px,92%);
+  height:auto;
+  margin:auto;
+  object-fit:contain;
+  mix-blend-mode:screen;
+  filter:drop-shadow(0 0 22px rgba(204,0,0,.12));
+}
+
+.pin-red{
+  fill:none;
+
+  stroke:
+    #e50914;
+
+  stroke-width:
+    14;
+
+  stroke-linecap:
+    round;
+
+  stroke-linejoin:
+    round;
+}
+
+.pin-center{
+  fill:
+    #e50914;
+}
+
+.logo-ridly{
+  font-family:
+    Arial,
+    sans-serif;
+
+  font-size:
+    78px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    3px;
+
+  fill:
+    #fff;
+}
+
+.logo-by{
+  font-family:
+    Arial,
+    sans-serif;
+
+  font-size:
+    25px;
+
+  font-weight:
+    900;
+
+  font-style:
+    italic;
+
+  fill:
+    #e50914;
+}
+
+.logo-rsl{
+  font-family:
+    Arial,
+    sans-serif;
+
+  font-size:
+    25px;
+
+  font-weight:
+    900;
+
+  font-style:
+    italic;
+
+  fill:
+    #fff;
+}
+
+.logo-line{
+  stroke:
+    #e50914;
+
+  stroke-width:
+    4;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:800px){
+
+  header{
+    height:
+      66px;
+
+    padding:
+      0 18px;
+  }
+
+  .hero{
+    width:
+      min(100% - 30px,600px);
+
+    min-height:
+      auto;
+
+    display:flex;
+
+    flex-direction:
+      column;
+
+    gap:
+      30px;
+
+    padding:
+      45px 0 55px;
+
+    text-align:
+      center;
+  }
+
+  .hero-left{
+    display:flex;
+
+    flex-direction:
+      column;
+
+    align-items:
+      center;
+  }
+
+  h1{
+    font-size:
+      clamp(68px,22vw,105px);
+  }
+
+  .description{
+    font-size:
+      21px;
+  }
+
+  .actions{
+    justify-content:
+      center;
+
+    width:
+      100%;
+  }
+
+  .btn{
+    flex:
+      1 1 150px;
+  }
+
+  .visual{
+    min-height:
+      auto;
+
+    width:
+      100%;
+  }
+
+  .logo-card{
+    padding:
+      40px 20px;
+
+    border-radius:
+      18px;
+  }
+
+  .brand-logo{
+    width:96px;
+    height:48px;
+  }
+
+  .rsl-link{
+    font-size:
+      11px;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     LOADER
+========================= -->
+
+<div id="loader">
+
+  <svg
+    class="loader-logo"
+    viewBox="0 0 120 145">
+
+    <path
+      class="loader-pin"
+      d="
+      M60 8
+      C31 8 12 28 12 55
+      C12 88 60 132 60 132
+      C60 132 108 88 108 55
+      C108 28 89 8 60 8Z
+      "
+    />
+
+    <circle
+      class="loader-dot"
+      cx="60"
+      cy="55"
+      r="15"
+    />
+
+  </svg>
+
+</div>
+
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<header>
+
+  <a
+    class="brand"
+    href="index.html">
+    <img
+      src="image/ridly-logo-exact.webp"
+      alt="RIDLY by RSL"
+      class="brand-logo"
+    >
+  </a>
+
+
+  <a
+    class="rsl-link"
+    href="https://rsl-swiss.ch"
+    target="_blank">
+
+    BY RSL
+
+  </a>
+
+</header>
+
+
+
+<!-- =========================
+     HERO
+========================= -->
+
+<main class="hero">
+
+
+  <section class="hero-left">
+
+    <div class="badge">
+      RIDERS • SPOTS • COMMUNITY
+    </div>
+
+
+    <h1>
+      RIDE.<br>
+      FIND.<br>
+      <span>CONNECT.</span>
+    </h1>
+
+
+    <div class="description">
+
+      Trouve les meilleurs
+      <strong>spots</strong>,
+      découvre des riders
+      et partage ta passion.
+
+      <br><br>
+
+      <strong>
+        RIDLY — la communauté freestyle par RSL.
+      </strong>
+
+    </div>
+
+
+    <div class="actions">
+
+      <a
+        class="btn btn-main"
+        href="compte.html">
+
+        Entrer dans RIDLY
+
+      </a>
+
+
+      <a
+        class="btn btn-second"
+        href="ou_rider.html">
+
+        Trouver un spot
+
+      </a>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- LOGO -->
+
+  <section class="visual">
+
+    <div class="logo-card">
+
+
+      <img
+        src="image/ridly-logo-exact.webp"
+        alt="RIDLY by RSL"
+        class="main-logo-img"
+      >
+
+
+    </div>
+
+  </section>
+
+
+</main>
+
+
+
+<script>
+
+/*
+  Le loader ne peut pas bloquer RIDLY.
+  Il disparaît quoi qu'il arrive.
+*/
+
+const loader =
+  document.getElementById("loader");
+
+function removeLoader(){
+
+  if(!loader) return;
+
+  loader.classList.add("hide");
+
+  setTimeout(()=>{
+    loader.remove();
+  },400);
+
+}
+
+/* rapide */
+setTimeout(removeLoader,900);
+
+/* sécurité absolue */
+setTimeout(removeLoader,2500);
+
+</script>
+
+
+</body>
+</html>

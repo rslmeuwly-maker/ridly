@@ -1,0 +1,18 @@
+{
+  "name": "RIDLY — By RSL",
+  "short_name": "RIDLY",
+  "description": "Trouve les meilleurs spots, découvre des riders et partage ta passion.",
+  "start_url": "/ou_rider",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "lang": "fr",
+  "icons": [
+    { "src": "/image/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/image/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/image/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/image/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22c55e">
+  <title>Games — RIDLY</title>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --card:#020617;
+      --accent:#22c55e;
+      --accent-soft:rgba(34,197,94,.08);
+      --accent-strong:rgba(34,197,94,.25);
+      --text:#f9fafb;
+      --text-dim:#9ca3af;
+      --border:rgba(148,163,184,.35);
+      --radius-xl:18px;
+    }
+
+    body.theme-dark{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --card:#020617;
+      --text:#f9fafb;
+      --text-dim:#9ca3af;
+      --border:rgba(148,163,184,.35);
+    }
+    body.theme-light{
+      --bg:#f4f4f5;
+      --bg-soft:#e5e7eb;
+      --card:#ffffff;
+      --text:#020617;
+      --text-dim:#6b7280;
+      --border:rgba(148,163,184,.25);
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+    }
+    body{
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      background:#000;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== BG VIDÉO ===== */
+    .rsl-bg-wrap{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+    }
+    .rsl-bg-video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#000;
+      filter:brightness(.48) saturate(1.05);
+    }
+    .rsl-bg-dim{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7));
+    }
+    body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
+    }
+
+    .page-wrap{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      max-width:640px;
+      margin:0 auto;
+      width:100%;
+      position:relative;
+      z-index:1;
+    }
+
+    /* ===== TOP NAV ===== */
+    nav.nav{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(2,6,23,.9);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+    }
+    body.theme-light nav.nav{
+      background:rgba(244,244,245,.95);
+    }
+    nav.nav .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 14px;
+    }
+
+    .nav-left{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:var(--text);
+    }
+    .brand img{
+      width:32px;
+      height:32px;
+      border-radius:12px;
+      background:#000;
+      padding:3px;
+      box-shadow:0 0 12px rgba(34,197,94,.7);
+    }
+    .brand span{
+      font-weight:700;
+      letter-spacing:-0.03em;
+      font-size:20px;
+    }
+
+    .add-btn{
+      border:none;
+      outline:none;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      background:radial-gradient(circle at 30% 20%,#4ade80 0,#22c55e 35%,#16a34a 100%);
+      color:#022c16;
+      box-shadow:0 10px 22px rgba(34,197,94,.7);
+    }
+    .add-btn span{
+      transform:translateY(-1px);
+    }
+
+    .nav-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-left:auto;
+    }
+    .icon-btn{
+      border:1px solid rgba(15,23,42,.8);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      border-radius:999px;
+      width:32px;
+      height:32px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:17px;
+      text-decoration:none;
+      position:relative;
+      cursor:pointer;
+    }
+    body.theme-light .icon-btn{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.6);
+    }
+    .icon-btn:hover{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+
+    /* ===== MAIN ===== */
+    .main{
+      flex:1;
+      padding:4px 10px 80px;
+    }
+
+    .mini-title{
+      padding:8px 4px 4px;
+      font-size:13px;
+      font-weight:600;
+      color:var(--text-dim);
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius-xl);
+      border:1px solid rgba(15,23,42,.9);
+      box-shadow:0 18px 45px rgba(0,0,0,.6);
+      padding:12px 12px 14px;
+      margin-top:4px;
+    }
+    body.theme-light .card{
+      border-color:rgba(209,213,219,.9);
+      box-shadow:0 14px 30px rgba(15,23,42,.15);
+    }
+
+    h1.main-title{
+      margin:0 0 4px;
+      font-size:18px;
+      font-weight:800;
+    }
+    .muted{
+      font-size:13px;
+      color:var(--text-dim);
+      margin:0 0 8px;
+    }
+
+    /* ===== GAMES UI ===== */
+    #gamesLocked{
+      font-size:13px;
+      color:var(--text-dim);
+      margin-bottom:6px;
+    }
+
+    .games-box{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .game-section{
+      padding:8px 0 4px;
+      border-top:1px solid rgba(15,23,42,.6);
+    }
+    .game-section:first-of-type{
+      border-top:none;
+      padding-top:2px;
+    }
+
+    .section-title{
+      font-size:14px;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+    .section-help{
+      font-size:12px;
+      color:var(--text-dim);
+      margin-bottom:6px;
+    }
+
+    .field-label{
+      font-size:12px;
+      font-weight:600;
+      margin-bottom:3px;
+      color:var(--text-dim);
+    }
+    .text-input{
+      width:100%;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--bg-soft);
+      color:var(--text);
+      font-size:14px;
+      outline:none;
+    }
+    body.theme-light .text-input{
+      background:#f3f4f6;
+    }
+    .text-input::placeholder{
+      color:rgba(148,163,184,.9);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,var(--accent),#16a34a);
+      color:#022c16;
+      border:0;
+      border-radius:10px;
+      font-weight:800;
+      font-size:14px;
+      padding:9px 14px;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.5);
+      white-space:nowrap;
+    }
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    .inline-row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top:6px;
+    }
+
+    .small-info{
+      font-size:11px;
+      color:var(--text-dim);
+      margin-top:4px;
+    }
+    .small-info.error{
+      color:#fda4af;
+      font-weight:600;
+    }
+    .small-info.success{
+      color:#bbf7d0;
+    }
+
+    .invite-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-top:4px;
+    }
+    .invite-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:6px 8px;
+      border-radius:12px;
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(30,64,175,.6);
+      font-size:12px;
+    }
+    body.theme-light .invite-item{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.7);
+    }
+    .invite-text{
+      flex:1;
+    }
+    .invite-actions{
+      display:flex;
+      gap:6px;
+    }
+    .btn-sm{
+      padding:5px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--bg-soft);
+      color:var(--text);
+      font-size:11px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn-sm.primary{
+      border-color:rgba(34,197,94,.8);
+      background:rgba(22,163,74,.25);
+      color:#bbf7d0;
+    }
+    .btn-sm:active,
+    .btn:active{
+      transform:scale(.97);
+    }
+
+    @media(min-width:700px){
+      nav.nav .row{
+        padding-inline:20px;
+      }
+      .main{
+        padding-inline:14px;
+      }
+      .tabbar{
+        border-radius:22px 22px 0 0;
+      }
+    }
+
+    /* ===== BOTTOM NAV ===== */
+    .tabbar{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:30;
+      border-top:1px solid var(--border);
+      background:rgba(2,6,23,.97);
+      backdrop-filter:blur(18px);
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      padding:6px 8px 10px;
+    }
+    body.theme-light .tabbar{
+      background:rgba(244,244,245,.97);
+    }
+
+    .tab{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      text-decoration:none;
+      color:var(--text-dim);
+      font-size:9px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:4px 0;
+    }
+    .tab .ic{
+      font-size:20px;
+      line-height:1;
+    }
+    .tab.active{
+      color:var(--accent);
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+<!-- BG vidéo depuis Supabase -->
+<div class="rsl-bg-wrap" aria-hidden="true">
+  <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
+  <div class="rsl-bg-dim"></div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- NAV TOP -->
+  <nav class="nav">
+    <div class="row">
+      <div class="nav-left">
+        <a class="brand" href="ou_rider.html">
+          <img src="image/1logo_ridly.png" alt="RIDLY"/>
+          <span>RIDLY</span>
+        </a>
+        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post">
+          <span>+</span>
+        </button>
+      </div>
+      <div class="nav-tools">
+        <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="main">
+    <div class="mini-title">Games</div>
+
+    <section class="card">
+      <h1 class="main-title">Game of Scoote 1v1</h1>
+      <p class="muted">
+        Invite un autre rider connecté avec son pseudo pour lancer un Game of Scoote fair-play.
+        Ensuite vous jouez tous les deux, chacun sur son téléphone.
+      </p>
+
+      <div id="gamesLocked" style="display:none">
+        Tu dois être connecté pour utiliser les games.
+        <a href="compte.html" style="color:#22c55e;font-weight:700">Se connecter</a>
+      </div>
+
+      <div id="gamesBox" class="games-box" style="display:none">
+
+        <!-- Inviter un rider -->
+        <div class="game-section">
+          <div class="section-title">Inviter un rider</div>
+          <div class="section-help">
+            Tape le pseudo exact du rider que tu veux défier. Il recevra une demande et pourra accepter ou refuser.
+          </div>
+
+          <div class="field-label">Pseudo du rider</div>
+          <input id="pseudoInvite" class="text-input" type="text" autocomplete="off"
+                 placeholder="ex: JojoScoot"/>
+
+          <div class="inline-row">
+            <button id="btnInvite" class="btn">Inviter en Game of Scoote</button>
+          </div>
+
+          <div id="inviteMsg" class="small-info"></div>
+        </div>
+
+        <!-- Invitations reçues -->
+        <div class="game-section">
+          <div class="section-title">Invitations reçues</div>
+          <div class="section-help">
+            Si un rider t’invite, ça apparaît ici. Tu peux accepter ou refuser.
+          </div>
+          <div id="receivedList" class="invite-list">
+            <div class="small-info">Chargement des invitations…</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- NAVIGATION BAS -->
+<nav class="tabbar" aria-label="Navigation">
+  <a class="tab" href="ou_rider.html" title="Spots">
+    <div class="ic">📍</div><span>Spots</span>
+  </a>
+  <a class="tab" href="feed.html" title="Feed">
+    <div class="ic">🎬</div><span>Feed</span>
+  </a>
+  <a class="tab" href="recherche.html" title="Recherche">
+    <div class="ic">🔎</div><span>Search</span>
+  </a>
+  <a class="tab active" href="games.html" title="Games">
+    <div class="ic">🎮</div><span>Game</span>
+  </a>
+  <a class="tab" href="classement.html" title="Classement">
+    <div class="ic">🏆</div><span>Rank</span>
+  </a>
+  <a class="tab" href="profil_ou_rider.html" title="Profil">
+    <div class="ic">👤</div><span>Profil</span>
+  </a>
+</nav>
+
+<script>
+/* ===== Thème clair/sombre ===== */
+(function(){
+  const saved = localStorage.getItem('ridlyTheme') || 'dark';
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
+  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+
+  const btnTheme = document.getElementById('btnTheme');
+  const updateIcon = () => {
+    const isLight = document.body.classList.contains('theme-light');
+    btnTheme.textContent = isLight ? '☀️' : '🌙';
+  };
+  updateIcon();
+
+  btnTheme.addEventListener('click', ()=>{
+    const isLight = document.body.classList.contains('theme-light');
+    document.body.classList.toggle('theme-light', !isLight);
+    document.body.classList.toggle('theme-dark',  isLight);
+    localStorage.setItem('ridlyTheme', isLight ? 'dark' : 'light');
+    updateIcon();
+  });
+})();
+</script>
+
+<script>
+/* ===== Supabase init ===== */
+const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
+const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* BG vidéo depuis Supabase storage */
+(function(){
+  const v = document.getElementById('rslBg');
+  if(!v) return;
+  const s = document.createElement('source');
+  s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
+  s.type = "video/mp4";
+  v.appendChild(s);
+  const play = () => {
+    try{
+      v.playbackRate = 0.6;
+      const p = v.play();
+      if(p && p.catch) p.catch(()=>{});
+    }catch(e){}
+  };
+  play();
+  document.addEventListener('visibilitychange',()=>{
+    document.hidden ? v.pause() : play();
+  });
+})();
+</script>
+
+<script>
+/* ===== Game of Scoote logic (invitations 1v1) ===== */
+
+const gamesLocked = document.getElementById('gamesLocked');
+const gamesBox    = document.getElementById('gamesBox');
+
+const pseudoInviteInput = document.getElementById('pseudoInvite');
+const btnInvite         = document.getElementById('btnInvite');
+const inviteMsg         = document.getElementById('inviteMsg');
+
+const receivedList = document.getElementById('receivedList');
+
+let me      = null;
+let profile = null;
+
+function escapeHTML(s){
+  return (s||"").replace(/[&<>"']/g,m=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    "\"":"&quot;",
+    "'":"&#39;"
+  }[m]));
+}
+
+/* Charger l'utilisateur courant + profil */
+async function loadCurrentUser(){
+  const { data, error } = await supa.auth.getUser();
+  if(error || !data.user){
+    gamesLocked.style.display = "block";
+    gamesBox.style.display    = "none";
+    return false;
+  }
+  me = data.user;
+
+  const { data: prof } = await supa
+    .from('profiles')
+    .select('pseudo,full_name')
+    .eq('id', me.id)
+    .maybeSingle();
+
+  profile = prof || null;
+
+  gamesLocked.style.display = "none";
+  gamesBox.style.display    = "flex";
+  return true;
+}
+
+/* Envoyer une invitation */
+async function sendInvite(){
+  inviteMsg.textContent = "";
+  inviteMsg.className   = "small-info";
+
+  const pseudoTarget = (pseudoInviteInput.value || "").trim();
+  if(!pseudoTarget){
+    inviteMsg.textContent = "Entre un pseudo.";
+    inviteMsg.classList.add("error");
+    return;
+  }
+  if(!me){
+    inviteMsg.textContent = "Tu dois être connecté.";
+    inviteMsg.classList.add("error");
+    return;
+  }
+
+  btnInvite.disabled = true;
+
+  try{
+    // 1) Trouver le rider par son pseudo
+    const { data: target, error: errTarget } = await supa
+      .from('profiles')
+      .select('id,pseudo')
+      .ilike('pseudo', pseudoTarget)
+      .maybeSingle();
+
+    if(errTarget || !target){
+      inviteMsg.textContent = "Rider introuvable.";
+      inviteMsg.classList.add("error");
+      return;
+    }
+
+    if(target.id === me.id){
+      inviteMsg.textContent = "Tu ne peux pas t'inviter toi-même 😅";
+      inviteMsg.classList.add("error");
+      return;
+    }
+
+    // 2) Créer la game en mode "invited"
+    const { error: errGame } = await supa
+      .from('ridly_games')
+      .insert({
+        game_type: 'game_of_scoote',
+        rider1_id: me.id,
+        rider2_id: target.id,
+        rider1_pseudo: profile?.pseudo || null,
+        rider2_pseudo: target.pseudo,
+        status: 'invited'
+      });
+
+    if(errGame){
+      console.error(errGame);
+      inviteMsg.textContent = "Erreur lors de l’invitation.";
+      inviteMsg.classList.add("error");
+      return;
+    }
+
+    inviteMsg.textContent = `Invitation envoyée à ${target.pseudo}.`;
+    inviteMsg.classList.add("success");
+    pseudoInviteInput.value = "";
+  }catch(e){
+    console.error(e);
+    inviteMsg.textContent = "Erreur réseau.";
+    inviteMsg.classList.add("error");
+  }finally{
+    btnInvite.disabled = false;
+  }
+}
+
+/* Charger les invitations reçues */
+async function loadReceivedInvites(){
+  if(!me){
+    receivedList.innerHTML = '<div class="small-info">Connecte-toi pour voir tes invitations.</div>';
+    return;
+  }
+
+  const { data: games, error } = await supa
+    .from('ridly_games')
+    .select('id,rider1_pseudo,created_at')
+    .eq('game_type','game_of_scoote')
+    .eq('rider2_id', me.id)
+    .eq('status','invited')
+    .order('created_at',{ ascending:false });
+
+  receivedList.innerHTML = "";
+
+  if(error){
+    console.error(error);
+    receivedList.innerHTML = '<div class="small-info error">Erreur de chargement des invitations.</div>';
+    return;
+  }
+
+  if(!games || games.length === 0){
+    receivedList.innerHTML = '<div class="small-info">Aucune invitation pour le moment.</div>';
+    return;
+  }
+
+  games.forEach(g => {
+    const div = document.createElement('div');
+    div.className = "invite-item";
+    const safeName = escapeHTML(g.rider1_pseudo || "Rider");
+    div.innerHTML = `
+      <div class="invite-text">
+        <strong>${safeName}</strong> t’invite en Game of Scoote
+      </div>
+      <div class="invite-actions">
+        <button class="btn-sm primary" data-id="${g.id}" data-action="accept">Accepter</button>
+        <button class="btn-sm" data-id="${g.id}" data-action="refuse">Refuser</button>
+      </div>
+    `;
+    receivedList.appendChild(div);
+  });
+
+  attachInviteButtons();
+}
+
+/* Gérer clic accepter/refuser */
+function attachInviteButtons(){
+  receivedList.querySelectorAll('button[data-action]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const gameId = btn.getAttribute('data-id');
+      const action = btn.getAttribute('data-action');
+      await handleInviteResponse(gameId, action === 'accept');
+    });
+  });
+}
+
+async function handleInviteResponse(gameId, accept){
+  if(!me) return;
+  try{
+    const update = accept ? { status:'playing' } : { status:'refused' };
+
+    const { data, error } = await supa
+      .from('ridly_games')
+      .update(update)
+      .eq('id', gameId)
+      .eq('rider2_id', me.id)
+      .select('id')
+      .maybeSingle();
+
+    if(error){
+      console.error(error);
+      return;
+    }
+
+    await loadReceivedInvites();
+
+    if(accept && data){
+      // Redirection vers la page de jeu (à créer)
+      window.location.href = `gameofscoote_play.html?game=${encodeURIComponent(data.id)}`;
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+
+/* Realtime : nouvelle invitation reçue */
+function subscribeInvitesRealtime(){
+  if(!me) return;
+  supa
+    .channel('ridly_games_invites_'+me.id)
+    .on(
+      'postgres_changes',
+      {
+        event:'INSERT',
+        schema:'public',
+        table:'ridly_games',
+        filter:`rider2_id=eq.${me.id}`
+      },
+      payload => {
+        const g = payload.new;
+        if(g.game_type === 'game_of_scoote' && g.status === 'invited'){
+          loadReceivedInvites();
+        }
+      }
+    )
+    .subscribe();
+}
+
+/* Init page */
+(async function initGames(){
+  const ok = await loadCurrentUser();
+  if(!ok) return;
+  await loadReceivedInvites();
+  subscribeInvitesRealtime();
+})();
+
+/* Events */
+btnInvite.addEventListener('click', sendInvite);
+pseudoInviteInput.addEventListener('keydown', e=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    sendInvite();
+  }
+});
+</script>
+
+<script>
+  // Service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  }
+</script>
+
+</body>
+</html>

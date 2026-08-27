@@ -1,0 +1,1609 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22c55e">
+  <title>Game of Scoot — RIDLY</title>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --card:#020617;
+      --accent:#22c55e;
+      --accent-soft:rgba(34,197,94,.08);
+      --accent-strong:rgba(34,197,94,.25);
+      --text:#f9fafb;
+      --text-dim:#9ca3af;
+      --border:rgba(148,163,184,.35);
+      --radius-xl:18px;
+    }
+
+    body.theme-dark{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --card:#020617;
+      --text:#f9fafb;
+      --text-dim:#9ca3af;
+      --border:rgba(148,163,184,.35);
+    }
+    body.theme-light{
+      --bg:#f4f4f5;
+      --bg-soft:#e5e7eb;
+      --card:#ffffff;
+      --text:#020617;
+      --text-dim:#6b7280;
+      --border:rgba(148,163,184,.25);
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+    }
+    body{
+      font-family:"Outfit",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      background:#000;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== BG VIDÉO ===== */
+    .rsl-bg-wrap{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+    }
+    .rsl-bg-video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#000;
+      filter:brightness(.55) saturate(1.05);
+    }
+    .rsl-bg-dim{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7));
+    }
+    body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
+    }
+
+    .page-wrap{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      max-width:640px;
+      margin:0 auto;
+      width:100%;
+      position:relative;
+      z-index:1;
+    }
+
+    /* ===== TOP NAV ===== */
+    nav.nav{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(2,6,23,.9);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+    }
+    body.theme-light nav.nav{
+      background:rgba(244,244,245,.95);
+    }
+    nav.nav .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 14px;
+    }
+
+    .nav-left{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:var(--text);
+    }
+    .brand img{
+      width:32px;
+      height:32px;
+      border-radius:12px;
+      background:#000;
+      padding:3px;
+      box-shadow:0 0 12px rgba(34,197,94,.7);
+    }
+    .brand span{
+      font-weight:700;
+      letter-spacing:-0.03em;
+      font-size:20px;
+    }
+
+    .add-btn{
+      border:none;
+      outline:none;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      background:radial-gradient(circle at 30% 20%,#4ade80 0,#22c55e 35%,#16a34a 100%);
+      color:#022c16;
+      box-shadow:0 10px 22px rgba(34,197,94,.7);
+    }
+    .add-btn span{
+      transform:translateY(-1px);
+    }
+
+    .nav-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-left:auto;
+    }
+    .icon-btn{
+      border:1px solid rgba(15,23,42,.8);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      border-radius:999px;
+      width:32px;
+      height:32px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:17px;
+      text-decoration:none;
+      cursor:pointer;
+    }
+    body.theme-light .icon-btn{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.6);
+    }
+    .icon-btn:hover{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+
+    /* ===== MAIN ===== */
+    .main{
+      flex:1;
+      padding:4px 10px 80px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius-xl);
+      border:1px solid rgba(15,23,42,.9);
+      box-shadow:0 18px 45px rgba(0,0,0,.6);
+      padding:12px 12px 14px;
+      margin-top:4px;
+    }
+    body.theme-light .card{
+      border-color:rgba(209,213,219,.9);
+      box-shadow:0 14px 30px rgba(15,23,42,.15);
+    }
+
+    h1.main-title{
+      margin:0 0 4px;
+      font-size:18px;
+      font-weight:800;
+    }
+    .muted{
+      font-size:13px;
+      color:var(--text-dim);
+      margin:0 0 8px;
+    }
+
+    .games-box{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .game-section{
+      padding:8px 0 4px;
+      border-top:1px solid rgba(15,23,42,.6);
+    }
+    .game-section:first-of-type{
+      border-top:none;
+      padding-top:2px;
+    }
+    .section-title{
+      font-size:14px;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+    .section-help{
+      font-size:12px;
+      color:var(--text-dim);
+      margin-bottom:6px;
+    }
+
+    .field-label{
+      font-size:12px;
+      font-weight:600;
+      margin-bottom:3px;
+      color:var(--text-dim);
+    }
+    .text-input{
+      width:100%;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--bg-soft);
+      color:var(--text);
+      font-size:14px;
+      outline:none;
+    }
+    body.theme-light .text-input{
+      background:#f3f4f6;
+    }
+    .text-input::placeholder{
+      color:rgba(148,163,184,.9);
+    }
+
+    /* BOUTONS */
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:#065f46;
+      color:#ecfdf5;
+      border:0;
+      border-radius:10px;
+      font-weight:800;
+      font-size:14px;
+      padding:9px 14px;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.5);
+      white-space:nowrap;
+    }
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+    .btn:active{
+      transform:scale(.97);
+    }
+
+    .btn-sm{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--bg-soft);
+      color:var(--text);
+      font-size:11px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn-sm.primary{
+      border-color:#16a34a;
+      background:#065f46;
+      color:#ecfdf5;
+    }
+    .btn-sm.danger{
+      border-color:#b91c1c;
+      background:#7f1d1d;
+      color:#fee2e2;
+    }
+    .btn-sm:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+    .btn-sm:active{
+      transform:scale(.97);
+    }
+
+    .inline-row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top:6px;
+      flex-wrap:wrap;
+    }
+
+    .small-info{
+      font-size:11px;
+      color:var(--text-dim);
+      margin-top:4px;
+    }
+    .small-info.error{
+      color:#fda4af;
+      font-weight:600;
+    }
+    .small-info.success{
+      color:#065f46;
+      font-weight:700;
+    }
+
+    /* ===== SCOREBOARD / LOBBY ===== */
+    .current-game{
+      margin-top:4px;
+      padding:8px 10px;
+      border-radius:16px;
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(15,23,42,.9);
+    }
+    body.theme-light .current-game{
+      background:#f9fafb;
+      border-color:rgba(209,213,219,.9);
+    }
+
+    .players-list{
+      list-style:none;
+      padding:0;
+      margin:4px 0 0;
+    }
+    .players-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+      padding:4px 0;
+      border-bottom:1px dashed rgba(15,23,42,.4);
+    }
+    .players-item:last-child{
+      border-bottom:none;
+    }
+    .players-name{
+      font-weight:600;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:2px 7px;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      background:rgba(34,197,94,.16);
+      color:#bbf7d0;
+      margin-left:6px;
+    }
+    .badge-out{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:2px 7px;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      background:rgba(248,113,113,.16);
+      color:#fecaca;
+      margin-left:6px;
+    }
+
+    .scoreboard{
+      margin-top:6px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .player-row{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      padding:4px 0;
+      border-bottom:1px dashed rgba(15,23,42,.45);
+    }
+    .player-row:last-child{
+      border-bottom:none;
+    }
+    .player-main{
+      flex:1;
+      min-width:0;
+    }
+    .player-name{
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:3px;
+    }
+    .letters{
+      display:flex;
+      gap:4px;
+      flex-wrap:nowrap;
+    }
+    .letter{
+      width:24px;
+      height:24px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.4);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      color:var(--text-dim);
+      background:rgba(15,23,42,.9);
+    }
+    body.theme-light .letter{
+      background:#e5e7eb;
+    }
+    .letter.active{
+      border-color:rgba(34,197,94,.9);
+      background:rgba(22,163,74,.25);
+      color:#bbf7d0;
+    }
+
+    .game-meta{
+      font-size:11px;
+      color:var(--text-dim);
+      display:flex;
+      justify-content:flex-start;
+      margin-top:6px;
+      flex-wrap:wrap;
+      gap:4px;
+    }
+
+    /* ===== HISTORIQUE DES TRICKS ===== */
+    .tricks-log{
+      margin-top:6px;
+      padding:6px 8px;
+      border-radius:12px;
+      background:rgba(15,23,42,.85);
+      border:1px dashed rgba(148,163,184,.4);
+      max-height:180px;
+      overflow-y:auto;
+    }
+    body.theme-light .tricks-log{
+      background:#f3f4f6;
+    }
+    .trick-row{
+      font-size:11px;
+      padding:3px 0;
+      border-bottom:1px dashed rgba(30,64,175,.25);
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .trick-row:last-child{
+      border-bottom:none;
+    }
+    .trick-main{
+      display:flex;
+      flex-direction:column;
+    }
+    .trick-meta{
+      font-weight:600;
+    }
+    .trick-result{
+      font-weight:700;
+      text-transform:uppercase;
+    }
+    .trick-result.ok{
+      color:#4ade80;
+    }
+    .trick-result.fail{
+      color:#f97373;
+    }
+
+    /* ===== BOTTOM NAV ===== */
+    .tabbar{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:30;
+      border-top:1px solid var(--border);
+      background:rgba(2,6,23,.97);
+      backdrop-filter:blur(18px);
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      padding:6px 8px 10px;
+    }
+    body.theme-light .tabbar{
+      background:rgba(244,244,245,.97);
+    }
+    .tab{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      text-decoration:none;
+      color:var(--text-dim);
+      font-size:9px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:4px 0;
+    }
+    .tab .ic{
+      font-size:20px;
+      line-height:1;
+    }
+    .tab.active{
+      color:var(--accent);
+    }
+
+    @media(min-width:700px){
+      nav.nav .row{
+        padding-inline:20px;
+      }
+      .main{
+        padding-inline:14px;
+      }
+      .tabbar{
+        border-radius:22px 22px 0 0;
+      }
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+<!-- BG vidéo -->
+<div class="rsl-bg-wrap" aria-hidden="true">
+  <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
+  <div class="rsl-bg-dim"></div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- NAV TOP -->
+  <nav class="nav">
+    <div class="row">
+      <div class="nav-left">
+        <a class="brand" href="ou_rider.html">
+          <img src="image/1logo_ridly.png" alt="RIDLY"/>
+          <span>RIDLY</span>
+        </a>
+        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouveau post">
+          <span>+</span>
+        </button>
+      </div>
+      <div class="nav-tools">
+        <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <section class="card">
+      <h1 class="main-title">Game of Scoot</h1>
+      <p class="muted" id="connectedAs">Tu n’es pas connecté.</p>
+
+      <div id="gameLocked" class="muted" style="margin-bottom:6px;display:none">
+        Tu dois être connecté pour jouer.
+        <a href="compte.html" style="color:#22c55e;font-weight:700">Se connecter</a>
+      </div>
+
+      <div id="gameBox" class="games-box" style="display:none">
+
+        <!-- Lancer une partie (masqué quand une partie est active) -->
+        <div class="game-section" id="createSection">
+          <div class="section-title">Créer une partie (tu deviens arbitre)</div>
+          <div class="section-help">
+            Crée un Game of Scoot, partage le code et jusqu’à 5 riders peuvent rejoindre.
+            Celui qui crée la partie est l’arbitre : lui seul gère les lettres sur son téléphone.
+          </div>
+
+          <div class="field-label">Nombre de joueurs (2–5)</div>
+          <select id="maxPlayersSelect" class="text-input">
+            <option value="2">2 joueurs</option>
+            <option value="3">3 joueurs</option>
+            <option value="4">4 joueurs</option>
+            <option value="5" selected>5 joueurs</option>
+          </select>
+
+          <div class="inline-row" style="margin-top:8px;">
+            <button id="btnCreateGame" class="btn">Créer la partie</button>
+          </div>
+          <div id="createMsg" class="small-info"></div>
+        </div>
+
+        <!-- Rejoindre -->
+        <div class="game-section">
+          <div class="section-title">Rejoindre une partie</div>
+          <div class="section-help">
+            Entre le code que l’arbitre t’a donné pour rejoindre sa partie.
+          </div>
+
+          <div class="field-label">Code de partie</div>
+          <input id="joinCodeInput" type="text" class="text-input" placeholder="ex: ABC123" autocomplete="off"/>
+
+          <div class="inline-row">
+            <button id="btnJoinGame" class="btn">Rejoindre</button>
+          </div>
+          <div id="joinMsg" class="small-info"></div>
+        </div>
+
+        <!-- Partie en cours -->
+        <div class="game-section">
+          <div class="section-title">Partie en cours</div>
+
+          <div id="noGame" class="small-info">
+            Aucune partie en cours sur ce téléphone. Crée une partie ou rejoins ton pote pour commencer.
+          </div>
+
+          <div id="currentGameBox" class="current-game" style="display:none">
+
+            <!-- Code + statut -->
+            <div class="field-label">Code de partie</div>
+            <div class="small-info" id="gameCodeValue" style="font-weight:700;font-size:16px;letter-spacing:.25em;">
+              ------
+            </div>
+
+            <div id="gameSubStatus" class="small-info" style="margin-top:6px;"></div>
+
+            <!-- Vue Lobby -->
+            <div id="lobbyView" style="margin-top:8px; display:none;">
+              <div class="field-label">Joueurs dans le lobby</div>
+              <ul id="playersList" class="players-list"></ul>
+              <div class="small-info">
+                Max joueurs : <span id="maxPlayersLabel">–</span>
+              </div>
+              <div class="small-info">
+                L’arbitre lance la partie quand tout le monde est prêt.
+              </div>
+              <div class="inline-row" style="margin-top:8px;">
+                <button id="btnStartGame" class="btn">Lancer la partie</button>
+                <button id="btnLeaveGameLobby" class="btn-sm" type="button">
+                  Quitter sur ce téléphone
+                </button>
+              </div>
+            </div>
+
+            <!-- Vue Partie en cours -->
+            <div id="gameView" style="margin-top:8px; display:none;">
+
+              <div id="hostControls" style="margin-top:4px; display:none;">
+                <div class="field-label">Qui tente le trick ?</div>
+                <select id="attemptPlayerSelect" class="text-input"></select>
+
+                <div class="field-label" style="margin-top:6px;">Nom du trick (optionnel, pour le suivi)</div>
+                <input id="trickInput" class="text-input" type="text" placeholder="ex: whip to bar">
+
+                <div class="inline-row" style="margin-top:8px;">
+                  <button id="btnTrickSuccess" class="btn-sm primary" type="button">
+                    Plaqué
+                  </button>
+                  <button id="btnTrickFail" class="btn-sm danger" type="button">
+                    Pas plaqué → lettre
+                  </button>
+                </div>
+                <div class="small-info">
+                  Seul l’arbitre peut ajouter des lettres. Les autres téléphones voient le score en temps réel.
+                </div>
+              </div>
+
+              <div class="field-label" style="margin-top:8px;">Scoreboard</div>
+              <div id="scoreboard" class="scoreboard"></div>
+
+              <!-- Historique des tricks -->
+              <div class="field-label" style="margin-top:10px;">Historique des tricks</div>
+              <div id="tricksLog" class="tricks-log">
+                <div class="small-info" id="tricksLogEmpty">Les tricks apparaîtront ici au fur et à mesure.</div>
+              </div>
+
+              <div class="inline-row" style="margin-top:10px;">
+                <button id="btnLeaveGame" class="btn-sm" type="button">
+                  Quitter cette partie sur ce téléphone
+                </button>
+              </div>
+            </div>
+
+            <div class="game-meta">
+              <span id="gameStatusLabel">Statut : –</span>
+            </div>
+
+            <div id="gameMsg" class="small-info"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- NAV BAS -->
+<nav class="tabbar" aria-label="Navigation">
+  <a class="tab" href="ou_rider.html" title="Spots">
+    <div class="ic">📍</div><span>Spots</span>
+  </a>
+  <a class="tab" href="feed.html" title="Feed">
+    <div class="ic">🎬</div><span>Feed</span>
+  </a>
+  <a class="tab" href="recherche.html" title="Recherche">
+    <div class="ic">🔎</div><span>Search</span>
+  </a>
+  <a class="tab active" href="games.html" title="Games">
+    <div class="ic">🎮</div><span>Game</span>
+  </a>
+  <a class="tab" href="classement.html" title="Classement">
+    <div class="ic">🏆</div><span>Rank</span>
+  </a>
+  <a class="tab" href="profil_ou_rider.html" title="Profil">
+    <div class="ic">👤</div><span>Profil</span>
+  </a>
+</nav>
+
+<script>
+/* ===== Thème clair / sombre ===== */
+(function(){
+  const saved = localStorage.getItem('ridlyTheme') || 'dark';
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
+  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+
+  const btnTheme = document.getElementById('btnTheme');
+  const updateIcon = () => {
+    const isLight = document.body.classList.contains('theme-light');
+    btnTheme.textContent = isLight ? '☀️' : '🌙';
+  };
+  updateIcon();
+
+  btnTheme.addEventListener('click', ()=>{
+    const isLight = document.body.classList.contains('theme-light');
+    document.body.classList.toggle('theme-light', !isLight);
+    document.body.classList.toggle('theme-dark',  isLight);
+    localStorage.setItem('ridlyTheme', isLight ? 'dark' : 'light');
+    updateIcon();
+  });
+})();
+</script>
+
+<script>
+/* ===== Supabase init + BG vidéo ===== */
+const SUPABASE_URL  = "https://jynxifufaauoxwzjapzq.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* BG vidéo */
+(function(){
+  const v = document.getElementById('rslBg');
+  if(!v) return;
+  const s = document.createElement('source');
+  s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
+  s.type = "video/mp4";
+  v.appendChild(s);
+  const play = () => {
+    try{
+      v.playbackRate = 0.6;
+      const p = v.play();
+      if(p && p.catch) p.catch(()=>{});
+    }catch(e){}
+  };
+  play();
+  document.addEventListener('visibilitychange',()=>{
+    document.hidden ? v.pause() : play();
+  });
+})();
+</script>
+
+<script>
+/* ===== Game of Scoot multi-joueurs (max 5) ===== */
+
+const SCOOT = "SCOOT";
+
+const connectedAs = document.getElementById('connectedAs');
+const gameLocked  = document.getElementById('gameLocked');
+const gameBox     = document.getElementById('gameBox');
+
+const createSection    = document.getElementById('createSection');
+const btnCreate        = document.getElementById('btnCreateGame');
+const maxPlayersSelect = document.getElementById('maxPlayersSelect');
+const btnJoin          = document.getElementById('btnJoinGame');
+const createMsg        = document.getElementById('createMsg');
+const joinMsg          = document.getElementById('joinMsg');
+const joinCodeInput    = document.getElementById('joinCodeInput');
+
+const noGameBox       = document.getElementById('noGame');
+const currentGameBox  = document.getElementById('currentGameBox');
+const gameCodeValue   = document.getElementById('gameCodeValue');
+const gameStatusLabel = document.getElementById('gameStatusLabel');
+const gameSubStatus   = document.getElementById('gameSubStatus');
+const maxPlayersLabel = document.getElementById('maxPlayersLabel');
+
+const lobbyView       = document.getElementById('lobbyView');
+const playersList     = document.getElementById('playersList');
+const btnStartGame    = document.getElementById('btnStartGame');
+const btnLeaveGameLobby = document.getElementById('btnLeaveGameLobby');
+
+const gameView        = document.getElementById('gameView');
+const scoreboardEl    = document.getElementById('scoreboard');
+const hostControls    = document.getElementById('hostControls');
+const attemptPlayerSelect = document.getElementById('attemptPlayerSelect');
+const trickInput      = document.getElementById('trickInput');
+const btnTrickSuccess = document.getElementById('btnTrickSuccess');
+const btnTrickFail    = document.getElementById('btnTrickFail');
+const btnLeaveGame    = document.getElementById('btnLeaveGame');
+const gameMsg         = document.getElementById('gameMsg');
+
+const tricksLogEl      = document.getElementById('tricksLog');
+const tricksLogEmptyEl = document.getElementById('tricksLogEmpty');
+
+let me = null;
+let currentGame = null;
+let gamePlayers = [];
+let gameChannel = null;
+let trickHistory = []; // suivi local des tricks
+
+const LOCAL_KEY = "ridly_scoot_game_v2";
+
+function escapeHtml(str){
+  if(!str) return "";
+  return str
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function profileDisplayName(profile){
+  let name = profile?.pseudo || profile?.full_name || "Rider";
+  if(name && name.includes("@")) name = "Rider";
+  return name;
+}
+
+function randCode(){
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  let c = "";
+  for(let i=0;i<6;i++){
+    c += chars[Math.floor(Math.random()*chars.length)];
+  }
+  return c;
+}
+
+function lettersHtml(letters){
+  const l = letters || "";
+  let html = "";
+  for(let i=0;i<SCOOT.length;i++){
+    const active = i < l.length;
+    html += `<span class="letter ${active ? "active" : ""}" title="${SCOOT.slice(0, i+1)}">${SCOOT[i]}</span>`;
+  }
+  return html;
+}
+
+function nextLetters(current){
+  const len = (current||"").length;
+  if(len >= SCOOT.length) return current || SCOOT;
+  return SCOOT.slice(0, len+1);
+}
+
+function isFinished(letters){
+  return (letters || "").length >= SCOOT.length;
+}
+
+function setCreateMsg(text, type){
+  createMsg.textContent = text || "";
+  createMsg.className = "small-info" + (type ? " " + type : "");
+}
+function setJoinMsg(text, type){
+  joinMsg.textContent = text || "";
+  joinMsg.className = "small-info" + (type ? " " + type : "");
+}
+function setGameMsg(text, type){
+  gameMsg.textContent = text || "";
+  gameMsg.className = "small-info" + (type ? " " + type : "");
+}
+
+function readableStatus(s){
+  switch(s){
+    case 'lobby': return 'Lobby (en attente)';
+    case 'playing': return 'En cours';
+    case 'finished': return 'Terminé';
+    default: return '–';
+  }
+}
+
+/* Rendu de l'historique des tricks (local) */
+function renderTrickHistory(){
+  tricksLogEl.innerHTML = "";
+  if(!trickHistory.length){
+    tricksLogEl.appendChild(tricksLogEmptyEl);
+    tricksLogEmptyEl.style.display = "block";
+    return;
+  }
+  tricksLogEmptyEl.style.display = "none";
+  trickHistory.forEach((t, idx)=>{
+    const row = document.createElement('div');
+    row.className = "trick-row";
+    row.innerHTML = `
+      <div class="trick-main">
+        <span class="trick-meta">#${idx+1} • ${escapeHtml(t.playerName)}</span>
+        <span>${t.trickName ? escapeHtml(t.trickName) : "<i>Trick non nommé</i>"}</span>
+      </div>
+      <div class="trick-result ${t.result === 'success' ? 'ok' : 'fail'}">
+        ${t.result === 'success' ? 'PLAQUÉ' : 'PAS PLAQUÉ'}
+      </div>
+    `;
+    tricksLogEl.appendChild(row);
+  });
+}
+
+/* Charger user + profil (pseudo) */
+async function loadCurrentUser(){
+  const { data, error } = await supa.auth.getUser();
+  if(error || !data.user){
+    connectedAs.textContent = "Tu n’es pas connecté.";
+    gameLocked.style.display = "block";
+    gameBox.style.display    = "none";
+    return false;
+  }
+  const user = data.user;
+
+  const { data: prof } = await supa
+    .from('profiles')
+    .select('pseudo,full_name')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const pseudo = profileDisplayName(prof);
+
+  me = { id: user.id, pseudo };
+
+  connectedAs.textContent = "Tu es connecté en tant que " + pseudo;
+  gameLocked.style.display = "none";
+  gameBox.style.display    = "flex";
+  return true;
+}
+
+/* Charger joueurs */
+async function fetchPlayers(gameId){
+  const { data, error } = await supa
+    .from('scoot_game_players')
+    .select('*')
+    .eq('game_id', gameId)
+    .order('joined_at',{ ascending:true });
+
+  if(!error && data){
+    gamePlayers = data;
+  }else{
+    gamePlayers = [];
+  }
+}
+
+/* Charger une game existante pour ce user ou depuis localStorage */
+async function loadExistingGame(){
+  if(!me) return;
+
+  let storedId = localStorage.getItem(LOCAL_KEY);
+  let game = null;
+
+  if(storedId){
+    const { data, error } = await supa
+      .from('scoot_games')
+      .select('*')
+      .eq('id', storedId)
+      .maybeSingle();
+    if(!error && data){
+      game = data;
+    }else{
+      localStorage.removeItem(LOCAL_KEY);
+    }
+  }
+
+  if(!game){
+    const { data: lastPlayer } = await supa
+      .from('scoot_game_players')
+      .select('game_id,joined_at')
+      .eq('user_id', me.id)
+      .order('joined_at',{ ascending:false })
+      .limit(1)
+      .maybeSingle();
+
+    if(lastPlayer){
+      const { data: g } = await supa
+        .from('scoot_games')
+        .select('*')
+        .eq('id', lastPlayer.game_id)
+        .maybeSingle();
+      if(g){
+        game = g;
+      }
+    }
+  }
+
+  currentGame = game;
+  trickHistory = []; // reset historique à chaque game chargée
+  renderTrickHistory();
+
+  if(currentGame){
+    localStorage.setItem(LOCAL_KEY, currentGame.id);
+    await fetchPlayers(currentGame.id);
+    subscribeGameRealtime(currentGame.id);
+  }
+  renderGameState();
+}
+
+/* Realtime */
+function subscribeGameRealtime(gameId){
+  if(gameChannel){
+    supa.removeChannel(gameChannel);
+    gameChannel = null;
+  }
+  if(!gameId) return;
+
+  gameChannel = supa
+    .channel('scoot_game_'+gameId)
+    .on(
+      'postgres_changes',
+      { event:'UPDATE', schema:'public', table:'scoot_games', filter:`id=eq.${gameId}` },
+      payload => {
+        currentGame = payload.new;
+        renderGameState();
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event:'INSERT', schema:'public', table:'scoot_game_players', filter:`game_id=eq.${gameId}` },
+      payload => {
+        gamePlayers.push(payload.new);
+        renderGameState();
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event:'UPDATE', schema:'public', table:'scoot_game_players', filter:`game_id=eq.${gameId}` },
+      payload => {
+        const p = payload.new;
+        const idx = gamePlayers.findIndex(x => x.id === p.id);
+        if(idx >= 0) gamePlayers[idx] = p;
+        else gamePlayers.push(p);
+        renderGameState();
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event:'DELETE', schema:'public', table:'scoot_game_players', filter:`game_id=eq.${gameId}` },
+      payload => {
+        const deletedId = payload.old.id;
+        gamePlayers = gamePlayers.filter(p => p.id !== deletedId);
+        renderGameState();
+      }
+    )
+    .subscribe();
+}
+
+/* Retirer un joueur (host seulement) */
+async function removePlayer(playerId){
+  if(!currentGame || !me || String(currentGame.host_id) !== String(me.id)) return;
+  
+  const playerToRemove = gamePlayers.find(p => String(p.id) === String(playerId));
+  
+  if (playerToRemove && playerToRemove.user_id === me.id) {
+    setGameMsg("Utilise le bouton 'Quitter' pour te retirer toi-même.", "error");
+    return;
+  }
+
+  if(currentGame.status !== 'lobby'){
+    setGameMsg("Impossible de retirer un joueur, la partie est déjà lancée.", "error");
+    return;
+  }
+
+  try{
+    const { error } = await supa
+      .from('scoot_game_players')
+      .delete()
+      .eq('id', playerId);
+
+    if(error){
+      console.error("Supabase remove player error:", error);
+      setGameMsg("Erreur lors du retrait du joueur.", "error");
+      return;
+    }
+
+    setGameMsg("Joueur retiré du lobby.", "success");
+  }catch(e){
+    console.error(e);
+    setGameMsg("Erreur réseau lors du retrait.", "error");
+  }
+}
+
+/* Rendu global (lobby / game) */
+function renderGameState(){
+  // afficher / cacher la création de partie
+  if(createSection){
+    createSection.style.display = currentGame ? "none" : "block";
+  }
+
+  if(!currentGame){
+    noGameBox.style.display      = "block";
+    currentGameBox.style.display = "none";
+    lobbyView.style.display      = "none";
+    gameView.style.display       = "none";
+    setGameMsg("");
+    return;
+  }
+
+  noGameBox.style.display      = "none";
+  currentGameBox.style.display = "block";
+
+  const isHost = me && String(currentGame.host_id) === String(me.id);
+
+  gameCodeValue.textContent   = currentGame.code || "------";
+  maxPlayersLabel.textContent = currentGame.max_players || 5;
+  gameStatusLabel.textContent = "Statut : " + readableStatus(currentGame.status);
+
+  const playersSorted = [...gamePlayers].sort((a,b)=>{
+    return (a.joined_at || "").localeCompare(b.joined_at || "");
+  });
+
+  // LOBBY LIST
+  playersList.innerHTML = "";
+  playersSorted.forEach(p=>{
+    const isOut = isFinished(p.letters);
+    const li = document.createElement('li');
+    li.className = "players-item";
+    
+    let removeBtnHtml = '';
+    if (isHost && currentGame.status === 'lobby' && p.user_id !== me.id) {
+        removeBtnHtml = `<button class="btn-sm danger" data-remove-id="${p.id}" style="margin-left:auto;padding:3px 8px;">❌ Retirer</button>`;
+    }
+
+    li.innerHTML = `
+      <div class="players-name">
+        ${escapeHtml(p.display_name || "Rider")}
+        ${p.is_host ? '<span class="badge">Arbitre</span>' : ''}
+        ${isOut ? '<span class="badge-out">SCOOT</span>' : ''}
+      </div>
+      ${removeBtnHtml}
+    `;
+    playersList.appendChild(li);
+  });
+
+  // SCOREBOARD
+  scoreboardEl.innerHTML = "";
+  playersSorted.forEach(p=>{
+    const isOut = isFinished(p.letters);
+    const row = document.createElement('div');
+    row.className = "player-row";
+    row.innerHTML = `
+      <div class="player-main">
+        <div class="player-name">
+          ${escapeHtml(p.display_name || "Rider")}
+          ${p.is_host ? '<span class="badge">Arbitre</span>' : ''}
+          ${isOut ? '<span class="badge-out">SCOOT</span>' : ''}
+        </div>
+        <div class="letters">
+          ${lettersHtml(p.letters)}
+        </div>
+      </div>
+    `;
+    scoreboardEl.appendChild(row);
+  });
+
+  // select du rider qui tente le trick (host)
+  attemptPlayerSelect.innerHTML = "";
+  const stillIn = playersSorted.filter(p => !isFinished(p.letters));
+  stillIn.forEach(p=>{
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.display_name || "Rider";
+    attemptPlayerSelect.appendChild(opt);
+  });
+
+  if(currentGame.status === 'lobby'){
+    lobbyView.style.display = "block";
+    gameView.style.display  = "none";
+    hostControls.style.display = "none";
+
+    // autorise à lancer dès qu'il y a au moins 1 joueur (pratique pour tester)
+    btnStartGame.disabled = !isHost || playersSorted.length < 1;
+
+    if(isHost){
+      gameSubStatus.textContent = "Tu es l’arbitre. Tu peux lancer la partie dès qu’il y a au moins un rider.";
+    }else{
+      gameSubStatus.textContent = "Tu es dans le lobby. Attends que l’arbitre lance la partie.";
+    }
+  }else{
+    lobbyView.style.display = "none";
+    gameView.style.display  = "block";
+    hostControls.style.display = isHost && currentGame.status === 'playing' ? "block" : "none";
+
+    if(currentGame.status === 'playing'){
+      if(isHost){
+        gameSubStatus.textContent = "Partie en cours. Choisis le rider et valide PLAQUÉ / PAS PLAQUÉ.";
+      }else{
+        gameSubStatus.textContent = "Partie en cours. L’arbitre gère les lettres, ton téléphone affiche juste le score.";
+      }
+    }else if(currentGame.status === 'finished'){
+      const stillInNow = gamePlayers.filter(p => !isFinished(p.letters));
+      let winnerName = "";
+      if(currentGame.winner_player_id){
+        const w = gamePlayers.find(p => p.id === currentGame.winner_player_id);
+        winnerName = w?.display_name || "";
+      }else if(stillInNow[0]){
+        winnerName = stillInNow[0].display_name || "";
+      }
+      gameSubStatus.textContent = winnerName
+        ? "Partie terminée. Gagnant : " + winnerName
+        : "Partie terminée.";
+    }
+  }
+
+  setGameMsg("");
+  renderTrickHistory();
+}
+
+/* Créer une partie → host = arbitre */
+async function createGame(){
+  setCreateMsg("");
+  setJoinMsg("");
+
+  if(!me){
+    setCreateMsg("Tu dois être connecté.", "error");
+    return;
+  }
+
+  const maxPlayers = Math.max(2, Math.min(5, parseInt(maxPlayersSelect.value || "5", 10)));
+
+  btnCreate.disabled = true;
+  try{
+    const code = randCode();
+
+    const { data: game, error: e1 } = await supa
+      .from('scoot_games')
+      .insert({
+        code,
+        host_id: me.id,
+        host_name: me.pseudo,
+        status: 'lobby',
+        max_players: maxPlayers
+      })
+      .select('*')
+      .single();
+
+    if(e1 || !game){
+      console.error("Supabase create error:", e1);
+      setCreateMsg("Erreur lors de la création de la partie.", "error");
+      return;
+    }
+
+    const { data: player, error: e2 } = await supa
+      .from('scoot_game_players')
+      .insert({
+        game_id: game.id,
+        user_id: me.id,
+        display_name: me.pseudo,
+        letters: '',
+        is_host: true
+      })
+      .select('*')
+      .single();
+
+    if(e2 || !player){
+      console.error("Supabase player insert error:", e2);
+      setCreateMsg("Partie créée mais erreur pour t’ajouter en joueur.", "error");
+      return;
+    }
+
+    currentGame = game;
+    gamePlayers = [player];
+    trickHistory = [];
+    renderTrickHistory();
+    localStorage.setItem(LOCAL_KEY, game.id);
+    subscribeGameRealtime(game.id);
+    renderGameState();
+
+    setCreateMsg("Partie créée ! Donne ce code aux riders : " + code, "success");
+  }catch(e){
+    console.error(e);
+    setCreateMsg("Erreur réseau.", "error");
+  }finally{
+    btnCreate.disabled = false;
+  }
+}
+
+/* Rejoindre une partie */
+async function joinGame(){
+  setJoinMsg("");
+  setCreateMsg("");
+  if(!me){
+    setJoinMsg("Tu dois être connecté.", "error");
+    return;
+  }
+
+  let code = (joinCodeInput.value || "").trim().toUpperCase();
+  if(!code){
+    setJoinMsg("Entre un code de partie.", "error");
+    return;
+  }
+
+  btnJoin.disabled = true;
+  try{
+    const { data: game, error } = await supa
+      .from('scoot_games')
+      .select('*')
+      .eq('code', code)
+      .maybeSingle();
+
+    if(error || !game){
+      setJoinMsg("Aucune partie trouvée avec ce code.", "error");
+      return;
+    }
+    if(game.status !== 'lobby'){
+      setJoinMsg("Cette partie a déjà commencé ou est terminée.", "error");
+      return;
+    }
+
+    const { data: players } = await supa
+      .from('scoot_game_players')
+      .select('*')
+      .eq('game_id', game.id);
+
+    if((players || []).length >= (game.max_players || 5)){
+      setJoinMsg("Cette partie est déjà complète.", "error");
+      return;
+    }
+
+    const { data: player, error: e2 } = await supa
+      .from('scoot_game_players')
+      .insert({
+        game_id: game.id,
+        user_id: me.id,
+        display_name: me.pseudo,
+        letters: '',
+        is_host: false
+      })
+      .select('*')
+      .single();
+
+    if(e2 || !player){
+      console.error(e2);
+      setJoinMsg("Erreur lors de la jonction à la partie.", "error");
+      return;
+    }
+
+    currentGame = game;
+    gamePlayers = [...(players || []), player];
+    trickHistory = [];
+    renderTrickHistory();
+    localStorage.setItem(LOCAL_KEY, game.id);
+    subscribeGameRealtime(game.id);
+    renderGameState();
+
+    setJoinMsg("Tu as rejoint la partie !", "success");
+    joinCodeInput.value = "";
+  }catch(e){
+    console.error(e);
+    setJoinMsg("Erreur réseau.", "error");
+  }finally{
+    btnJoin.disabled = false;
+  }
+}
+
+/* Lancer la partie (host seulement) */
+async function startGame(){
+  if(!currentGame || !me) return;
+  const isHost = String(currentGame.host_id) === String(me.id);
+  if(!isHost){
+    setGameMsg("Seul l’arbitre peut lancer la partie.", "error");
+    return;
+  }
+  if(currentGame.status !== 'lobby') return;
+
+  try{
+    const { data, error } = await supa
+      .from('scoot_games')
+      .update({ status:'playing' })
+      .eq('id', currentGame.id)
+      .select('*')
+      .single();
+
+    if(error){
+      console.error(error);
+      setGameMsg("Erreur lors du lancement de la partie.", "error");
+      return;
+    }
+    currentGame = data;
+    trickHistory = [];
+    renderTrickHistory();
+    renderGameState();
+  }catch(e){
+    console.error(e);
+    setGameMsg("Erreur réseau.", "error");
+  }
+}
+
+/* Quitter (juste ce téléphone) */
+function leaveGameLocal(){
+  localStorage.removeItem(LOCAL_KEY);
+  if(gameChannel){
+    supa.removeChannel(gameChannel);
+    gameChannel = null;
+  }
+  currentGame = null;
+  gamePlayers = [];
+  trickHistory = [];
+  renderTrickHistory();
+  renderGameState();
+}
+
+/* Logger un trick (pour l’instant uniquement en local) */
+async function logRound(player, result){
+  const trickName = (trickInput?.value || "").trim();
+  trickHistory.push({
+    playerName: player.display_name || "Rider",
+    trickName: trickName || "",
+    result
+  });
+  renderTrickHistory();
+}
+
+/* Vérifier fin de partie (1 seul rider sans SCOOT) */
+async function checkGameEnd(){
+  if(!currentGame || currentGame.status !== 'playing') return;
+  const stillIn = gamePlayers.filter(p => !isFinished(p.letters));
+  if(stillIn.length === 1){
+    const winner = stillIn[0];
+    try{
+      const { data, error } = await supa
+        .from('scoot_games')
+        .update({
+          status:'finished',
+          winner_player_id: winner.id
+        })
+        .eq('id', currentGame.id)
+        .select('*')
+        .single();
+      if(!error && data){
+        currentGame = data;
+        renderGameState();
+      }
+    }catch(e){
+      console.error(e);
+    }
+  }
+}
+
+/* Tour suivant : choisir automatiquement le rider suivant encore en jeu */
+function rotateAttemptPlayer(){
+  if(!attemptPlayerSelect) return;
+  const stillIn = gamePlayers.filter(p => !isFinished(p.letters));
+  if(stillIn.length === 0) return;
+
+  const currentId = attemptPlayerSelect.value;
+  let idx = stillIn.findIndex(p => String(p.id) === String(currentId));
+  if(idx === -1) idx = 0;
+  else idx = (idx + 1) % stillIn.length;
+
+  attemptPlayerSelect.value = stillIn[idx].id;
+}
+
+/* Trick réussi (host) */
+async function handleTrickSuccess(){
+  if(!currentGame || !me || String(currentGame.host_id) !== String(me.id)) return;
+  if(currentGame.status !== 'playing') return;
+
+  const playerId = attemptPlayerSelect.value;
+  const player = gamePlayers.find(p => String(p.id) === String(playerId));
+  if(!player) return;
+
+  await logRound(player, 'success');
+  if(trickInput) trickInput.value = "";
+  setGameMsg("Trick plaqué pour " + (player.display_name || "Rider") + ". Pas de lettre.", "success");
+  rotateAttemptPlayer();
+}
+
+/* Trick raté → ajouter une lettre */
+async function handleTrickFail(){
+  if(!currentGame || !me || String(currentGame.host_id) !== String(me.id)) return;
+  if(currentGame.status !== 'playing') return;
+
+  const playerId = attemptPlayerSelect.value;
+  const player = gamePlayers.find(p => String(p.id) === String(playerId));
+  if(!player) return;
+
+  const next = nextLetters(player.letters || "");
+  if(next === (player.letters || "")) return;
+
+  const finishedNow = isFinished(next);
+
+  try{
+    const { data, error } = await supa
+      .from('scoot_game_players')
+      .update({ letters: next })
+      .eq('id', player.id)
+      .select('*')
+      .single();
+
+    if(error){
+      console.error(error);
+      setGameMsg("Erreur lors de la mise à jour des lettres.", "error");
+      return;
+    }
+
+    const idx = gamePlayers.findIndex(p => p.id === player.id);
+    if(idx >= 0) gamePlayers[idx] = data;
+
+    await logRound(data, 'fail');
+    if(trickInput) trickInput.value = "";
+    renderGameState();
+
+    if(finishedNow){
+      setGameMsg(data.display_name + " a SCOOT !", "success");
+      await checkGameEnd();
+    }else{
+      setGameMsg(data.display_name + " prend une lettre.", "success");
+    }
+
+    rotateAttemptPlayer();
+  }catch(e){
+    console.error(e);
+    setGameMsg("Erreur réseau.", "error");
+  }
+}
+
+// clic bouton retrait dans le lobby
+playersList.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-remove-id]');
+  if (!btn) return;
+  
+  const playerId = btn.dataset.removeId;
+  const playerToRemove = gamePlayers.find(p => String(p.id) === String(playerId));
+
+  if (confirm(`Êtes-vous sûr de vouloir retirer ${playerToRemove?.display_name || "ce joueur"} du lobby ?`)) {
+      await removePlayer(playerId);
+  }
+});
+
+/* Init global */
+(async function initGamePage(){
+  const ok = await loadCurrentUser();
+  if(!ok) return;
+  await loadExistingGame();
+})();
+
+/* Events */
+btnCreate.addEventListener('click', createGame);
+btnJoin.addEventListener('click', joinGame);
+btnStartGame.addEventListener('click', startGame);
+btnLeaveGame.addEventListener('click', leaveGameLocal);
+btnLeaveGameLobby.addEventListener('click', leaveGameLocal);
+btnTrickSuccess.addEventListener('click', handleTrickSuccess);
+btnTrickFail.addEventListener('click', handleTrickFail);
+</script>
+
+<!-- Firebase / Service worker : seulement si HTTP/HTTPS -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase.js"></script>
+<script>
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("/firebase-messaging-sw.js")
+      .then(reg => console.log("SW FCM OK"))
+      .catch(err => console.error("SW FCM ERROR", err));
+  } else {
+    console.log("SW non enregistré (protocole non supporté pour FCM)");
+  }
+</script>
+
+</body>
+</html>

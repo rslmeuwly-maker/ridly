@@ -1,0 +1,2154 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#080808">
+  <title>Profil — RIDLY</title>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --green:#22c55e;
+      --green-dark:#16a34a;
+
+      --bg:#020617;
+      --bg-soft:#030712;
+      --panel:#020617;
+      --panel-soft:#020617;
+      --text:#f9fafb;
+      --dim:#9ca3af;
+      --border:rgba(148,163,184,.4);
+      --radius-xl:18px;
+    }
+
+    body.theme-dark{
+      --bg:#020617;
+      --bg-soft:#030712;
+      --panel:#020617;
+      --panel-soft:#020617;
+      --text:#f9fafb;
+      --dim:#9ca3af;
+      --border:rgba(148,163,184,.4);
+    }
+    body.theme-light{
+      --bg:#f3f4f6;
+      --bg-soft:#e5e7eb;
+      --panel:#ffffff;
+      --panel-soft:#e5e7eb;
+      --text:#020617;
+      --dim:#4b5563;
+      --border:rgba(148,163,184,.25);
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;margin:0;padding:0}
+    body{
+      background:#000;
+      color:var(--text);
+      font-family:"Outfit",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* BG vidéo */
+    .rsl-bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
+    .rsl-bg-video{
+      position:absolute;inset:0;width:100%;height:100%;
+      object-fit:cover;background:#000;
+      filter:brightness(.48) saturate(1.05);
+    }
+    .rsl-bg-dim{
+      position:absolute;inset:0;
+      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.7));
+    }
+    body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.96));
+    }
+
+    .page-wrap{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      max-width:800px;
+      margin:0 auto;
+      width:100%;
+      position:relative;
+      z-index:1;
+    }
+
+    /* NAV top */
+    nav.nav{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(2,6,23,.9);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+    }
+    body.theme-light nav.nav{
+      background:rgba(244,244,245,.95);
+    }
+    nav.nav .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 14px;
+    }
+    .nav-left{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      color:var(--text);
+    }
+    .brand img{
+      width:32px;
+      height:32px;
+      border-radius:12px;
+      background:#000;
+      padding:3px;
+      box-shadow:0 0 12px rgba(34,197,94,.7);
+    }
+    .brand span{
+      font-weight:700;
+      letter-spacing:-0.03em;
+      font-size:20px;
+    }
+    .add-btn{
+      border:none;
+      outline:none;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      background:radial-gradient(circle at 30% 20%,#4ade80 0,#22c55e 35%,#16a34a 100%);
+      color:#022c16;
+      box-shadow:0 10px 22px rgba(34,197,94,.7);
+    }
+    .add-btn span{transform:translateY(-1px);}
+
+    .nav-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-left:auto;
+    }
+    .icon-btn{
+      border:1px solid rgba(15,23,42,.8);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      border-radius:999px;
+      width:32px;
+      height:32px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:17px;
+      text-decoration:none;
+      position:relative;
+      cursor:pointer;
+      gap:6px;
+    }
+    body.theme-light .icon-btn{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.6);
+    }
+    .icon-btn:hover{
+      border-color:var(--green);
+      color:var(--green);
+    }
+
+    .nav-badge{
+      position:absolute;
+      top:-3px;
+      right:-3px;
+      min-width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#ef4444;
+      color:#f9fafb;
+      font-size:10px;
+      font-weight:800;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:0 4px;
+      box-shadow:0 0 8px rgba(0,0,0,.6);
+    }
+
+    /* Toast notifs */
+    .toast{
+      position:fixed;
+      left:50%;
+      top:60px;
+      transform:translateX(-50%);
+      background:rgba(15,23,42,.97);
+      color:#f9fafb;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 10px 30px rgba(0,0,0,.6);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s, transform .2s;
+      z-index:60;
+      max-width:90%;
+      text-align:center;
+      white-space:normal;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(4px);
+    }
+
+    .mini-title{
+      padding:10px 10px 0;
+      font-size:13px;
+      font-weight:600;
+      color:var(--dim);
+    }
+    .page-intro{
+      font-size:13px;
+      color:var(--dim);
+      padding:2px 10px 8px;
+      line-height:1.4;
+    }
+
+    main.main{
+      flex:1;
+      padding:0 10px 90px;
+    }
+
+    /* Card profil */
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius-xl);
+      box-shadow:0 22px 60px rgba(0,0,0,.85);
+      padding:14px;
+      margin-top:4px;
+    }
+    body.theme-light .card{
+      box-shadow:0 18px 45px rgba(15,23,42,.15);
+    }
+
+    .p-head{
+      display:grid;
+      grid-template-columns:84px 1fr auto;
+      gap:16px;
+      align-items:flex-start;
+    }
+    .p-main{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      padding-top:2px;
+    }
+    @media(max-width:720px){
+      .p-head{
+        grid-template-columns:72px 1fr;
+        grid-template-rows:auto auto;
+      }
+      .p-actions{
+        grid-column:1/-1;
+        margin-top:10px;
+      }
+    }
+    .avatar{
+      width:84px;
+      height:84px;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      background:#020617;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    body.theme-light .avatar{
+      background:#e5e7eb;
+    }
+    .avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .name{
+      font-size:21px;
+      font-weight:800;
+      margin:0;
+      color:var(--text);
+    }
+    .meta-line{
+      font-size:12px;
+      color:var(--dim);
+      font-weight:600;
+    }
+    .loc-line{
+      font-size:12px;
+      color:var(--dim);
+    }
+
+    /* Badge compte certifié */
+    .badge-verified{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:2px 8px;
+      margin-left:6px;
+      border-radius:999px;
+      background:rgba(56,189,248,.15);
+      border:1px solid rgba(56,189,248,.7);
+      font-size:10px;
+      font-weight:700;
+      color:#e0f2fe;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+    body.theme-light .badge-verified{
+      background:rgba(56,189,248,.12);
+      border-color:rgba(56,189,248,.55);
+      color:#075985;
+    }
+    .badge-verified span{
+      font-size:11px;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background:var(--panel-soft);
+      color:var(--text);
+      font-weight:700;
+      font-size:13px;
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+    }
+    body.theme-light .btn{
+      background:#e5e7eb;
+    }
+    .btn.green{
+      background:linear-gradient(180deg,var(--green),var(--green-dark));
+      color:#062312;
+      border:none;
+      box-shadow:0 10px 24px rgba(0,0,0,.5);
+    }
+    .p-actions{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    /* Flashes (stories) */
+    .flash-strip{
+      margin-top:12px;
+      display:flex;
+      gap:12px;
+      overflow:auto;
+      padding-bottom:4px;
+    }
+    .flash{
+      flex:0 0 auto;
+      width:70px;
+      position:relative;
+      cursor:pointer;
+    }
+    .flash .ring{
+      width:70px;
+      height:70px;
+      border-radius:50%;
+      padding:3px;
+      background:conic-gradient(#ffd54a,#ff7b54,#ff5478,#8b5cf6,#ffd54a);
+    }
+    .flash .inner{
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      overflow:hidden;
+      background:#000;
+      border:2px solid #000;
+    }
+    .flash img,.flash video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter:brightness(.95);
+    }
+    .flash .cap{
+      font-size:10px;
+      text-align:center;
+      margin-top:4px;
+      color:#cdd6ff;
+    }
+    .flash-actions{
+      position:absolute;
+      right:4px;
+      bottom:2px;
+      display:flex;
+      gap:4px;
+    }
+    .flash-actions button{
+      border:0;
+      background:rgba(0,0,0,.75);
+      color:#f9fafb;
+      border-radius:999px;
+      width:18px;
+      height:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:11px;
+      cursor:pointer;
+    }
+
+    /* Form edit */
+    .edit{
+      margin-top:14px;
+      display:none;
+    }
+    .row-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+    .row-grid .full{grid-column:1/-1}
+    label{
+      display:block;
+      font-size:11px;
+      font-weight:700;
+      color:#e2e8f0;
+      margin:4px 0 4px;
+    }
+    .input,textarea.input,select.input{
+      width:100%;
+      background:#020617;
+      border:1px solid var(--border);
+      border-radius:10px;
+      color:#fff;
+      padding:8px 10px;
+      font-size:13px;
+    }
+    body.theme-light .input,
+    body.theme-light textarea.input,
+    body.theme-light select.input{
+      background:#f9fafb;
+      color:#020617;
+      border-color:rgba(15,23,42,.15);
+    }
+
+    /* Posts grid */
+    .posts-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:8px;
+    }
+    .posts-header h2{
+      margin:0;
+      font-size:15px;
+      font-weight:800;
+    }
+    .post-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+    }
+    @media (max-width:720px){
+      .post-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    .thumb{
+      position:relative;
+      border-radius:10px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      background:#000;
+      display:block;
+    }
+    .thumb img,.thumb video{
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      aspect-ratio:1/1;
+    }
+    .thumb .tag{
+      position:absolute;
+      left:6px;
+      top:6px;
+      font-size:10px;
+      font-weight:800;
+      background:rgba(0,0,0,.6);
+      border:1px solid var(--border);
+      padding:3px 6px;
+      border-radius:999px;
+    }
+    .thumb-del{
+      position:absolute;
+      right:4px;
+      top:4px;
+      width:20px;
+      height:20px;
+      border-radius:999px;
+      border:0;
+      background:rgba(0,0,0,.78);
+      color:#f9fafb;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .empty{
+      color:var(--dim);
+      text-align:center;
+      margin:14px 0 4px;
+      font-size:13px;
+    }
+
+    /* Stats spots RIDLY */
+    .spotstats-body{
+      margin-top:4px;
+    }
+    .spotstats-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-top:4px;
+      font-size:13px;
+    }
+    .spotstats-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:10px;
+      background:var(--panel-soft);
+      border:1px solid rgba(148,163,184,.25);
+    }
+    body.theme-light .spotstats-row{
+      background:#e5e7eb;
+      border-color:rgba(148,163,184,.4);
+    }
+    .spotstats-main{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .spotstats-title{
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .spotstats-sub{
+      font-size:11px;
+      color:var(--dim);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .spotstats-points{
+      font-size:13px;
+      font-weight:700;
+      margin-left:10px;
+      white-space:nowrap;
+    }
+
+    /* Tabbar */
+    .tabbar{
+      position:fixed;
+      left:0;right:0;bottom:0;
+      z-index:30;
+      display:flex;
+      align-items:center;
+      justify-content:space-around;
+      padding:6px 8px 10px;
+      border-top:1px solid var(--border);
+      background:rgba(2,6,23,.97);
+      backdrop-filter:blur(18px);
+    }
+    body.theme-light .tabbar{
+      background:rgba(244,244,245,.97);
+    }
+    .tab{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:2px;
+      text-decoration:none;
+      color:var(--dim);
+      font-size:9px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:4px 0;
+    }
+    .tab .ic{font-size:20px;line-height:1;}
+    .tab.active{color:var(--green);}
+    @media(min-width:900px){
+      nav.nav .row{padding-inline:20px;}
+      main.main{padding-inline:14px;}
+      .tabbar{border-radius:22px 22px 0 0;}
+    }
+
+    .chip-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      border:0;
+      padding:2px 10px;
+      margin:0 3px;
+      background:rgba(15,23,42,.8);
+      color:var(--text);
+      font-size:11px;
+      font-weight:600;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    body.theme-light .chip-link{
+      background:rgba(148,163,184,.25);
+    }
+    .chip-link:hover{
+      filter:brightness(1.1);
+    }
+
+    .cgu-row{
+      margin-top:4px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .cgu-row .cgu-btn{
+      font-size:10px;
+      opacity:.85;
+    }
+
+    /* Modal abonnés / abonnements */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background:rgba(15,23,42,.82);
+      z-index:40;
+    }
+    .modal{
+      background:var(--panel);
+      border-radius:18px;
+      border:1px solid var(--border);
+      max-width:420px;
+      width:100%;
+      max-height:80vh;
+      display:flex;
+      flex-direction:column;
+      box-shadow:0 22px 60px rgba(0,0,0,.9);
+    }
+    .modal-header{
+      padding:10px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-size:14px;
+      font-weight:700;
+    }
+    .modal-close{
+      border:0;
+      background:transparent;
+      color:#e5e7eb;
+      font-size:18px;
+      cursor:pointer;
+      padding:0 2px;
+    }
+    .modal-body{
+      padding:8px 14px 12px;
+      overflow:auto;
+    }
+    .follow-list{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .follow-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:var(--text);
+      padding:6px 8px;
+      border-radius:12px;
+      background:var(--panel-soft);
+      border:1px solid rgba(148,163,184,.35);
+    }
+    .follow-item:hover{
+      border-color:var(--green);
+    }
+    .follow-avatar{
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      overflow:hidden;
+      background:#020617;
+      flex-shrink:0;
+    }
+    body.theme-light .follow-avatar{
+      background:#e5e7eb;
+    }
+    .follow-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .follow-names{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+    .follow-main{
+      font-size:13px;
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .follow-sub{
+      font-size:11px;
+      color:var(--dim);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+  
+    /* RIDLY_PROFIL_DA_2026_BEGIN */
+    :root,
+    body.theme-dark,
+    body.theme-light{
+      --bg:#080808;
+      --bg-soft:#0d0d0d;
+      --panel:#101010;
+      --panel-soft:#0b0b0b;
+      --card:#101010;
+      --green:#cc0000;
+      --green-dark:#e51010;
+      --accent:#cc0000;
+      --accent-soft:rgba(204,0,0,.11);
+      --accent-strong:rgba(204,0,0,.24);
+      --text:#f2f2f2;
+      --dim:#8b8b8b;
+      --border:rgba(255,255,255,.09);
+      --radius-xl:16px;
+    }
+    html,body{background:#080808 !important;color:#f2f2f2}
+    body,body.theme-light{
+      font-family:"Barlow Condensed",system-ui,-apple-system,"Segoe UI",sans-serif !important;
+      background:#080808 !important;
+    }
+    button,input,textarea,select{font-family:"Barlow Condensed",system-ui,sans-serif !important}
+    .rsl-bg-video{filter:brightness(.20) saturate(.45) !important}
+    .rsl-bg-dim,body.theme-light .rsl-bg-dim{
+      background:linear-gradient(180deg,rgba(0,0,0,.70),rgba(0,0,0,.94)) !important;
+    }
+    .page-wrap{max-width:680px;min-height:100svh}
+
+    /* Header identique a ou_rider / recherche */
+    nav.nav,body.theme-light nav.nav{
+      background:rgba(8,8,8,.88) !important;
+      border-bottom:1px solid rgba(255,255,255,.07) !important;
+      backdrop-filter:blur(18px);
+    }
+    nav.nav .row{min-height:56px;padding:7px 12px}
+    .brand{gap:0}
+    .brand-wordmark{width:132px;height:auto;max-width:48vw;display:block}
+    .brand img,.brand span{display:none !important}
+    .nav-tools{gap:6px;position:relative}
+    #btnTheme{display:none !important}
+    .add-btn{
+      width:36px;height:36px;min-width:36px;border-radius:999px;
+      background:linear-gradient(180deg,#e51010,#cc0000) !important;
+      color:#fff !important;font-size:21px;
+      box-shadow:0 8px 20px rgba(204,0,0,.28) !important;
+    }
+    .icon-btn,body.theme-light .icon-btn{
+      width:36px;height:36px;min-width:36px;padding:0;
+      border:1px solid rgba(255,255,255,.08) !important;
+      background:rgba(255,255,255,.045) !important;
+      color:#f2f2f2 !important;
+      box-shadow:none !important;
+    }
+    .icon-btn:hover{border-color:rgba(204,0,0,.65) !important;color:#fff !important}
+    .nav-badge{background:#cc0000 !important;color:#fff !important}
+
+    /* Titres / intro */
+    .mini-title,.page-intro{color:#777 !important}
+    .page-intro{padding:2px 10px 10px !important;font-size:12px !important}
+    .main{padding:0 8px 84px !important}
+
+    /* Cartes */
+    .card,body.theme-light .card{
+      background:#0b0b0b !important;
+      border:1px solid rgba(255,255,255,.07) !important;
+      border-radius:16px !important;
+      box-shadow:none !important;
+    }
+
+    /* Bloc profil */
+    .avatar,body.theme-light .avatar{
+      border-radius:14px !important;
+      border:1px solid rgba(255,255,255,.09) !important;
+      background:#000 !important;
+    }
+    .name{
+      font-family:"Bebas Neue",sans-serif !important;
+      font-size:30px !important;
+      font-weight:400 !important;
+      letter-spacing:.02em !important;
+      color:#f2f2f2 !important;
+      line-height:1.05 !important;
+    }
+    .meta-line,.loc-line{color:#8b8b8b !important;font-size:12px !important}
+    .badge-verified,body.theme-light .badge-verified{
+      background:rgba(204,0,0,.14) !important;
+      border:1px solid rgba(204,0,0,.55) !important;
+      color:#ffb3b3 !important;
+    }
+
+    /* Boutons */
+    .btn,body.theme-light .btn{
+      background:rgba(255,255,255,.045) !important;
+      border:1px solid rgba(255,255,255,.09) !important;
+      color:#f2f2f2 !important;
+      border-radius:10px !important;
+      font-weight:700 !important;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-size:12px !important;
+    }
+    .btn:hover{border-color:rgba(204,0,0,.6) !important}
+    .btn.green{
+      background:linear-gradient(180deg,#e51010,#cc0000) !important;
+      color:#fff !important;
+      border:0 !important;
+      box-shadow:0 8px 20px rgba(204,0,0,.26) !important;
+    }
+    .chip-link,body.theme-light .chip-link{
+      background:rgba(255,255,255,.055) !important;
+      color:#e8e8e8 !important;
+      border:1px solid rgba(255,255,255,.07);
+    }
+    .chip-link:hover{border-color:rgba(204,0,0,.6);color:#fff !important}
+
+    /* Flashes */
+    .flash .ring{
+      background:conic-gradient(#ff1a1a,#cc0000,#7a0000,#ff1a1a) !important;
+    }
+    .flash .inner{border:2px solid #080808 !important;background:#000 !important}
+    .flash .cap{color:#8b8b8b !important}
+    .flash-actions button{background:rgba(8,8,8,.85) !important;color:#f2f2f2 !important}
+
+    /* Formulaire */
+    label{color:#c9c9c9 !important;text-transform:uppercase;letter-spacing:.05em}
+    .input,textarea.input,select.input,
+    body.theme-light .input,
+    body.theme-light textarea.input,
+    body.theme-light select.input{
+      background:#0b0b0b !important;
+      border:1px solid rgba(255,255,255,.09) !important;
+      color:#f2f2f2 !important;
+      border-radius:10px !important;
+    }
+    .input:focus,textarea.input:focus,select.input:focus{
+      outline:none;border-color:rgba(204,0,0,.6) !important;
+    }
+
+    /* Posts */
+    .posts-header h2{
+      font-family:"Bebas Neue",sans-serif !important;
+      font-size:20px !important;
+      font-weight:400 !important;
+      letter-spacing:.03em;
+      color:#f2f2f2 !important;
+    }
+    .post-grid{gap:6px !important}
+    .thumb{
+      border-radius:12px !important;
+      border:1px solid rgba(255,255,255,.07) !important;
+      background:#0b0b0b !important;
+      transition:transform .15s ease,border-color .15s ease;
+    }
+    .thumb:hover{border-color:rgba(204,0,0,.48) !important;transform:translateY(-1px)}
+    .thumb .tag{
+      background:rgba(8,8,8,.86) !important;
+      color:#ddd !important;
+      border:1px solid rgba(255,255,255,.08) !important;
+    }
+    .thumb-del{background:rgba(8,8,8,.88) !important;color:#f2f2f2 !important}
+    .empty{color:#777 !important}
+
+    /* Stats spots */
+    .spotstats-row,body.theme-light .spotstats-row{
+      background:#0b0b0b !important;
+      border:1px solid rgba(255,255,255,.07) !important;
+      border-radius:12px !important;
+    }
+    .spotstats-title{color:#f2f2f2 !important}
+    .spotstats-sub{color:#8b8b8b !important}
+    .spotstats-points{color:#cc0000 !important;font-weight:800 !important}
+
+    /* Modal abonnes */
+    .modal-backdrop{background:rgba(0,0,0,.88) !important}
+    .modal{
+      background:#0b0b0b !important;
+      border:1px solid rgba(255,255,255,.09) !important;
+      border-radius:16px !important;
+      box-shadow:0 22px 60px rgba(0,0,0,.6) !important;
+    }
+    .modal-header{
+      border-bottom:1px solid rgba(255,255,255,.07) !important;
+      font-family:"Bebas Neue",sans-serif !important;
+      font-size:18px !important;font-weight:400 !important;letter-spacing:.03em;
+    }
+    .follow-item,body.theme-light .follow-item{
+      background:#101010 !important;
+      border:1px solid rgba(255,255,255,.07) !important;
+    }
+    .follow-item:hover{border-color:rgba(204,0,0,.55) !important}
+    .follow-sub{color:#8b8b8b !important}
+    .follow-avatar,body.theme-light .follow-avatar{background:#000 !important}
+
+    /* Toast */
+    .toast{
+      background:rgba(12,12,12,.97) !important;
+      color:#f2f2f2 !important;
+      border:1px solid rgba(255,255,255,.09);
+    }
+
+    /* Bottom bar identique a ou_rider */
+    .tabbar,body.theme-light .tabbar{
+      left:50% !important;right:auto !important;
+      width:min(100%,680px);transform:translateX(-50%);
+      min-height:64px;
+      padding:6px max(8px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left)) !important;
+      background:rgba(8,8,8,.96) !important;
+      border:1px solid rgba(255,255,255,.08) !important;
+      border-bottom:0 !important;
+      border-radius:18px 18px 0 0 !important;
+      box-shadow:0 -14px 34px rgba(0,0,0,.28) !important;
+      backdrop-filter:blur(20px);
+    }
+    .tab{
+      min-width:0;color:#777 !important;font-size:9px !important;font-weight:700 !important;
+      letter-spacing:.06em;padding:5px 2px !important;gap:3px !important;
+    }
+    .tab .ic{
+      width:25px;height:25px;display:flex;align-items:center;justify-content:center;
+      font-family:"Barlow Condensed",sans-serif;font-size:21px !important;line-height:1 !important;color:#8b8b8b;
+    }
+    .tab.active,.tab.active .ic{color:#cc0000 !important}
+    ::selection{background:#cc0000;color:#fff}
+
+    @media(max-width:640px){
+      nav.nav .row{padding:6px 9px}
+      .brand-wordmark{width:112px;max-width:52vw}
+      .main{padding:8px 6px 76px !important}
+      .tabbar{width:100%;border-left:0 !important;border-right:0 !important;border-radius:16px 16px 0 0 !important}
+      .name{font-size:26px !important}
+      .avatar{width:72px !important;height:72px !important}
+    }
+    /* RIDLY_PROFIL_DA_2026_END */
+  
+  
+    /* RIDLY_MOREMENU_BEGIN */
+    .more-btn{
+      width:36px;height:36px;min-width:36px;padding:0;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.045);
+      color:#f2f2f2;border-radius:999px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:18px;font-weight:800;cursor:pointer;
+    }
+    .more-btn:hover,.more-btn:focus{border-color:#cc0000;color:#fff}
+    .more-menu{
+      position:absolute;top:44px;right:0;width:170px;padding:6px;
+      background:rgba(12,12,12,.98);border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;box-shadow:0 18px 45px rgba(0,0,0,.45);
+      backdrop-filter:blur(16px);display:none;z-index:9999;
+    }
+    .more-menu.show{display:block}
+    .more-menu a{
+      display:flex;align-items:center;gap:10px;padding:10px 11px;
+      border-radius:10px;color:#f0f0f0;text-decoration:none;
+      font:700 14px "Barlow Condensed",system-ui,sans-serif;
+    }
+    .more-menu a:hover{background:rgba(204,0,0,.14)}
+    .more-menu .mi{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:18px}
+    .nav-tools{position:relative}
+    /* RIDLY_MOREMENU_END */
+  
+  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+
+<!-- BG vidéo RIDLY -->
+<div class="rsl-bg-wrap" aria-hidden="true">
+  <video class="rsl-bg-video" id="rslBg" autoplay muted loop playsinline preload="auto"></video>
+  <div class="rsl-bg-dim"></div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Nav top -->
+  <nav class="nav">
+    <div class="row">
+      <div class="nav-left">
+        <a class="brand" href="ou_rider.html">
+          <svg class="brand-wordmark" viewBox="0 0 560 170" role="img" aria-label="RIDLY by RSL" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMid meet">
+            <defs>
+              <linearGradient id="ridlyRedProfil" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0%" stop-color="#ff1a1a"/>
+                <stop offset="100%" stop-color="#cc0000"/>
+              </linearGradient>
+            </defs>
+            <g transform="translate(6 10)">
+              <path d="M84 0C46 0 15 31 15 69c0 15 5 29 13 40l46 47c5 5 13 5 18 0l46-47c8-11 13-25 13-40C151 31 120 0 84 0zm0 40c16 0 29 13 29 29S100 98 84 98 55 85 55 69s13-29 29-29z" fill="url(#ridlyRedProfil)"/>
+            </g>
+            <g fill="#f4f4f4" font-family="Arial, Helvetica, sans-serif" font-weight="900">
+              <text x="170" y="92" font-size="78" letter-spacing="3">RIDLY</text>
+            </g>
+            <g font-family="Arial, Helvetica, sans-serif" font-style="italic" font-weight="800" font-size="30">
+              <line x1="188" y1="123" x2="234" y2="123" stroke="#cc0000" stroke-width="5" stroke-linecap="round"/>
+              <text x="252" y="133" fill="#cc0000">BY</text>
+              <text x="314" y="133" fill="#f4f4f4" font-style="normal">RSL</text>
+              <line x1="392" y1="123" x2="438" y2="123" stroke="#cc0000" stroke-width="5" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </a>
+        <button type="button" class="add-btn" onclick="window.location.href='ajouter.html'" title="Nouvelle publication">
+          <span>+</span>
+        </button>
+      </div>
+      <div class="nav-tools">
+        <button type="button" class="icon-btn" id="btnTheme" title="Mode clair / sombre">🌙</button>
+
+        <a href="chat1v1.html" class="icon-btn" id="btn1v1" title="Messages privés">
+          💌
+          <span class="nav-badge" id="badge1v1"></span>
+        </a>
+
+        <a href="chat.html" class="icon-btn" id="btnChat" title="Chat riders">💬</a>
+
+        <!-- Déconnexion en haut -->
+        <button type="button" class="icon-btn" id="btnLogout" title="Déconnexion" style="display:none">⏻</button>
+              <button type="button" class="more-btn" id="btnMore" title="Plus">•••</button>
+        <div class="more-menu" id="moreMenu" aria-hidden="true">
+          <a href="games.html"><span class="mi">🎮</span><span>Game</span></a>
+          <a href="classement.html"><span class="mi">🏆</span><span>Classement</span></a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <p class="page-intro">
+    Gère ton profil RIDLY, tes stories (flashs), tes posts dans le feed et tes stats de spots.
+  </p>
+
+  <main class="main">
+    <section class="card">
+      <div class="p-head">
+        <div class="avatar">
+          <img id="avatarImg" alt="avatar" src="image/logo_pn360.png"/>
+        </div>
+        <div class="p-main">
+          <h1 class="name" id="pName">—</h1>
+          <div class="loc-line" id="pSub">—</div>
+          <div class="meta-line" id="pStats">0 posts • 0 flashs • 0 abonnés • Moyenne compte : —</div>
+          <div class="meta-line" id="pLocalPark">Skatepark local : —</div>
+          <div class="cgu-row">
+            <button type="button" class="chip-link cgu-btn" id="btnCgu">
+              Conditions RIDLY
+            </button>
+          </div>
+        </div>
+        <div class="p-actions" id="actionsBox"></div>
+      </div>
+
+      <div id="flashStrip" class="flash-strip"></div>
+
+      <form id="editForm" class="edit">
+        <div class="row-grid">
+          <div>
+            <label for="fPseudo">Pseudo</label>
+            <input id="fPseudo" class="input" type="text" placeholder="rider_name"/>
+          </div>
+          <div>
+            <label for="fFullname">Nom complet</label>
+            <input id="fFullname" class="input" type="text" placeholder="Prénom Nom"/>
+          </div>
+          <div>
+            <label for="fCity">Ville</label>
+            <input id="fCity" class="input" type="text" placeholder="Montreux"/>
+          </div>
+          <div>
+            <label for="fCanton">Canton</label>
+            <input id="fCanton" class="input" type="text" placeholder="VD"/>
+          </div>
+          <div>
+           <label for="fCountry">Pays</label>
+<select id="fCountry" class="input">
+  <option value="">Pays (tous)</option>
+  <option value="CH">Suisse</option><option value="FR">France</option><option value="DE">Allemagne</option>
+  <option value="IT">Italie</option><option value="ES">Espagne</option><option value="PT">Portugal</option>
+  <option value="BE">Belgique</option><option value="NL">Pays-Bas</option><option value="LU">Luxembourg</option>
+  <option value="UK">Royaume-Uni</option><option value="IE">Irlande</option><option value="AT">Autriche</option>
+  <option value="DK">Danemark</option><option value="SE">Suède</option><option value="NO">Norvège</option>
+  <option value="FI">Finlande</option><option value="IS">Islande</option><option value="PL">Pologne</option>
+  <option value="CZ">Tchéquie</option><option value="SK">Slovaquie</option><option value="SI">Slovénie</option>
+  <option value="HR">Croatie</option><option value="HU">Hongrie</option><option value="RO">Roumanie</option>
+  <option value="BG">Bulgarie</option><option value="GR">Grèce</option><option value="TR">Turquie</option>
+  <option value="US">États-Unis</option><option value="CA">Canada</option><option value="BR">Brésil</option>
+  <option value="AR">Argentine</option><option value="MX">Mexique</option><option value="AU">Australie</option>
+  <option value="NZ">Nouvelle-Zélande</option><option value="JP">Japon</option><option value="CN">Chine</option>
+  <option value="KR">Corée du Sud</option><option value="IL">Israël</option><option value="MA">Maroc</option>
+  <option value="TN">Tunisie</option><option value="DZ">Algérie</option><option value="EU">Autres Europe</option>
+  <option value="WORLD">Monde</option>
+</select>
+
+          </div>
+          <div>
+            <label for="fGender">Genre</label>
+            <select id="fGender" class="input">
+              <option value="">Non spécifié</option>
+              <option value="Homme">Homme</option>
+              <option value="Femme">Femme</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="fInsta">Instagram (URL)</label>
+            <input id="fInsta" class="input" type="url" placeholder="https://instagram.com/moncompte"/>
+          </div>
+          <div class="full">
+            <label for="fBio">Bio</label>
+            <textarea id="fBio" class="input" rows="3" placeholder="Quelques lignes sur toi…"></textarea>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
+          <label class="btn" for="fAvatar">Changer l’avatar</label>
+          <input id="fAvatar" type="file" accept="image/*" style="display:none"/>
+          <button class="btn green" id="btnSave" type="submit">Enregistrer</button>
+          <span id="saveMsg" style="color:#9aa5b1;font-size:12px"></span>
+        </div>
+      </form>
+    </section>
+
+    <!-- Posts -->
+    <section class="card" style="margin-top:14px">
+      <div class="posts-header">
+        <h2>Posts</h2>
+        <button class="btn" id="btnNewPost" style="display:none">+ Nouveau post</button>
+      </div>
+      <div id="postGrid" class="post-grid"></div>
+      <p id="postsEmpty" class="empty" style="display:none">Aucun post pour l’instant.</p>
+    </section>
+
+    <!-- Stats spots -->
+    <section class="card" style="margin-top:14px" id="spotStatsCard">
+      <div class="posts-header">
+        <h2>Statistiques RIDLY — Spots</h2>
+      </div>
+      <div class="spotstats-body">
+        <p class="empty" id="spotStatsEmpty">Pas encore de sessions enregistrées.</p>
+        <div id="spotStatsList" class="spotstats-list"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Modal abonnés / abonnements -->
+<div class="modal-backdrop" id="followModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="followModalTitle">Abonnés</span>
+      <button type="button" class="modal-close" id="followModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <ul class="follow-list" id="followModalList"></ul>
+      <p class="empty" id="followModalEmpty" style="display:none;margin-top:8px;">Aucun résultat pour l’instant.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Tabbar -->
+<nav class="tabbar" aria-label="Navigation">
+  <a class="tab" href="ou_rider.html" title="Spots"><div class="ic">⌖</div><span>Spots</span></a>
+  <a class="tab" href="feed.html" title="Feed"><div class="ic">▶</div><span>Feed</span></a>
+  <a class="tab" href="recherche.html" title="Recherche"><div class="ic">⌕</div><span>Recherche</span></a>
+  <a class="tab" id="tabLya" href="ridly-lya.html" title="Lya"><div class="ic">✦</div><span>Lya</span></a>
+  <a class="tab active" href="profil_ou_rider.html" title="Profil"><div class="ic">○</div><span>Profil</span></a>
+</nav>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Thème -->
+<script>
+(function(){
+  const saved = localStorage.getItem('ridlyTheme') || 'dark';
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
+  document.body.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+
+  const btnTheme = document.getElementById('btnTheme');
+  const updateIcon = () => {
+    const isLight = document.body.classList.contains('theme-light');
+    btnTheme.textContent = isLight ? '☀️' : '🌙';
+  };
+  updateIcon();
+
+  btnTheme.addEventListener('click', ()=>{
+    const isLight = document.body.classList.contains('theme-light');
+    document.body.classList.toggle('theme-light', !isLight);
+    document.body.classList.toggle('theme-dark',  isLight);
+    localStorage.setItem('ridlyTheme', isLight ? 'dark' : 'light');
+    updateIcon();
+  });
+})();
+</script>
+
+<!-- Supabase + profil -->
+<script>
+const SUPABASE_URL  = window.env?.SUPABASE_URL || "https://jynxifufaauoxwzjapzq.supabase.co";
+const SUPABASE_ANON = window.env?.SUPABASE_ANON || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5bnhpZnVmYWF1b3h3emphcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODI2NzcsImV4cCI6MjA3Njk1ODY3N30.vFPGhGakPIM3Xg5rn8_BrAXl6oJMJOssO780C9nXmr4";
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* BG vidéo */
+(function(){
+  const v = document.getElementById('rslBg');
+  if(!v) return;
+  const s = document.createElement('source');
+  s.src = SUPABASE_URL + "/storage/v1/object/public/ridly/ridly.mp4";
+  s.type = "video/mp4";
+  v.appendChild(s);
+  const play = ()=>{ try{ v.playbackRate = 0.6; const p=v.play(); if(p&&p.catch) p.catch(()=>{});}catch(e){} };
+  play();
+  document.addEventListener('visibilitychange',()=>{ document.hidden ? v.pause() : play(); });
+})();
+
+/* Toast + notifs 1v1 */
+const toastDiv   = document.getElementById('toast');
+const badge1v1   = document.getElementById('badge1v1');
+const notifAudio = new Audio('/sons/sonsnotif.mp3');
+let unreadToastShown = false;
+
+function showToast(msg){
+  if(!toastDiv) return;
+  toastDiv.textContent = msg;
+  toastDiv.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>toastDiv.classList.remove('show'),4000);
+}
+function playNotifSound(){
+  try{
+    notifAudio.currentTime = 0;
+    notifAudio.play().catch(()=>{});
+  }catch(e){}
+}
+function update1v1Badge(count){
+  if(!badge1v1) return;
+  if(count>0){
+    badge1v1.style.display = 'flex';
+    badge1v1.textContent = count>9 ? '9+' : String(count);
+  }else{
+    badge1v1.style.display = 'none';
+  }
+}
+async function checkPrivateUnread(user){
+  if(!user) return;
+  try{
+    const { data, error } = await supa
+      .from('ridly_private_unread_counts')
+      .select('unread_count')
+      .eq('user_id', user.id);
+
+    if(error){
+      console.error('unread error', error);
+      return;
+    }
+    const total = (data||[]).reduce((sum,r)=>sum + (r.unread_count||0),0);
+    update1v1Badge(total);
+    if(total>0 && !unreadToastShown){
+      unreadToastShown = true;
+      const s = total>1 ? 's' : '';
+      showToast(`Tu as ${total} message${s} privé${s} non lu${s}.`);
+      playNotifSound();
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+function subscribePrivateAlerts(user){
+  if(!user) return;
+  supa.channel('ridly_private_alert_'+user.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'ridly_private_messages'
+    }, async payload => {
+      const m = payload.new;
+      if(m.to_id !== user.id) return;
+
+      let senderName = 'Rider';
+      try{
+        const { data:p } = await supa
+          .from('profiles')
+          .select('pseudo,full_name')
+          .eq('id', m.from_id)
+          .maybeSingle();
+        if(p) senderName = p.pseudo || p.full_name || 'Rider';
+      }catch(e){}
+
+      playNotifSound();
+      showToast('Nouveau message privé de ' + senderName);
+      checkPrivateUnread(user);
+    })
+    .subscribe();
+}
+
+/* Paramètres & DOM */
+const params = new URLSearchParams(location.search);
+const qId    = params.get('id');
+const qUser  = params.get('u');
+
+const avatarImg   = document.getElementById('avatarImg');
+const pName       = document.getElementById('pName');
+const pSub        = document.getElementById('pSub');
+const pStats      = document.getElementById('pStats');
+const pLocalPark  = document.getElementById('pLocalPark');
+const actionsBox  = document.getElementById('actionsBox');
+const editForm    = document.getElementById('editForm');
+const saveMsg     = document.getElementById('saveMsg');
+const flashStrip  = document.getElementById('flashStrip');
+const postGrid    = document.getElementById('postGrid');
+const postsEmpty  = document.getElementById('postsEmpty');
+const btnNewPost  = document.getElementById('btnNewPost');
+const btnLogout   = document.getElementById('btnLogout');
+const btnCgu      = document.getElementById('btnCgu');
+
+/* Stats spots DOM */
+const spotStatsCard  = document.getElementById('spotStatsCard');
+const spotStatsEmpty = document.getElementById('spotStatsEmpty');
+const spotStatsList  = document.getElementById('spotStatsList');
+
+const avatarInput = document.getElementById('fAvatar');
+const fPseudo     = document.getElementById('fPseudo');
+const fFullname   = document.getElementById('fFullname');
+const fCity       = document.getElementById('fCity');
+const fCanton     = document.getElementById('fCanton');
+const fCountry    = document.getElementById('fCountry');
+const fInsta      = document.getElementById('fInsta');
+const fBio        = document.getElementById('fBio');
+const fGender     = document.getElementById('fGender');
+
+/* Modal elements */
+const followModal      = document.getElementById('followModal');
+const followModalTitle = document.getElementById('followModalTitle');
+const followModalList  = document.getElementById('followModalList');
+const followModalEmpty = document.getElementById('followModalEmpty');
+const followModalClose = document.getElementById('followModalClose');
+
+let sessionUser   = null;
+let profileUserId = null;
+
+/* Bouton Conditions RIDLY */
+btnCgu?.addEventListener('click', ()=>{
+  window.location.href = 'conditions.html';
+});
+
+/* Ouvre le modal avec la liste */
+async function openFollowModal(mode){
+  if(!window._ridlyProfile?.profileUserId) return;
+  const profileUserId = window._ridlyProfile.profileUserId;
+
+  followModalTitle.textContent = (mode === 'followers') ? 'Abonnés' : 'Abonnements';
+  followModalList.innerHTML = '';
+  followModalEmpty.style.display = 'none';
+  followModal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  try{
+    let ids = [];
+    if(mode === 'followers'){
+      const { data:rows, error } = await supa
+        .from('rider_follows')
+        .select('follower_id')
+        .eq('followed_id', profileUserId)
+        .limit(200);
+      if(error) throw error;
+      ids = (rows || []).map(r=>r.follower_id);
+    }else{
+      const { data:rows, error } = await supa
+        .from('rider_follows')
+        .select('followed_id')
+        .eq('follower_id', profileUserId)
+        .limit(200);
+      if(error) throw error;
+      ids = (rows || []).map(r=>r.followed_id);
+    }
+
+    if(!ids.length){
+      followModalEmpty.textContent = "Aucun résultat pour l’instant.";
+      followModalEmpty.style.display = 'block';
+      return;
+    }
+
+    const { data:profiles, error:pErr } = await supa
+      .from('profiles')
+      .select('id,pseudo,username,full_name,city,canton,country,avatar_url')
+      .in('id', ids);
+
+    if(pErr) throw pErr;
+
+    (profiles || []).forEach(p=>{
+      const displayName = p.pseudo || p.username || p.full_name || 'Rider';
+      const locParts = [];
+      if(p.city) locParts.push(p.city);
+      if(p.canton) locParts.push(p.canton);
+      if(p.country) locParts.push(p.country);
+      const loc = locParts.join(' • ');
+
+      const li = document.createElement('li');
+      const a  = document.createElement('a');
+      a.className = 'follow-item';
+      a.href = 'profil_ou_rider.html?id=' + encodeURIComponent(p.id);
+
+      const avatarWrap = document.createElement('div');
+      avatarWrap.className = 'follow-avatar';
+      const img = document.createElement('img');
+      img.src = p.avatar_url || 'image/logo_pn360.png';
+      img.alt = displayName;
+      avatarWrap.appendChild(img);
+
+      const namesWrap = document.createElement('div');
+      namesWrap.className = 'follow-names';
+      const main = document.createElement('div');
+      main.className = 'follow-main';
+      main.textContent = displayName;
+      const sub = document.createElement('div');
+      sub.className = 'follow-sub';
+      sub.textContent = loc || '—';
+      namesWrap.appendChild(main);
+      namesWrap.appendChild(sub);
+
+      a.appendChild(avatarWrap);
+      a.appendChild(namesWrap);
+
+      li.appendChild(a);
+      followModalList.appendChild(li);
+    });
+
+  }catch(e){
+    console.error(e);
+    followModalEmpty.textContent = "Erreur de chargement.";
+    followModalEmpty.style.display = 'block';
+  }
+}
+
+function closeFollowModal(){
+  followModal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+followModalClose?.addEventListener('click', closeFollowModal);
+followModal?.addEventListener('click', (e)=>{
+  if(e.target === followModal){
+    closeFollowModal();
+  }
+});
+
+/* Profil + stats counters */
+/* === MODIFIÉ : affiche total abonnés = réel + bonus + tooltip === */
+function updateStatsLine(){
+  const avgTxt = (window._ridlyProfile?.accountAvg != null)
+    ? `Moyenne compte : ${window._ridlyProfile.accountAvg.toFixed(1)} / 5`
+    : `Moyenne compte : —`;
+
+  const realFollowers  = window._ridlyProfile?.followersCount  || 0;  // réels (rider_follows)
+  const bonusFollowers = window._ridlyProfile?.followersManual || 0;  // bonus (followers_manual)
+  const totalFollowers = realFollowers + bonusFollowers;
+
+  const html = `
+    ${window._ridlyProfile?.countPosts || 0} posts •
+    ${window._ridlyProfile?.countFlashes || 0} flashs •
+    <button type="button" class="chip-link" id="followersBtn"
+      title="Réels : ${realFollowers} • Bonus : ${bonusFollowers}">
+      ${totalFollowers} abonnés
+    </button> •
+    <button type="button" class="chip-link" id="followingBtn">
+      ${window._ridlyProfile?.followingCount || 0} abonnements
+    </button> •
+    ${avgTxt}
+  `;
+  pStats.innerHTML = html;
+
+  const followersBtn = document.getElementById('followersBtn');
+  const followingBtn = document.getElementById('followingBtn');
+  if(followersBtn){
+    followersBtn.addEventListener('click', ()=>openFollowModal('followers'));
+  }
+  if(followingBtn){
+    followingBtn.addEventListener('click', ()=>openFollowModal('following'));
+  }
+}
+
+(async function init(){
+  const { data:{ user } } = await supa.auth.getUser();
+  sessionUser = user || null;
+
+  if(sessionUser){
+    if(btnLogout){
+      btnLogout.style.display = 'flex';
+      btnLogout.onclick = async ()=>{
+        await supa.auth.signOut();
+        location.href = "index.html";
+      };
+    }
+
+    checkPrivateUnread(sessionUser);
+    subscribePrivateAlerts(sessionUser);
+  }
+
+  if(qId){
+    profileUserId = qId;
+  }else if(qUser){
+    const { data } = await supa
+      .from('profiles')
+      .select('id')
+      .or(`pseudo.eq.${qUser},username.eq.${qUser}`)
+      .maybeSingle();
+    profileUserId = data?.id || null;
+  }else{
+    profileUserId = sessionUser?.id || null;
+  }
+
+  if(!profileUserId){
+    pName.textContent = "Profil introuvable";
+    return;
+  }
+
+  window._ridlyProfile = {
+    sessionUser,
+    profileUserId,
+    isOwn: !!(sessionUser && sessionUser.id === profileUserId),
+    isAdmin:false,
+    isVerified:false,
+    countPosts:0,
+    countFlashes:0,
+    followersCount:0,      // abonnés réels
+    followersManual:0,     // bonus manuels
+    followingCount:0,
+    isFollowing:false,
+    accountAvg:null,
+    spotStats:[],
+    localSpot:null,
+    totalSecondsAll:0
+  };
+
+  await loadProfile();
+  await loadFlashes();
+  await loadPosts();
+  await loadFollowState();
+  await loadSpotStats();
+  buildActions();
+})();
+
+async function loadProfile(){
+  const { sessionUser, profileUserId } = window._ridlyProfile;
+  const { data:prof } = await supa
+    .from('profiles')
+    .select('*')
+    .eq('id', profileUserId)
+    .maybeSingle();
+
+  if(!prof){
+    pName.textContent = "Profil introuvable";
+    return;
+  }
+
+  window._ridlyProfile.isAdmin    = !!prof.is_admin;
+  window._ridlyProfile.isVerified = !!prof.is_verified;
+
+  const displayName =
+    prof.pseudo ||
+    prof.username ||
+    prof.full_name ||
+    (sessionUser?.email || 'Rider');
+
+  if(window._ridlyProfile.isVerified){
+    pName.innerHTML = `
+      ${displayName}
+      <span class="badge-verified">
+        <span>✔</span> RIDLY certifié
+      </span>
+    `;
+  }else{
+    pName.textContent = displayName;
+  }
+
+  const locParts = [];
+  if(prof.city)    locParts.push(prof.city);
+  if(prof.canton)  locParts.push(prof.canton);
+  if(prof.country) locParts.push(prof.country);
+  const loc = locParts.join(' • ');
+  const genderTxt = prof.gender || '';
+  pSub.textContent = [loc || '—', genderTxt].filter(Boolean).join(' • ');
+
+  avatarImg.src = prof.avatar_url || "image/logo_pn360.png";
+
+  if(window._ridlyProfile.isOwn){
+    fPseudo.value   = prof.pseudo || prof.username || "";
+    fFullname.value = prof.full_name || "";
+    fCity.value     = prof.city || "";
+    fCanton.value   = prof.canton || "";
+    fCountry.value  = prof.country || "";
+    fInsta.value    = prof.insta_url || "";
+    fBio.value      = prof.bio || "";
+    fGender.value   = prof.gender || "";
+  }
+}
+
+/* Follow state */
+/* === MODIFIÉ : récupère aussi followers_manual de profiles === */
+async function loadFollowState(){
+  const { profileUserId, sessionUser } = window._ridlyProfile;
+  window._ridlyProfile.followersCount  = 0; // réel
+  window._ridlyProfile.followersManual = 0; // bonus
+  window._ridlyProfile.followingCount  = 0;
+  window._ridlyProfile.isFollowing     = false;
+
+  if(!profileUserId){ updateStatsLine(); return; }
+  try{
+    // Abonnés réels
+    const { count:followers } = await supa
+      .from('rider_follows')
+      .select('*', { count:'exact', head:true })
+      .eq('followed_id', profileUserId);
+    window._ridlyProfile.followersCount = followers || 0;
+
+    // Bonus manuels (colonne followers_manual)
+    const { data:profBonus, error:bonusErr } = await supa
+      .from('profiles')
+      .select('followers_manual')
+      .eq('id', profileUserId)
+      .maybeSingle();
+
+    if(!bonusErr && profBonus){
+      window._ridlyProfile.followersManual = profBonus.followers_manual || 0;
+    }
+
+    // Nombre d’abonnements
+    const { count:following } = await supa
+      .from('rider_follows')
+      .select('*', { count:'exact', head:true })
+      .eq('follower_id', profileUserId);
+    window._ridlyProfile.followingCount = following || 0;
+
+    // Est-ce que le user connecté suit ce profil ?
+    if(sessionUser){
+      const { data:rows } = await supa
+        .from('rider_follows')
+        .select('id')
+        .eq('follower_id', sessionUser.id)
+        .eq('followed_id', profileUserId)
+        .limit(1);
+      window._ridlyProfile.isFollowing = !!(rows && rows.length);
+    }else{
+      window._ridlyProfile.isFollowing = false;
+    }
+    updateStatsLine();
+  }catch(e){
+    console.error(e);
+    updateStatsLine();
+  }
+}
+
+function buildActions(){
+  const { isOwn, isAdmin, profileUserId, sessionUser, isFollowing, isVerified } = window._ridlyProfile;
+  actionsBox.innerHTML = "";
+  if(isOwn){
+    if(isAdmin){
+      actionsBox.append(
+        makeBtn("⚙️ Admin spots", () => {
+          window.location.href = "admin_spots.html";
+        })
+      );
+    }
+
+    actionsBox.append(
+      makeBtn("✏️ Éditer", toggleEdit)
+    );
+    btnNewPost.style.display = "inline-block";
+    btnNewPost.onclick = ()=>location.href="ajouter.html";
+  }else{
+    if(sessionUser){
+      const chatBtn = makeBtn("💬 Chat privé", () => {
+        window.location.href = 'chat1v1.html?to=' + encodeURIComponent(profileUserId);
+      });
+      const followBtn = makeBtn(isFollowing ? "Se désabonner" : "S’abonner", toggleFollow);
+      followBtn.id = "followBtn";
+      if(isFollowing) followBtn.classList.add('green');
+
+      if(isAdmin){
+        const verifyBtn = makeBtn(
+          isVerified ? "Enlever la certification" : "Certifier ce compte",
+          toggleVerify
+        );
+        verifyBtn.id = "verifyBtn";
+        if(isVerified) verifyBtn.classList.add('green');
+        actionsBox.append(chatBtn, followBtn, verifyBtn);
+      }else{
+        actionsBox.append(chatBtn, followBtn);
+      }
+    }else{
+      actionsBox.append(
+        makeBtn("Se connecter pour suivre", ()=>{ window.location.href = "compte.html"; })
+      );
+    }
+  }
+}
+
+function makeBtn(txt, fn){
+  const b = document.createElement('button');
+  b.type = "button";
+  b.className = "btn";
+  b.textContent = txt;
+  b.onclick = fn;
+  return b;
+}
+
+/* Suivre / se désabonner */
+async function toggleFollow(){
+  const { sessionUser, profileUserId } = window._ridlyProfile;
+  if(!sessionUser){
+    window.location.href = "compte.html";
+    return;
+  }
+  const btn = document.getElementById('followBtn');
+  if(!btn) return;
+  btn.disabled = true;
+
+  try{
+    if(window._ridlyProfile.isFollowing){
+      const { error } = await supa
+        .from('rider_follows')
+        .delete()
+        .eq('follower_id', sessionUser.id)
+        .eq('followed_id', profileUserId);
+      if(!error){
+        window._ridlyProfile.isFollowing = false;
+        window._ridlyProfile.followersCount = Math.max(0, window._ridlyProfile.followersCount - 1);
+      }
+    }else{
+      const { error } = await supa
+        .from('rider_follows')
+        .insert([{ follower_id: sessionUser.id, followed_id: profileUserId }]);
+      if(!error){
+        window._ridlyProfile.isFollowing = true;
+        window._ridlyProfile.followersCount = window._ridlyProfile.followersCount + 1;
+      }
+    }
+  }catch(e){
+    console.error(e);
+  }finally{
+    btn.disabled = false;
+    updateStatsLine();
+    if(window._ridlyProfile.isFollowing){
+      btn.textContent = "Se désabonner";
+      btn.classList.add('green');
+    }else{
+      btn.textContent = "S’abonner";
+      btn.classList.remove('green');
+    }
+  }
+}
+
+/* Certifier / retirer la certification */
+async function toggleVerify(){
+  const { isAdmin, profileUserId } = window._ridlyProfile;
+  if(!isAdmin) return;
+
+  const btn = document.getElementById('verifyBtn');
+  if(!btn) return;
+  btn.disabled = true;
+
+  try{
+    const newVal = !window._ridlyProfile.isVerified;
+
+    const { error } = await supa
+      .from('profiles')
+      .update({ is_verified:newVal })
+      .eq('id', profileUserId);
+
+    if(error){
+      console.error(error);
+      showToast("Erreur lors de la mise à jour de la certification.");
+      return;
+    }
+
+    window._ridlyProfile.isVerified = newVal;
+    showToast(newVal ? "Compte certifié ✅" : "Certification retirée.");
+
+    await loadProfile();
+    buildActions();
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function toggleEdit(){
+  editForm.style.display = (editForm.style.display === "block") ? "none" : "block";
+}
+
+editForm?.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const { profileUserId } = window._ridlyProfile;
+  saveMsg.textContent = "Enregistrement…";
+
+  const up = {
+    pseudo:(fPseudo.value||"").trim() || null,
+    username:(fPseudo.value||"").trim() || null,
+    full_name:(fFullname.value||"").trim() || null,
+    city:(fCity.value||"").trim() || null,
+    canton:(fCanton.value||"").trim() || null,
+    country:(fCountry.value||"").trim() || null,
+    insta_url:(fInsta.value||"").trim() || null,
+    bio:(fBio.value||"").trim() || null,
+    gender:(fGender.value||"").trim() || null
+  };
+
+  const { error } = await supa.from('profiles').update(up).eq('id', profileUserId);
+  if(error){
+    saveMsg.textContent = "Erreur : " + error.message;
+    return;
+  }
+  saveMsg.textContent = "OK ✓";
+  await loadProfile();
+});
+
+avatarInput?.addEventListener('change', async ()=>{
+  const { profileUserId } = window._ridlyProfile;
+  if(!avatarInput.files?.length) return;
+  const f = avatarInput.files[0];
+  const safeName = f.name.replace(/[^\w.\-]+/g,'_');
+  const path = `${profileUserId}/${Date.now()}-${safeName}`;
+
+  const { error:upErr } = await supa.storage.from('avatars').upload(path, f, { upsert:false });
+  if(upErr){
+    saveMsg.textContent = "Upload échoué.";
+    return;
+  }
+  const { data:pub } = supa.storage.from('avatars').getPublicUrl(path);
+  const url = pub?.publicUrl;
+  if(url){
+    await supa.from('profiles').update({ avatar_url:url }).eq('id', profileUserId);
+    avatarImg.src = url;
+    saveMsg.textContent = "Avatar mis à jour ✓";
+  }
+});
+
+/* Flashes */
+async function loadFlashes(){
+  const { profileUserId } = window._ridlyProfile;
+  const { data:fl } = await supa
+    .from('flashes')
+    .select('id,media_url,caption,created_at,expires_at')
+    .eq('user_id', profileUserId)
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at',{ascending:false})
+    .limit(20);
+
+  const list = fl || [];
+  flashStrip.innerHTML = "";
+  window._ridlyProfile.countFlashes = list.length;
+  updateStatsLine();
+
+  list.forEach(f=>{
+    const d = document.createElement('div');
+    d.className = "flash";
+    const isVideo = /\.(mp4|webm|mov)$/i.test(f.media_url||"");
+    d.innerHTML = `
+      <div class="ring">
+        <div class="inner">
+          ${isVideo
+            ? `<video src="${f.media_url}" muted playsinline></video>`
+            : `<img src="${f.media_url}" alt="">`}
+        </div>
+      </div>
+      <div class="cap">${(f.caption||"").slice(0,18)}</div>
+      ${window._ridlyProfile.isOwn ? `
+        <div class="flash-actions">
+          <button type="button" data-id="${f.id}" data-act="repost" title="Repartager">↺</button>
+          <button type="button" data-id="${f.id}" data-act="delete" title="Supprimer">✕</button>
+        </div>` : ``}
+    `;
+    d.addEventListener('click',()=>window.open(f.media_url,'_blank'));
+    flashStrip.appendChild(d);
+  });
+
+  if(window._ridlyProfile.isOwn){
+    flashStrip.querySelectorAll('.flash-actions button').forEach(btn=>{
+      btn.addEventListener('click', async ev=>{
+        ev.stopPropagation();
+        const id  = btn.getAttribute('data-id');
+        const act = btn.getAttribute('data-act');
+        if(act === 'delete'){
+          if(!confirm('Supprimer ce flash ?')) return;
+          await supa.from('flashes').delete().eq('id', id);
+          loadFlashes();
+        }else if(act === 'repost'){
+          await supa.from('flashes').update({
+            created_at:new Date().toISOString()
+          }).eq('id', id);
+          loadFlashes();
+        }
+      });
+    });
+  }
+}
+
+/* Posts */
+async function loadPosts(){
+  const { profileUserId } = window._ridlyProfile;
+  const { data:posts } = await supa
+    .from('spot_posts')
+    .select('id,media_url,caption,spot_type,created_at')
+    .eq('user_id', profileUserId)
+    .order('created_at',{ascending:false})
+    .limit(60);
+
+  const list = posts || [];
+  postGrid.innerHTML = "";
+  window._ridlyProfile.countPosts = list.length;
+  updateStatsLine();
+
+  if(!list.length){
+    postsEmpty.style.display = "block";
+    return;
+  }
+  postsEmpty.style.display = "none";
+
+  list.forEach(p=>{
+    const isVideo = /\.(mp4|webm|mov)$/i.test(p.media_url||"");
+    const a = document.createElement('a');
+    a.className = "thumb";
+    a.href = p.media_url;
+    a.target = "_blank";
+    a.innerHTML = `
+      ${isVideo
+        ? `<video src="${p.media_url}" muted playsinline></video>`
+        : `<img src="${p.media_url}" alt="">`}
+      <span class="tag">${p.spot_type==='street'?'Street':'Park'}</span>
+      ${window._ridlyProfile.isOwn ? `<button type="button" class="thumb-del" data-id="${p.id}" title="Supprimer">✕</button>` : ``}
+    `;
+    postGrid.appendChild(a);
+  });
+
+  if(window._ridlyProfile.isOwn){
+    postGrid.querySelectorAll('.thumb-del').forEach(btn=>{
+      btn.addEventListener('click', async ev=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(!confirm('Supprimer ce post ?')) return;
+        await supa.from('spot_posts').delete().eq('id', btn.getAttribute('data-id'));
+        loadPosts();
+      });
+    });
+  }
+
+  try{
+    const ids = list.map(p=>p.id);
+    if(!ids.length){ window._ridlyProfile.accountAvg = null; updateStatsLine(); return; }
+    const { data:likes } = await supa
+      .from('post_likes')
+      .select('post_id,rating')
+      .in('post_id', ids);
+    if(likes && likes.length){
+      const sum = likes.reduce((a,b)=> a + (b.rating || 0), 0);
+      window._ridlyProfile.accountAvg = sum / likes.length;
+    }else{
+      window._ridlyProfile.accountAvg = null;
+    }
+    updateStatsLine();
+  }catch(e){
+    console.error(e);
+  }
+}
+
+/* Stats spots RIDLY (sessions) */
+async function loadSpotStats(){
+  const { profileUserId } = window._ridlyProfile;
+  if(!profileUserId) return;
+
+  try{
+    const { data:rows, error } = await supa
+      .from('rider_spot_stats')
+      .select('spot_id,total_seconds,points')
+      .eq('user_id', profileUserId)
+      .order('total_seconds',{ascending:false});
+
+    if(error){
+      console.error(error);
+      return;
+    }
+
+    const stats = rows || [];
+    window._ridlyProfile.spotStats = stats;
+
+    if(!stats.length){
+      if(spotStatsEmpty) spotStatsEmpty.style.display = 'block';
+      if(spotStatsList)  spotStatsList.innerHTML = '';
+      if(pLocalPark)     pLocalPark.textContent = "Skatepark local : —";
+      return;
+    }
+
+    const spotIds = stats.map(r=>r.spot_id);
+    const { data:spots, error:err2 } = await supa
+      .from('spots')
+      .select('id,nom,ville,canton,country')
+      .in('id', spotIds);
+
+    if(err2){
+      console.error(err2);
+    }
+
+    const spotMap = {};
+    (spots || []).forEach(s=>{ spotMap[s.id] = s; });
+
+    const totalSecondsAll = stats.reduce((s,r)=>s + (r.total_seconds || 0), 0);
+    window._ridlyProfile.totalSecondsAll = totalSecondsAll;
+
+    const top = stats[0];
+    const topSpot = spotMap[top.spot_id];
+    window._ridlyProfile.localSpot = { stat:top, spot:topSpot };
+
+    if(pLocalPark){
+      const hoursTop  = Math.round((top.total_seconds || 0) / 3600);
+      const hoursAll  = Math.round(totalSecondsAll / 3600);
+      const pts       = (top.points != null) ? top.points : Math.floor((top.total_seconds || 0) / 3600);
+      const txtPark   = topSpot ? (topSpot.nom || "Skatepark") : "Skatepark";
+      const locParts  = [];
+      if(topSpot?.ville)   locParts.push(topSpot.ville);
+      if(topSpot?.canton)  locParts.push(topSpot.canton);
+      const loc = locParts.join(' • ');
+      pLocalPark.textContent =
+        `Skatepark local : ${txtPark}${loc ? ' • '+loc : ''} • ${hoursTop}h ici • ${pts} pts`;
+    }
+
+    if(spotStatsEmpty) spotStatsEmpty.style.display = 'none';
+    if(spotStatsList){
+      spotStatsList.innerHTML = '';
+
+      if(totalSecondsAll && totalSecondsAll > 0){
+        const totalHours = (totalSecondsAll/3600).toFixed(1).replace('.0','');
+        const totalDiv = document.createElement('div');
+        totalDiv.className = 'spotstats-row';
+        totalDiv.innerHTML = `
+          <div class="spotstats-main">
+            <div class="spotstats-title">Total RIDLY</div>
+            <div class="spotstats-sub">${totalHours} h sur les spots</div>
+          </div>
+          <div class="spotstats-points">${Math.floor(totalSecondsAll/3600)} pts</div>
+        `;
+        spotStatsList.appendChild(totalDiv);
+      }
+
+      stats.forEach(row=>{
+        const s = spotMap[row.spot_id];
+        const title = s?.nom || "Skatepark";
+        const locParts = [];
+        if(s?.ville)  locParts.push(s.ville);
+        if(s?.canton) locParts.push(s.canton);
+        const loc = locParts.join(' • ');
+        const hours = (row.total_seconds || 0) / 3600;
+        const hoursStr = hours.toFixed(1).replace('.0','');
+        const pts = (row.points != null) ? row.points : Math.floor((row.total_seconds || 0)/3600);
+
+        const div = document.createElement('div');
+        div.className = 'spotstats-row';
+        div.innerHTML = `
+          <div class="spotstats-main">
+            <div class="spotstats-title">${title}</div>
+            <div class="spotstats-sub">${loc || '—'} • ${hoursStr} h</div>
+          </div>
+          <div class="spotstats-points">${pts} pts</div>
+        `;
+        spotStatsList.appendChild(div);
+      });
+    }
+
+  }catch(e){
+    console.error(e);
+  }
+}
+</script>
+
+<!-- Firebase Notifications -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/firebase-messaging-sw.js")
+      .then(reg => console.log("SW FCM OK"))
+      .catch(err => console.error("SW FCM ERROR", err));
+  }
+</script>
+
+
+<script>
+/* Menu Plus */
+(function(){
+  const btn=document.getElementById('btnMore');
+  const menu=document.getElementById('moreMenu');
+  if(!btn||!menu)return;
+  const close=()=>{menu.classList.remove('show');menu.setAttribute('aria-hidden','true');};
+  btn.addEventListener('click',e=>{e.stopPropagation();const open=menu.classList.toggle('show');menu.setAttribute('aria-hidden',open?'false':'true');});
+  menu.addEventListener('click',e=>e.stopPropagation());
+  document.addEventListener('click',close);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+})();
+</script>
+
+</body>
+</html>
