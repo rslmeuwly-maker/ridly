@@ -1513,21 +1513,42 @@ document.getElementById('btnPwa').addEventListener('click', async () => {
 <script>
 /* ===== CARTE + STYLES ===== */
 const MAPTILER_KEY = window.env?.MAPTILER_KEY || "";
+const CARTO_KEY = window.env?.CARTO_KEY || "";
 let map = L.map('map').setView([46.8, 8.2], 8);
 
 const baseDefs = [
-  { id:'positron',  label:'Clair',     url:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',  attr:'© OpenStreetMap © CARTO' },
-  { id:'dark',      label:'Noir',      url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',   attr:'© OpenStreetMap © CARTO' },
-  { id:'toon',      label:'Cartoon',   url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', attr:'© OpenStreetMap © CARTO' },
-  { id:'watercolor',label:'Watercolor',url:'https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', attr:'Map tiles by Stamen' },
-  { id:'sat',       label:'Satellite', url: MAPTILER_KEY ? `https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}` : null, attr:'© MapTiler' }
+  { id:'dark',      label:'Noir',      url: CARTO_KEY
+      ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
+      : 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+    attr: CARTO_KEY ? '© OpenStreetMap © CARTO' : '© Stadia Maps © OpenMapTiles © OpenStreetMap' },
+
+  { id:'positron',  label:'Clair',     url: CARTO_KEY
+      ? `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
+      : 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
+    attr: CARTO_KEY ? '© OpenStreetMap © CARTO' : '© Stadia Maps © OpenMapTiles © OpenStreetMap' },
+
+  { id:'osm',       label:'Standard',  url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attr:'© OpenStreetMap' },
+
+  { id:'toon',      label:'Cartoon',   url: CARTO_KEY
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
+      : null,
+    attr:'© OpenStreetMap © CARTO' },
+
+  // Stamen a ferme ses URLs Fastly le 31/10/2023, les tuiles passent par Stadia
+  { id:'watercolor',label:'Watercolor',url:'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
+    attr:'© Stadia Maps © Stamen Design © OpenStreetMap', maxZoom:16 },
+
+  { id:'sat',       label:'Satellite', url: MAPTILER_KEY
+      ? `https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}` : null,
+    attr:'© MapTiler' }
 ].filter(d=>!!d.url);
 
 const baseLayers={};
 baseDefs.forEach(d=>{
-  baseLayers[d.id]=L.tileLayer(d.url,{maxZoom:20,attribution:d.attr});
+  baseLayers[d.id]=L.tileLayer(d.url,{maxZoom:d.maxZoom||20,attribution:d.attr});
 });
-baseLayers['positron'].addTo(map);
+(baseLayers['dark']||baseLayers['positron']).addTo(map);
 
 let baseOrder=baseDefs.map(d=>d.id), baseIndex=0;
 const styleTip=document.getElementById('mapStyleTip');

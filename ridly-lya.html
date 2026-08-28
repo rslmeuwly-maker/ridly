@@ -3648,59 +3648,109 @@
     }
   };
 
+  /* RIDLY_LYA_GARDE_FOU — detection en trois niveaux.
+     Une liste de racines large bloquait « baisser le guidon », « bande de grip »,
+     « pipe de direction », « faire la queue » : du vocabulaire trottinette
+     courant. D'ou la separation stricte ci-dessous. */
+
+// Niveau 1 — racines SANS ambiguite : aucun mot courant ne commence ainsi.
+  const ROOTS=["sexe","sexo","sesso","sexuel","sextape","sexting","porno","porn",
+   "baise","baisa","baisent","suce","sucer","sucai","sucon","fellation","branl",
+   "niqu","encul","sodom","ejacul","sperm","masturb","penetr","orgasm","nudes",
+   "nudite","preservatif","blowjob","handjob","boobs","horny","masturbat",
+   "ficken","schwanz","titten","scopare","cazzo","eccitat"];
+
+  // Niveau 2 — mots ambigus : correspondance EXACTE uniquement.
+  // « queue », « bande », « pipe », « excite », « capote » sont exclus :
+  // vocabulaire trottinette courant (pipe de direction, bande de grip…).
+  const EXACT=["sex","sexy","nu","nue","nus","nude","bite","teub","zizi","chatte",
+   "vagin","penis","nichons","tits","dick","pussy","fuck","fucking",
+   "nackt","geil","nuda","tette"];
+
+  // Niveau 3 — parties du corps : uniquement avec un possessif dirige.
+  // « ton cul » compte, « le cul de la trottinette » non.
+  const BODY=["cul","fesses","seins","nichons","poitrine","ass","boobs","butt"];
+
   function detectBoundaryIntent(text){
     const s = normalize(text);
+    // « s e x e » : on recolle les suites de lettres isolees.
+    const glued = s.replace(/\b(?:[a-z]\s+){2,}[a-z]\b/g, m => m.replace(/\s+/g,''));
 
-    // Direct sexual wording / requests.
-    // Intentionally broad enough for obvious sexualization, but avoids ordinary words like "body".
-    const sexualPatterns = [
-      /\b(sexe|sexuel|sexuelle|sexy|nue|nu|nudes?|porno|porn|baise|baiser|coucher avec|sucer|branler|branlette|bite|penis|vagin|chatte|nichons|seins|cul|fesses|orgasme|excite|excitee|bander)\b/,
-      /\b(sex|sexy|nude|nudes|porn|fuck|fucking|blowjob|handjob|penis|vagina|boobs|tits|ass|orgasm|horny|turn me on|sleep with)\b/,
-      /\b(sex|sexy|nackt|porno|ficken|schwanz|penis|vagina|titten|bruste|arsch|orgasmus|geil)\b/,
-      /\b(sesso|sexy|nuda|nudo|porno|scopare|cazzo|pene|vagina|tette|seno|culo|orgasmo|eccitata|eccitato)\b/
-    ];
+  const rootRx=new RegExp("(^|[^a-z])("+ROOTS.join("|")+")","i");
+  const exactRx=new RegExp("\\b("+EXACT.join("|")+")\\b","i");
 
-    const directedSexualPatterns = [
-      /(montre|envoie|envoye|donne|fais|peux tu|tu peux).*(nue|nu|sexy|nude|nudes|porno|cul|fesses|seins|bite)/,
-      /(show|send|give|make).*(nude|nudes|sexy|boobs|ass|porn)/,
-      /(tu veux|veux tu|est ce que tu veux).*(coucher|baiser|sexe)/,
-      /(do you want|would you).*(sex|fuck|sleep with)/
-    ];
+  // Demandes explicites : mots innocents pris isolement, sans ambiguite ensemble.
+  const requestRx=[
+    /(montre|envoie|envoye|donne|fais|veux|voudrais|peux tu|tu peux|on fait|tu me)\b.{0,20}\b(photo|video|selfie|pic)\b.{0,20}\b(nue?s?|sexy|sans rien|dessous|intime)\b/,
+    /(fais|faire|tu me fais|tu veux me faire)\b.{0,10}\b(une pipe|la pipe)\b/,
+    /(on fait|tu veux|veux tu|ca te dit|on se fait)\b.{0,16}\b(l amour|crac crac|galipette|coquin|sextape)\b/,
+    /(send|show|give)\b.{0,14}\b(nudes?|pics?)\b/,
+    /\b(t es|tu es|t as l air)\b.{0,6}\b(bonne|chaude|bandante)\b/,
+    /\b(tu me|je te)\b.{0,4}\b(suce|suces|baise|baises)\b/
+  ];
 
-    if(sexualPatterns.some(rx=>rx.test(s)) || directedSexualPatterns.some(rx=>rx.test(s))){
-      return 'sexual';
-    }
+  const bodyRx=new RegExp("\\b(ton|ta|tes|mon|ma|mes|son|sa|ses|your|my|dein|deine)\\s+("+BODY.join("|")+")\\b","i");
 
-    // Light flirting / appearance comments: playful redirect, not a hard boundary.
+  if(rootRx.test(glued)||exactRx.test(glued)||bodyRx.test(glued)||requestRx.some(rx=>rx.test(glued))) return "sexual";
+
+
+    // Compliments sur l'apparence : meme redirection, sans complicite.
     const flirtPatterns = [
-      /\b(t es belle|tu es belle|t es jolie|tu es jolie|t es canon|tu es canon|je t aime|je suis amoureux|amoureuse de toi)\b/,
+      /\b(t es belle|tu es belle|t es jolie|tu es jolie|t es canon|tu es canon|t es mignonne|je t aime|je suis amoureux|amoureuse de toi|tu me plais)\b/,
       /\b(you re beautiful|you are beautiful|you re cute|you are cute|i love you|i have a crush on you)\b/,
       /\b(du bist schon|du bist hubsch|ich liebe dich)\b/,
       /\b(sei bella|sei carina|ti amo)\b/
     ];
-
-    if(flirtPatterns.some(rx=>rx.test(s))) return 'flirt';
+    if(flirtPatterns.some(rx=>rx.test(glued))) return 'flirt';
 
     return null;
   }
+
+  /* RIDLY_LYA_GARDE_FOU — une seule reponse, toujours la meme, sans emoji.
+     15 blagues aleatoires transforment la limite en collection a debloquer :
+     la variete recompense la tentative, la repetition l'eteint. */
+  const BOUNDARY_LINE = {
+    fr:{
+      sexual:"Je ne réponds pas à ça. Je suis là pour la trottinette freestyle : les spots, le matériel, les cours et les événements.",
+      firm:"Je ne répondrai pas à ce genre de message. Si tu as une question sur le ride, je suis là pour ça.",
+      flirt:"Merci, mais je suis un guide. Pose-moi une question sur les spots, le matériel ou les cours."
+    },
+    de:{
+      sexual:"Darauf antworte ich nicht. Ich bin für Freestyle-Scooter da: Spots, Material, Kurse und Events.",
+      firm:"Auf solche Nachrichten antworte ich nicht. Bei Fragen zum Riding bin ich da.",
+      flirt:"Danke, aber ich bin ein Guide. Frag mich zu Spots, Material oder Kursen."
+    },
+    it:{
+      sexual:"Non rispondo a questo. Sono qui per il monopattino freestyle: spot, materiale, corsi ed eventi.",
+      firm:"Non risponderò a messaggi del genere. Se hai una domanda sul ride, sono qui.",
+      flirt:"Grazie, ma sono una guida. Chiedimi di spot, materiale o corsi."
+    },
+    en:{
+      sexual:"I won't answer that. I'm here for freestyle scootering: spots, gear, lessons and events.",
+      firm:"I won't reply to messages like that. If you have a question about riding, I'm here.",
+      flirt:"Thanks, but I'm a guide. Ask me about spots, gear or lessons."
+    }
+  };
+
+  let boundaryHits = 0;
 
   function answerBoundary(text){
     const intent = detectBoundaryIntent(text);
     if(!intent) return false;
 
-    const pack = BOUNDARY_REPLIES[language] || BOUNDARY_REPLIES.en;
-    const replies = pack[intent] || pack.sexual;
+    const pack = BOUNDARY_LINE[language] || BOUNDARY_LINE.en;
+    let line;
+    if(intent === 'flirt'){
+      line = pack.flirt;
+    }else{
+      boundaryHits++;
+      line = boundaryHits >= 3 ? pack.firm : pack.sexual;
+    }
 
     addUser(text);
     input.value='';
     setBusy(true);
-
-    setTimeout(()=>{
-      addRidy(replies[Math.floor(Math.random()*replies.length)]);
-      setBusy(false);
-      input.focus();
-    },160);
-
+    setTimeout(()=>{ addRidy(line); setBusy(false); input.focus(); },160);
     return true;
   }
 
@@ -4350,8 +4400,60 @@
     return !!((foamyLike && gripLike) || (karimLike && gripLike));
   }
 
+
+  /* ===== RIDLY_JF_SHOP_LINKS =====
+     Categories reelles de jfrideshop.ch. Une page de categorie affiche
+     toujours des produits, contrairement a une recherche plein texte qui
+     peut renvoyer « Aucun resultat ». */
+  const JF_SHOP_BASE='https://www.jfrideshop.ch';
+  const JF_SHOP_CATEGORIES={
+    complete:'/shop/category/trottinette-freestyle-complete-22',
+    deck:    '/shop/category/trottinette-freestyle-deck-21',
+    bar:     '/shop/category/trottinette-freestyle-guidon-bar-23',
+    fork:    '/shop/category/trottinette-freestyle-fourche-fork-24',
+    headset: '/shop/category/trottinette-freestyle-jdd-headsets-25',
+    wheels:  '/shop/category/trottinette-freestyle-roues-wheels-26',
+    clamp:   '/shop/category/trottinette-freestyle-collier-clamp-27',
+    griptape:'/shop/category/trottinette-freestyle-griptape-28',
+    grips:   '/shop/category/trottinette-freestyle-poignee-grip-29',
+    brake:   '/shop/category/trottinette-freestyle-pegs-frein-brake-30',
+    pegs:    '/shop/category/trottinette-freestyle-pegs-frein-brake-30',
+    bearings:'/shop/category/trottinette-freestyle-hardware-33',
+    hardware:'/shop/category/trottinette-freestyle-hardware-33',
+    all:     '/shop/category/trottinette-freestyle-2'
+  };
+
+  function jfCategoryUrl(part){
+    return JF_SHOP_BASE + (JF_SHOP_CATEGORIES[part] || JF_SHOP_CATEGORIES.all);
+  }
+
+  /* Mots qui n'apparaissent dans aucun nom de produit : les garder fait
+     echouer la recherche, puisque Odoo exige que TOUS les mots soient
+     presents. « ODI Longneck Soft pour trottinette » -> « ODI Longneck Soft ». */
+  const JF_SEARCH_STOPWORDS=new Set([
+    'trottinette','trottinettes','trot','scooter','freestyle','pour','de','du','des',
+    'la','le','les','un','une','en','et','avec','mon','ma','mes','ton','ta','tes',
+    'mousse','souple','dur','dure','pas','cher','chere','bon','bonne','meilleur',
+    'meilleure','qualite','prix','modele','piece','pieces','type','style','park',
+    'street','polyvalent','debutant','avance','taille','couleur'
+  ]);
+
+  function jfSearchUrl(query){
+    const kept=String(query||'')
+      .split(/[\s,]+/)
+      .filter(Boolean)
+      .filter(w=>!JF_SEARCH_STOPWORDS.has(
+        w.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')));
+    // Si le nettoyage ne laisse rien, on renvoie la categorie generale
+    // plutot qu'une recherche vide.
+    if(!kept.length) return jfCategoryUrl('all');
+    return JF_SHOP_BASE+'/shop?search='+encodeURIComponent(kept.join(' '));
+  }
+
   function jfGripBrowseUrl(){
-    return 'https://www.jfrideshop.ch/shop?search='+encodeURIComponent('grips trottinette mousse');
+    // Etait : search='grips trottinette mousse' -> 0 resultat.
+    // Aucun produit ne contient « mousse » dans son nom.
+    return jfCategoryUrl('grips');
   }
 
   function answerFoamyGrips(text){
@@ -4631,7 +4733,7 @@
   }
 
   function jfScooterBrowseUrl(){
-    return 'https://www.jfrideshop.ch/shop?search=trottinette%20freestyle';
+    return 'https://www.jfrideshop.ch/shop/category/trottinette-freestyle-2';
   }
 
   function scooterTotalHeightBounds(cm){
@@ -4940,11 +5042,9 @@
   }
 
   function jfDeckBrowseUrl(style=null){
-    let query='deck trottinette freestyle';
-    if(style==='park') query+=' park';
-    else if(style==='street') query+=' street';
-    else if(style==='polyvalent') query+=' polyvalent';
-    return 'https://www.jfrideshop.ch/shop?search='+encodeURIComponent(query);
+    // Etait : search='deck trottinette freestyle park'. Les mots park/street
+    // ne figurent pas dans les noms de produits -> 0 resultat.
+    return jfCategoryUrl('deck');
   }
 
   function deckTarget(style, shoeSize=null){
@@ -5044,9 +5144,9 @@
   }
 
   function jfPartSearchUrl(part,model=''){
-    const base=SCOOTER_PART_LABELS[part] || part || 'piece trottinette freestyle';
-    const q=model ? model : `${base} trottinette freestyle`;
-    return 'https://www.jfrideshop.ch/shop?search='+encodeURIComponent(q);
+    // Un modele precis se cherche sur marque+modele ; une categorie se
+    // parcourt via son URL de categorie, qui ne renvoie jamais 0 resultat.
+    return model ? jfSearchUrl(model) : jfCategoryUrl(part);
   }
 
   function answerScooterPartProductFollowUp(text){
@@ -6223,6 +6323,13 @@
     const clean=String(q||'').trim();
     if(!clean||busy) return;
 
+    // RIDLY_LYA_GARDE_FOU
+    // Contenu sexuel : verifie AVANT tout autre routeur. Sinon « tu me suces ? »
+    // tombe dans la FAQ, qui repond a cote — et une reponse commencant par
+    // « Oui. » ressemble a un consentement.
+    if(answerBoundary(clean)) return;
+
+
     // GAME OF SCOOT: persistent local match state.
     if(answerScootGame(clean)) return;
 
@@ -6254,8 +6361,6 @@
     if(answerPersonPronounInfo(clean)) return;
     if(answerNaturalPersonFollowUp(clean)) return;
 
-    // Sexual / inappropriate prompts: playful boundary first.
-    if(answerBoundary(clean)) return;
 
     // RIDLY age / registration / publishing eligibility.
     // Must run before publication steps and rider-name matching.

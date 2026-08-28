@@ -1255,7 +1255,53 @@
     img,video,svg{max-width:100%}
     /* RIDLY_MOBILE_BASE_END */
   
-  </style>
+  
+/* ===== RIDLY_PARTAGE_STORY ===== */
+.story-viewer-share{
+  position:absolute;top:14px;right:56px;z-index:6;
+  width:38px;height:38px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(0,0,0,.55);color:#fff;font-size:17px;line-height:1;
+  display:grid;place-items:center;backdrop-filter:blur(4px)
+}
+.story-viewer-share:active{transform:scale(.93)}
+
+.share-sheet-backdrop{
+  position:fixed;inset:0;z-index:1200;display:none;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(5px)
+}
+.share-sheet-backdrop.open{display:block}
+.share-sheet{
+  position:absolute;left:0;right:0;bottom:0;max-width:600px;margin:auto;
+  max-height:80vh;display:flex;flex-direction:column;
+  background:#101010;border:1px solid rgba(255,255,255,.09);
+  border-radius:24px 24px 0 0;
+  padding:16px 14px calc(16px + env(safe-area-inset-bottom))
+}
+.share-sheet .grab{width:44px;height:4px;background:#444;border-radius:99px;margin:0 auto 12px}
+.share-sheet h3{margin:0 0 3px;font-size:21px}
+.share-sheet .sub{color:#8a8a8a;font-size:13px;margin-bottom:12px}
+.share-search{
+  width:100%;border:1px solid rgba(255,255,255,.09);background:#171717;color:#fff;
+  border-radius:12px;padding:11px 13px;font-size:16px;outline:none;margin-bottom:10px
+}
+.share-search:focus{border-color:#cc0000}
+.share-list{overflow:auto;flex:1;min-height:80px}
+.share-row{
+  display:flex;align-items:center;gap:11px;padding:9px 6px;border-radius:13px;cursor:pointer
+}
+.share-row:active{background:rgba(255,255,255,.05)}
+.share-row img,.share-row .ph{
+  width:42px;height:42px;border-radius:50%;object-fit:cover;flex:none;
+  background:#222;display:grid;place-items:center;color:#777;font-weight:900
+}
+.share-row .nm{flex:1;min-width:0;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.share-send{
+  border:0;border-radius:999px;padding:8px 15px;font-weight:900;cursor:pointer;
+  background:linear-gradient(#e51010,#b50000);color:#fff;flex:none
+}
+.share-send[disabled]{background:#2a2a2a;color:#777}
+.share-empty{color:#777;font-size:14px;padding:18px 6px;text-align:center;line-height:1.5}
+</style>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -1331,6 +1377,7 @@
 <div id="storyViewer" class="story-viewer-backdrop" onclick="backdropStoryClick(event)">
   <div class="story-viewer-inner">
     <button type="button" class="story-viewer-close" onclick="closeStoryViewer()">✕</button>
+    <button type="button" class="story-viewer-share" onclick="openShareSheet()" aria-label="Partager la story">➤</button>
     <div class="story-viewer-counter"></div>
     <div class="story-viewer-media"></div>
     <div class="story-viewer-caption"></div>
@@ -2954,6 +3001,130 @@ function markCommentsReadForPost(postId){
     }
   })();
 }
+
+/* ===== RIDLY_PARTAGE_STORY ===== */
+let SHARE_STORY_PAYLOAD = null;
+let SHARE_CONTACTS = [];
+
+function buildFlashPayload(story){
+  // La legende est placee en dernier : elle peut contenir des « | »
+  return 'FLASH:' + [
+    story.id,
+    story.media_url,
+    story.expires_at || '',
+    (story.caption || '').replace(/\r?\n/g,' ')
+  ].join('|');
+}
+
+async function openShareSheet(){
+  const st = STORY_VIEWER_STATE;
+  if(!st || !st.stories || !st.stories.length) return;
+  const story = st.stories[st.index];
+  if(!story){ return; }
+
+  SHARE_STORY_PAYLOAD = buildFlashPayload(story);
+
+  document.getElementById('shareSheetBackdrop').classList.add('open');
+  document.getElementById('shareSearch').value = '';
+  const list = document.getElementById('shareList');
+  list.innerHTML = '<div class="share-empty">Chargement…</div>';
+
+  try{
+    const { data:{ user } } = await supa.auth.getUser();
+    if(!user){
+      list.innerHTML = '<div class="share-empty">Connecte-toi pour partager une story.</div>';
+      return;
+    }
+
+    // Riders suivis + riders qui te suivent
+    const [outRes, inRes] = await Promise.all([
+      supa.from('rider_follows').select('followed_id').eq('follower_id', user.id),
+      supa.from('rider_follows').select('follower_id').eq('followed_id', user.id)
+    ]);
+
+    const ids = new Set();
+    (outRes.data||[]).forEach(r=>r.followed_id && ids.add(r.followed_id));
+    (inRes.data ||[]).forEach(r=>r.follower_id && ids.add(r.follower_id));
+    ids.delete(user.id);
+
+    if(!ids.size){
+      list.innerHTML = '<div class="share-empty">Aucun rider à qui envoyer.<br>Abonne-toi à des riders pour leur partager tes stories.</div>';
+      return;
+    }
+
+    const { data:profs, error } = await supa
+      .from('profiles')
+      .select('id,pseudo,full_name,avatar_url')
+      .in('id', Array.from(ids));
+    if(error) throw error;
+
+    SHARE_CONTACTS = (profs||[]).sort((a,b)=>
+      (a.pseudo||a.full_name||'').localeCompare(b.pseudo||b.full_name||''));
+    renderShareList('');
+  }catch(e){
+    console.error('openShareSheet error', e);
+    list.innerHTML = '<div class="share-empty">Erreur de chargement des contacts.</div>';
+  }
+}
+
+function renderShareList(filter){
+  const list = document.getElementById('shareList');
+  const q = (filter||'').trim().toLowerCase();
+  const rows = SHARE_CONTACTS.filter(p=>{
+    if(!q) return true;
+    return ((p.pseudo||'')+' '+(p.full_name||'')).toLowerCase().includes(q);
+  });
+
+  if(!rows.length){
+    list.innerHTML = '<div class="share-empty">Aucun rider trouvé.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  rows.forEach(p=>{
+    const name = p.pseudo || p.full_name || 'Rider';
+    const row = document.createElement('div');
+    row.className = 'share-row';
+    row.innerHTML = (p.avatar_url
+        ? `<img src="${escapeHTML(p.avatar_url)}" alt="">`
+        : `<div class="ph">${escapeHTML(name.slice(0,1).toUpperCase())}</div>`)
+      + `<div class="nm">${escapeHTML(name)}</div>`
+      + `<button type="button" class="share-send">ENVOYER</button>`;
+    row.querySelector('.share-send').onclick = (ev)=>{
+      ev.stopPropagation();
+      sendStoryTo(p.id, name, ev.currentTarget);
+    };
+    list.appendChild(row);
+  });
+}
+
+async function sendStoryTo(peerId, name, btn){
+  if(!SHARE_STORY_PAYLOAD) return;
+  btn.disabled = true;
+  btn.textContent = '…';
+  try{
+    const { data:{ user } } = await supa.auth.getUser();
+    if(!user) throw new Error('non connecté');
+
+    const { error } = await supa
+      .from('ridly_private_messages')
+      .insert([{ from_id:user.id, to_id:peerId, content:SHARE_STORY_PAYLOAD }]);
+    if(error) throw error;
+
+    btn.textContent = 'ENVOYÉ';
+    showToast('Story envoyée à ' + name);
+  }catch(e){
+    console.error('sendStoryTo error', e);
+    btn.disabled = false;
+    btn.textContent = 'ENVOYER';
+    showToast("Impossible d'envoyer la story.");
+  }
+}
+
+function closeShareSheet(){
+  document.getElementById('shareSheetBackdrop').classList.remove('open');
+  SHARE_STORY_PAYLOAD = null;
+}
 </script>
 
 <!-- FIREBASE — config partagee (js/firebase-config.js) -->
@@ -2962,5 +3133,18 @@ function markCommentsReadForPost(postId){
 <script src="js/firebase-config.js"></script>
 <script src="js/firebase.js"></script>
 <script src="/js/pwa.js"></script>
+
+<!-- RIDLY_PARTAGE_STORY -->
+<div id="shareSheetBackdrop" class="share-sheet-backdrop"
+     onclick="if(event.target===this) closeShareSheet()">
+  <div class="share-sheet">
+    <div class="grab"></div>
+    <h3>Partager la story</h3>
+    <div class="sub">Envoyée en message privé.</div>
+    <input id="shareSearch" class="share-search" placeholder="Rechercher un rider…"
+           oninput="renderShareList(this.value)">
+    <div id="shareList" class="share-list"></div>
+  </div>
+</div>
 </body>
 </html>

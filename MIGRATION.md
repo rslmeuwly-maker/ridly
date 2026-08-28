@@ -176,3 +176,147 @@ supprimer que le bloc `if("serviceWorker" in navigator){...}` lui-même.
 autre fonction perdue, seuls `register`, `log` et `then` du service worker
 ont disparu, ce qui est voulu.
 
+
+## Cartes — filigrane "API KEY REQUIRED"
+
+Cause externe : CARTO a commencé à exiger une clé API sur ses basemaps raster
+en août 2026, et filigrane les tuiles demandées sans clé. La carte fonctionne
+toujours, c'est un avis, pas un blocage. Tous les projets utilisant
+`basemaps.cartocdn.com` sont touchés.
+
+Deux autres fournisseurs étaient déjà cassés sans que ça se voie :
+- **Watercolor** pointait vers `stamen-tiles.a.ssl.fastly.net`, dont les
+  redirections ont cessé le 31 octobre 2023. Style mort depuis presque 3 ans.
+- **Satellite** dépendait de `MAPTILER_KEY`, absente de `env.js`. Le
+  `.filter(d=>!!d.url)` la retirait silencieusement du sélecteur.
+
+Et la carte démarrait sur le style clair `positron` alors que toute la DA est noire.
+
+### Ce qui a été fait
+`ou_rider.html` lit maintenant `CARTO_KEY` depuis `env.js`. Si elle est vide,
+les styles Noir et Clair basculent automatiquement sur Stadia Maps
+(`alidade_smooth_dark` / `alidade_smooth`), dont le tier gratuit fonctionne par
+autorisation de domaine, sans clé dans le code. Watercolor repointe sur Stadia,
+plafonné au zoom 16 comme le recommande leur documentation. Le style Noir est
+désormais celui par défaut.
+
+Sans aucune clé : 4 styles fonctionnels sur 6. Avec une clé CARTO : 5. Avec
+MapTiler en plus : 6.
+
+### À faire
+Option rapide — clé CARTO gratuite sur https://carto.com/basemaps/apikey
+(5 M tuiles/mois, sans compte), à coller dans `env.js`. Mais CARTO annonce le
+retrait progressif des basemaps raster, donc c'est un sursis.
+
+Option durable — compte Stadia Maps gratuit, et déclarer les domaines
+`ridly.ch` et `ridly-beta.vercel.app` dans leur tableau de bord. Rien à mettre
+dans le code.
+
+
+## Partage de story en message privé
+
+Ton chat encodait déjà les médias avec un préfixe de type dans la colonne
+`content` : `VOICE:`, `IMG:`, `VID:`. Une story partagée devient un quatrième
+type, `FLASH:`. **Aucune modification de schéma** : `ridly_private_messages`
+garde `id, from_id, to_id, content, created_at`.
+
+Format : `FLASH:<flash_id>|<media_url>|<expires_at>|<légende>`
+La légende est placée en dernier, elle peut contenir des « | ».
+
+### Ce qui a été ajouté
+- `feed.html` — bouton ➤ dans la visionneuse de stories, ouvrant une feuille de
+  partage avec recherche. Destinataires : riders suivis + riders qui te suivent
+  (`rider_follows` dans les deux sens).
+- `chat1v1.html` — rendu d'une story reçue en carte verticale avec badge STORY,
+  ouverture en plein écran au tap, aperçu `[story]` dans la liste.
+
+### Expiration : un choix à faire
+Constante `FLASH_EXPIRE_IN_CHAT` en tête du bloc dans `chat1v1.html`.
+- `true` (actuel) : passé `expires_at`, le message affiche « Cette story a expiré ».
+- `false` : la story reste consultable indéfiniment dans la conversation.
+
+À noter : rien ne supprime le fichier du Storage à l'expiration, et
+`from('flashes').delete()` ne retire que la ligne en base. Le média reste donc
+techniquement accessible dans les deux cas — l'expiration est une convention
+d'affichage, pas une garantie.
+
+### Piège rencontré
+La première version injectait le JS avant le dernier `</script>` du fichier,
+qui se trouvait être `<script src="/js/pwa.js">`. Un script portant un attribut
+`src` ignore son contenu inline : le code n'aurait jamais été exécuté, sans
+aucune erreur en console. Le patch vise désormais le dernier bloc inline.
+
+## Lya — garde-fou contenu sexuel (public mineur)
+
+Trois problèmes, dont un invisible dans les captures.
+
+### 1. Le garde-fou s'exécutait trop tard
+`answerBoundary` était appelé après une dizaine de routeurs (encyclopédie,
+recherche de personnes, contexte de conversation). Il est désormais la
+**première** instruction de `ask()`.
+
+Conséquence observée : « Tu me suces ? » n'était pas détecté, tombait dans le
+moteur de FAQ, et recevait une réponse commençant par « Oui. » (celle sur les
+X Games). Lu par un enfant, cela ressemble à un consentement.
+
+### 2. Les motifs rataient les conjugaisons et les mots composés
+`sucer` ne reconnaissait pas « suces », `\bsexe\b` ne reconnaissait pas
+« sexetape ». Sur dix formulations testées, huit passaient à travers.
+
+Une première correction par liste de racines large s'est révélée pire : elle
+bloquait **« baisser le guidon »**, « bande de grip », « pipe de direction »,
+« faire la queue », « au sein du club », « cumul des points » — du vocabulaire
+trottinette courant. Lya aurait accusé des riders posant une vraie question.
+
+La détection est donc en trois niveaux :
+- **racines** (préfixe) pour ce qui n'a aucun sens innocent : `suce`, `baise`,
+  `niqu`, `porno`, `sexuel`…
+- **mots exacts** pour les termes crus isolés
+- **parties du corps avec possessif** : « ton cul » compte, « le cul de la
+  trottinette » non
+
+Validé sur 33 cas (15 à bloquer, 18 à laisser passer) : 33/33.
+
+### 3. Quinze blagues aléatoires, ce n'est pas une limite
+Les réponses tirées au hasard (« Joli essai 😏 », « Je décline élégamment 😌 »)
+transforment la limite en collection à débloquer : un public jeune spamme pour
+voir les quinze. La variété récompense la tentative.
+
+Remplacé par **une seule réponse, toujours identique, sans emoji**, dans les
+quatre langues. Au troisième message du même type dans la session, une
+formulation plus ferme. Le pack `flirt` ne remercie plus le compliment
+(« Je prends le compliment 😎 ») — il redirige.
+
+L'ancien objet `BOUNDARY_REPLIES` reste dans le fichier mais n'est plus appelé.
+
+## Lya -> JF Ride Shop : liens « Aucun résultat »
+
+La recherche Odoo est un ET sur tous les mots. Les URLs étaient construites avec
+des phrases descriptives françaises alors que les produits s'appellent
+« Striker Grip Trottinette Freestyle - Golden Bloom ».
+
+- `jfGripBrowseUrl()` cherchait **grips trottinette mousse**. Le mot « mousse »
+  n'apparaît dans aucun nom de produit, et la boutique dit « Poignées », pas
+  « grips ». Zéro résultat garanti.
+- `jfDeckBrowseUrl()` ajoutait « park », « street » ou « polyvalent », qui ne
+  figurent dans aucun nom.
+- `jfPartSearchUrl()` composait `<catégorie> trottinette freestyle`.
+
+### Correction
+Deux chemins distincts :
+- **Parcourir une catégorie** -> URL de catégorie réelle. Une page de catégorie
+  affiche toujours des produits. Les identifiants sont dans `JF_SHOP_CATEGORIES`
+  (deck 21, bar 23, fork 24, JDD 25, roues 26, collier 27, griptape 28,
+  poignée/grip 29, pegs+frein 30, hardware 33, complete 22).
+- **Chercher un modèle précis** -> `jfSearchUrl()` retire les mots vides
+  (trottinette, freestyle, pour, mousse, park…) et ne garde que marque + modèle.
+  « ODI Longneck Soft pour trottinette » -> `ODI Longneck Soft`.
+  Si le nettoyage ne laisse rien, on renvoie la catégorie plutôt qu'une
+  recherche vide.
+
+### Reste à vérifier
+Quatre recherches de modèles sont codées en dur : Panda Initio V2, Longway
+Summit, North Satisfact, Tilt Contact Build. « Tilt Contact Build » existe bien
+au catalogue. « Panda Initio V2 » ne renvoie rien d'exploitable — le catalogue
+contient « Panda Initio scooter Freestyle », sans V2. À remplacer par des liens
+produit directs.

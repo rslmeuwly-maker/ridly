@@ -938,7 +938,42 @@
     }
     /* RIDLY_DA_2026_GENERIC_END */
   
-  </style>
+  
+/* ===== RIDLY_PARTAGE_STORY ===== */
+.flash-card{
+  width:172px;border-radius:16px;overflow:hidden;cursor:pointer;
+  border:1px solid rgba(255,255,255,.10);background:#141414;position:relative
+}
+.flash-card .thumb{width:100%;height:228px;object-fit:cover;display:block;background:#0d0d0d}
+.flash-card .tag{
+  position:absolute;top:9px;left:9px;font-size:10px;font-weight:900;letter-spacing:.09em;
+  background:linear-gradient(#e51010,#b50000);color:#fff;border-radius:999px;padding:4px 9px
+}
+.flash-card .cap{
+  padding:9px 10px;font-size:13px;color:#ddd;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+}
+.flash-card.gone{cursor:default}
+.flash-card.gone .thumb{filter:grayscale(1) brightness(.32)}
+.flash-card .gone-label{
+  position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+  color:#9a9a9a;font-weight:800;font-size:13px;padding:12px;line-height:1.4
+}
+.flash-full{
+  position:fixed;inset:0;z-index:1400;display:none;background:rgba(0,0,0,.94)
+}
+.flash-full.open{display:grid;place-items:center}
+.flash-full img,.flash-full video{max-width:96vw;max-height:82vh;border-radius:12px}
+.flash-full .x{
+  position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;
+  width:38px;height:38px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(255,255,255,.14);color:#fff;font-size:17px
+}
+.flash-full .cap2{
+  position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));
+  text-align:center;color:#eee;font-size:15px;padding:0 22px
+}
+</style>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -1448,7 +1483,8 @@ async function loadConversations(){
       const avatar = p?.avatar_url || '';
       let preview = (m.content || "[message]").replace(/\s+/g,' ').trim();
       if(preview.startsWith('VOICE:')) preview = '[vocal]';
-      else if(preview.startsWith('IMG:')) preview = '[photo]';
+      else if(preview.startsWith('FLASH:')) preview = '[story]';
+    else if(preview.startsWith('IMG:')) preview = '[photo]';
       else if(preview.startsWith('VID:')) preview = '[vidéo]';
 
       return {
@@ -1619,6 +1655,29 @@ function appendMessage(m, scroll=true){
         </audio>
       </div>
     `;
+  }else if(c.startsWith('FLASH:')){
+    const f = parseFlashPayload(c);
+    if(flashIsExpired(f)){
+      body.innerHTML = `
+        <div class="flash-card gone">
+          <div class="tag">STORY</div>
+          <div class="thumb"></div>
+          <div class="gone-label">Cette story a expiré</div>
+        </div>
+      `;
+    }else{
+      const media = isFlashVideo(f.url)
+        ? `<video class="thumb" src="${escapeHTML(f.url)}" muted playsinline preload="metadata"></video>`
+        : `<img class="thumb" src="${escapeHTML(f.url)}" alt="story">`;
+      body.innerHTML = `
+        <div class="flash-card">
+          <div class="tag">STORY</div>
+          ${media}
+          ${f.caption ? `<div class="cap">${escapeHTML(f.caption)}</div>` : ''}
+        </div>
+      `;
+      body.querySelector('.flash-card').onclick = ()=>openFlashFull(f.url, f.caption);
+    }
   }else if(c.startsWith('IMG:')){
     const url = c.slice(4);
     body.innerHTML = `
@@ -2017,6 +2076,50 @@ if(convSearch){
     renderConversations(convSearch.value);
   });
 }
+
+/* ===== RIDLY_PARTAGE_STORY ===== */
+
+/* Une story partagee reste-t-elle visible apres l'expiration du flash ?
+   true  = fidele a la story ephemere, le message affiche « Story expirée »
+   false = la story reste consultable indefiniment dans la conversation
+   Note : le fichier n'est pas supprime du Storage a l'expiration,
+   le media reste donc techniquement accessible dans les deux cas. */
+const FLASH_EXPIRE_IN_CHAT = true;
+
+function parseFlashPayload(c){
+  const parts = c.slice(6).split('|');
+  return {
+    id:        parts[0] || '',
+    url:       parts[1] || '',
+    expiresAt: parts[2] || '',
+    caption:   parts.slice(3).join('|')   // la legende peut contenir des « | »
+  };
+}
+
+function flashIsExpired(f){
+  if(!FLASH_EXPIRE_IN_CHAT) return false;
+  if(!f.expiresAt) return false;
+  const t = Date.parse(f.expiresAt);
+  return Number.isFinite(t) && t < Date.now();
+}
+
+function isFlashVideo(url){
+  return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url||'');
+}
+
+function openFlashFull(url, caption){
+  const wrap = document.getElementById('flashFullMedia');
+  wrap.innerHTML = isFlashVideo(url)
+    ? `<video src="${escapeHTML(url)}" controls autoplay playsinline></video>`
+    : `<img src="${escapeHTML(url)}" alt="story">`;
+  document.getElementById('flashFullCap').textContent = caption || '';
+  document.getElementById('flashFull').classList.add('open');
+}
+
+function closeFlashFull(){
+  document.getElementById('flashFull').classList.remove('open');
+  document.getElementById('flashFullMedia').innerHTML = '';
+}
 </script>
 
 
@@ -2027,5 +2130,12 @@ if(convSearch){
 <script src="js/firebase-config.js"></script>
 <script src="js/firebase.js"></script>
 <script src="/js/pwa.js"></script>
+
+<!-- RIDLY_PARTAGE_STORY -->
+<div id="flashFull" class="flash-full" onclick="if(event.target===this) closeFlashFull()">
+  <button type="button" class="x" onclick="closeFlashFull()">✕</button>
+  <div id="flashFullMedia"></div>
+  <div id="flashFullCap" class="cap2"></div>
+</div>
 </body>
 </html>
