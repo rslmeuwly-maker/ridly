@@ -564,3 +564,35 @@ partage ligne 463, des bordures lignes 2074 et 2103.
 Aucun remplacement global effectué : `int:mk('#16a34a','🏫')` est la couleur de
 la catégorie « cours » sur la carte, elle est délibérée, et un remplacement
 aveugle casserait la distinction visuelle des catégories.
+
+## Logo — retour au logo de marque existant
+
+Constat en production sur `ridly.ch/reset_password` : le logo d'en-tête restait
+vert. C'était une **image**, que le patch CSS des pages d'entrée ne touchait pas.
+
+En cherchant, `image/ridly-logo-exact.webp` s'est révélé être le vrai logo de
+marque, déjà correct en noir et rouge, déjà utilisé par `compte.html` et
+`index.html`. Le SVG que j'avais dessiné auparavant était donc **inutile** : il
+recréait approximativement un logo qui existait déjà. Il a été supprimé
+(`ridly-logo.svg`, `ridly-mark.svg`, `logo-ridly.png`).
+
+### Références à l'ancien logo vert, toutes corrigées
+- `reset_password.html` — logo d'en-tête
+- `feed.html` et `spot.html` — **avatar par défaut des riders sans photo**.
+  Tous les nouveaux inscrits avaient donc un avatar vert. Remplacé par
+  `icon-192.png`, lisible dans une pastille ronde.
+- `service-worker.js` — préchargement de l'ancien fichier
+
+### Icônes régénérées depuis le repère officiel
+Le repère a été extrait du logo de marque par détection de sa boîte englobante
+rouge, plutôt que redessiné. Premier essai : un carré noir visible entourait le
+symbole, le découpage ayant emporté le fond `#000` du logo alors que la toile
+est en `#080808`. Corrigé en dérivant l'alpha du canal rouge, ce qui préserve
+l'antialiasing des bords sans emporter le fond. Bordure vérifiée uniforme.
+
+Le verrou complet ne convient pas comme icône : à 96 px, « BY RSL » devient une
+tache. Les icônes ne portent donc que le repère, le verrou reste pour les
+en-têtes.
+
+Maskable à 56 % du cadre, vérifié par contrôle des 10 % de bordure puis
+visuellement en simulant le rognage Android.

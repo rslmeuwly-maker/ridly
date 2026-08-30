@@ -2,7 +2,7 @@
 // v4 : migration Netlify -> Vercel
 // Changement de nom du cache = force la mise a jour chez tous les users.
 
-const CACHE_NAME = 'ridly-v5';
+const CACHE_NAME = 'ridly-v6';
 
 // Uniquement des assets stables. PAS de HTML :
 // avec cleanUrls, /feed.html redirige vers /feed et le precache
@@ -10,7 +10,7 @@ const CACHE_NAME = 'ridly-v5';
 const URLS_TO_CACHE = [
   '/',
   '/manifest.json',
-  '/image/1logo_ridly.png',
+  '/image/ridly-logo-exact.webp',
   '/image/ridly-logo-exact.webp',
   '/image/icon-192.png',
   '/image/icon-512.png'
