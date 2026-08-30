@@ -393,3 +393,35 @@ la carte ne peut plus être vide.
 
 Le fond par défaut retombe sur le premier style disponible, jamais sur un
 identifiant qui pourrait ne pas exister.
+
+## Lya — tricks et spots
+
+### Tricks
+La base ne couvrait que bunny hop, tailwhip, barspin, manual, grinds et la
+progression débutant. Sept entrées ajoutées, dans les quatre langues :
+180, fakie, heelwhip, briflip, tuck no hander, 360, et une entrée « liste des
+tricks » qui donne l'ordre d'apprentissage et invite à demander le détail.
+
+La base passe de 205 à 212 entrées.
+
+À noter : la pénalité de -45 sur `scooter-tailwhip` / `scooter-barspin`
+(ligne ~2402) n'est pas un bug. Elle ne s'applique que si la question porte sur
+le **choix** d'une trottinette, pour éviter qu'un tutoriel réponde à une question
+d'achat. En revanche `scooter-bunnyhop` y est listé alors que l'identifiant réel
+est `scooter-bunny-hop` : la pénalité ne s'applique jamais à cette entrée.
+
+### Spots en direct
+Les spots étaient des réponses figées. Lya interroge désormais la table `spots`
+de Supabase : un park ajouté via l'app est immédiatement connu d'elle.
+
+`ridly-lya.html` ne chargeait **ni le SDK Supabase ni `env.js`** — la recherche
+aurait toujours renvoyé vide, sans erreur visible. Les deux balises ont été
+ajoutées.
+
+Le routeur passe après le garde-fou et avant la FAQ. Si Supabase ne répond pas,
+le routeur normal reprend la main (`askFallback`), avec un verrou pour éviter la
+récursion. Quand un lieu est demandé sans correspondance, Lya le dit et propose
+d'ajouter le spot, au lieu de sortir une liste au hasard.
+
+Vérifié : 7 formulations déclenchent la recherche, 5 formulations proches
+(« c'est quoi un spot ») ne la déclenchent pas.
