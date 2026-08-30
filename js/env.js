@@ -7,8 +7,15 @@ window.env = {
 
   // Cartes — CARTO exige une cle depuis aout 2026 (gratuit, 5M tuiles/mois,
   // sans compte : https://carto.com/basemaps/apikey).
-  // Laisse vide pour basculer automatiquement sur Stadia Maps.
+  // Laisse vide : la carte bascule alors sur OpenStreetMap, qui ne
+  // demande aucune inscription et fonctionne toujours.
   CARTO_KEY: "",
+
+  // Stadia Maps : ne passe a true QUE si tu as cree un compte ET declare
+  // tes domaines (ridly.ch, ridly-beta.vercel.app) dans leur tableau de bord.
+  // Sans domaine declare, Stadia renvoie 401 et la carte reste vide.
+  // Attention : leur offre gratuite exclut l'usage commercial.
+  STADIA_ENABLED: false,
 
   // Optionnel : active le style Satellite (https://maptiler.com)
   MAPTILER_KEY: ""

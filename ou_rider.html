@@ -1515,41 +1515,53 @@ document.getElementById('btnPwa').addEventListener('click', async () => {
 /* ===== CARTE + STYLES ===== */
 const MAPTILER_KEY = window.env?.MAPTILER_KEY || "";
 const CARTO_KEY = window.env?.CARTO_KEY || "";
+const STADIA_ENABLED = window.env?.STADIA_ENABLED === true;
 let map = L.map('map').setView([46.8, 8.2], 8);
 
-const baseDefs = [
-  { id:'dark',      label:'Noir',      url: CARTO_KEY
-      ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
-      : 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
-    attr: CARTO_KEY ? '© OpenStreetMap © CARTO' : '© Stadia Maps © OpenMapTiles © OpenStreetMap' },
+const baseDefs = (() => {
+  // Fond sombre : CARTO si une cle existe, sinon Stadia si le domaine est
+  // declare, sinon OSM. OSM est clair mais ne demande aucune inscription
+  // et ne renvoie jamais 401 — c'est le seul repli qui ne casse pas.
+  const darkUrl = CARTO_KEY
+    ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
+    : (STADIA_ENABLED
+        ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+        : null);
+  const darkAttr = CARTO_KEY
+    ? '© OpenStreetMap © CARTO'
+    : '© Stadia Maps © OpenMapTiles © OpenStreetMap';
 
-  { id:'positron',  label:'Clair',     url: CARTO_KEY
-      ? `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
-      : 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
-    attr: CARTO_KEY ? '© OpenStreetMap © CARTO' : '© Stadia Maps © OpenMapTiles © OpenStreetMap' },
+  const lightUrl = CARTO_KEY
+    ? `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
+    : (STADIA_ENABLED
+        ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png'
+        : null);
 
-  { id:'osm',       label:'Standard',  url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attr:'© OpenStreetMap' },
-
-  { id:'toon',      label:'Cartoon',   url: CARTO_KEY
-      ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
-      : null,
-    attr:'© OpenStreetMap © CARTO' },
-
-  // Stamen a ferme ses URLs Fastly le 31/10/2023, les tuiles passent par Stadia
-  { id:'watercolor',label:'Watercolor',url:'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
-    attr:'© Stadia Maps © Stamen Design © OpenStreetMap', maxZoom:16 },
-
-  { id:'sat',       label:'Satellite', url: MAPTILER_KEY
-      ? `https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}` : null,
-    attr:'© MapTiler' }
-].filter(d=>!!d.url);
+  return [
+    { id:'dark',      label:'Noir',      url: darkUrl,  attr: darkAttr },
+    { id:'positron',  label:'Clair',     url: lightUrl, attr: darkAttr },
+    { id:'osm',       label:'Standard',  url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attr:'© OpenStreetMap' },
+    { id:'toon',      label:'Cartoon',   url: CARTO_KEY
+        ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
+        : null,
+      attr:'© OpenStreetMap © CARTO' },
+    // Stamen a ferme ses URLs Fastly le 31/10/2023 ; les tuiles passent par
+    // Stadia, donc uniquement si le domaine est declare.
+    { id:'watercolor',label:'Watercolor',url: STADIA_ENABLED
+        ? 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg' : null,
+      attr:'© Stadia Maps © Stamen Design © OpenStreetMap', maxZoom:16 },
+    { id:'sat',       label:'Satellite', url: MAPTILER_KEY
+        ? `https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}` : null,
+      attr:'© MapTiler' }
+  ].filter(d=>!!d.url);
+})();
 
 const baseLayers={};
 baseDefs.forEach(d=>{
   baseLayers[d.id]=L.tileLayer(d.url,{maxZoom:d.maxZoom||20,attribution:d.attr});
 });
-(baseLayers['dark']||baseLayers['positron']).addTo(map);
+(baseLayers['dark']||baseLayers['osm']||baseLayers[baseDefs[0].id]).addTo(map);
 
 let baseOrder=baseDefs.map(d=>d.id), baseIndex=0;
 const styleTip=document.getElementById('mapStyleTip');

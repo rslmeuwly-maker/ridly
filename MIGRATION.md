@@ -368,3 +368,28 @@ Lien ajouté dans le menu ••• de 11 pages.
 
 L'anti-doublon compare désormais aux parks officiels **et** aux propositions
 déjà envoyées.
+
+## Cartes — correction de ma correction
+
+Le correctif précédent basculait le style par défaut sur Stadia Maps quand
+aucune clé CARTO n'était renseignée. Deux problèmes que je n'avais pas vérifiés :
+
+1. **Stadia exige un domaine déclaré.** Leur authentification valide les
+   en-têtes Origin et Referer ; sans domaine enregistré dans leur tableau de
+   bord, chaque tuile renvoie 401. Sans compte Stadia, la carte n'affichait
+   donc plus rien du tout — pire que le filigrane CARTO qu'on voulait retirer.
+2. **Leur offre gratuite exclut l'usage commercial**, ce qui couvre l'usage par
+   une organisation à but lucratif ou dans un produit générant du revenu.
+   RIDLY renvoie vers JF Ride Shop : la question se pose.
+
+### Nouvelle chaîne de repli
+    CARTO_KEY renseignée   -> CARTO dark   (sombre, cohérent avec la DA)
+    STADIA_ENABLED = true  -> Stadia dark  (uniquement si domaine déclaré)
+    sinon                  -> OSM standard (aucune inscription, jamais de 401)
+
+`STADIA_ENABLED` est à `false` par défaut dans `env.js`. Vérifié par simulation
+sur les quatre configurations possibles : au moins un style fonctionne toujours,
+la carte ne peut plus être vide.
+
+Le fond par défaut retombe sur le premier style disponible, jamais sur un
+identifiant qui pourrait ne pas exister.
