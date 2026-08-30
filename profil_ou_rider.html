@@ -1227,6 +1227,18 @@
       <p id="postsEmpty" class="empty" style="display:none">Aucun post pour l’instant.</p>
     </section>
 
+    <!-- RIDLY_PASSEPORT : parks debloques au scanner GPS, distincts du temps de ride -->
+    <section class="card" id="passportCard" style="margin-top:14px;display:none">
+      <div class="posts-header">
+        <h2>Passeport skateparks</h2>
+        <a class="btn" href="park.html" style="text-decoration:none">Scanner</a>
+      </div>
+      <div class="spotstats-body">
+        <p class="empty" id="passportEmpty">Aucun park débloqué pour le moment.</p>
+        <div id="passportList" class="spotstats-list"></div>
+      </div>
+    </section>
+
     <!-- Stats spots -->
     <section class="card" style="margin-top:14px" id="spotStatsCard">
       <div class="posts-header">
@@ -2067,7 +2079,7 @@ async function loadSpotStats(){
   try{
     const { data:rows, error } = await supa
       .from('rider_spot_stats')
-      .select('spot_id,total_seconds,points')
+      .select('spot_id,total_seconds,points,checkin_points,checkin_count')
       .eq('user_id', profileUserId)
       .order('total_seconds',{ascending:false});
 
@@ -2085,6 +2097,13 @@ async function loadSpotStats(){
       if(pLocalPark)     pLocalPark.textContent = "Skatepark local : —";
       return;
     }
+
+    // Nombre de parks officiels, pour afficher « X débloqués sur Y ».
+    let OFFICIAL_TOTAL = 0;
+    try{
+      const { count } = await supa.from('spots').select('id',{count:'exact',head:true});
+      OFFICIAL_TOTAL = count || 0;
+    }catch(_){ }
 
     const spotIds = stats.map(r=>r.spot_id);
     const { data:spots, error:err2 } = await supa
@@ -2123,21 +2142,34 @@ async function loadSpotStats(){
     if(spotStatsList){
       spotStatsList.innerHTML = '';
 
-      if(totalSecondsAll && totalSecondsAll > 0){
+      // RIDLY_PASSEPORT — le total additionne la colonne `points`, qui inclut
+      // deja les check-ins. L'ancien calcul repartait de totalSecondsAll et
+      // ignorait donc tous les points de passeport.
+      const totalPointsAll   = stats.reduce((a,r)=> a + (r.points || 0), 0);
+      const totalCheckinPts  = stats.reduce((a,r)=> a + (r.checkin_points || 0), 0);
+      const totalCheckins    = stats.reduce((a,r)=> a + (r.checkin_count  || 0), 0);
+      const ridePointsAll    = totalPointsAll - totalCheckinPts;
+
+      if(totalPointsAll > 0 || totalSecondsAll > 0){
         const totalHours = (totalSecondsAll/3600).toFixed(1).replace('.0','');
+        const parts = [`${totalHours} h de ride`];
+        if(totalCheckins > 0){
+          parts.push(`${totalCheckins} check-in${totalCheckins>1?'s':''}`);
+        }
         const totalDiv = document.createElement('div');
         totalDiv.className = 'spotstats-row';
         totalDiv.innerHTML = `
           <div class="spotstats-main">
             <div class="spotstats-title">Total RIDLY</div>
-            <div class="spotstats-sub">${totalHours} h sur les spots</div>
+            <div class="spotstats-sub">${parts.join(' • ')}</div>
           </div>
-          <div class="spotstats-points">${Math.floor(totalSecondsAll/3600)} pts</div>
+          <div class="spotstats-points">${totalPointsAll} pts</div>
         `;
         spotStatsList.appendChild(totalDiv);
       }
 
-      stats.forEach(row=>{
+      // Les spots sans temps de ride relevent du passeport, pas des heures.
+      stats.filter(r => (r.total_seconds || 0) > 0).forEach(row=>{
         const s = spotMap[row.spot_id];
         const title = s?.nom || "Skatepark";
         const locParts = [];
@@ -2146,7 +2178,11 @@ async function loadSpotStats(){
         const loc = locParts.join(' • ');
         const hours = (row.total_seconds || 0) / 3600;
         const hoursStr = hours.toFixed(1).replace('.0','');
-        const pts = (row.points != null) ? row.points : Math.floor((row.total_seconds || 0)/3600);
+        // Points de ride uniquement : les points de check-in sont comptes
+        // dans la section Passeport, les additionner ici les compterait deux fois.
+        const pts = (row.points != null)
+          ? (row.points - (row.checkin_points || 0))
+          : Math.floor((row.total_seconds || 0)/3600);
 
         const div = document.createElement('div');
         div.className = 'spotstats-row';
@@ -2159,6 +2195,54 @@ async function loadSpotStats(){
         `;
         spotStatsList.appendChild(div);
       });
+    }
+
+    // RIDLY_PASSEPORT — parks debloques au scanner, tries par nombre de check-ins.
+    const passportCard  = document.getElementById('passportCard');
+    const passportList  = document.getElementById('passportList');
+    const passportEmpty = document.getElementById('passportEmpty');
+    if(passportCard && passportList){
+      const unlocked = stats
+        .filter(r => (r.checkin_count || 0) > 0)
+        .sort((a,b) => (b.checkin_count||0) - (a.checkin_count||0));
+
+      passportCard.style.display = '';
+      passportList.innerHTML = '';
+
+      if(!unlocked.length){
+        if(passportEmpty) passportEmpty.style.display = 'block';
+      }else{
+        if(passportEmpty) passportEmpty.style.display = 'none';
+
+        const head = document.createElement('div');
+        head.className = 'spotstats-row';
+        head.innerHTML = `
+          <div class="spotstats-main">
+            <div class="spotstats-title">Parks débloqués</div>
+            <div class="spotstats-sub">${unlocked.length} sur ${OFFICIAL_TOTAL || '—'} · ${totalCheckins} check-in${totalCheckins>1?'s':''}</div>
+          </div>
+          <div class="spotstats-points">${totalCheckinPts} pts</div>
+        `;
+        passportList.appendChild(head);
+
+        unlocked.forEach(row=>{
+          const sp = spotMap[row.spot_id];
+          const locParts = [];
+          if(sp?.ville)  locParts.push(sp.ville);
+          if(sp?.canton) locParts.push(sp.canton);
+          const n = row.checkin_count || 0;
+          const div = document.createElement('div');
+          div.className = 'spotstats-row';
+          div.innerHTML = `
+            <div class="spotstats-main">
+              <div class="spotstats-title">${sp?.nom || 'Skatepark'}</div>
+              <div class="spotstats-sub">${locParts.join(' • ') || '—'} • ${n} check-in${n>1?'s':''}</div>
+            </div>
+            <div class="spotstats-points">${row.checkin_points || 0} pts</div>
+          `;
+          passportList.appendChild(div);
+        });
+      }
     }
 
   }catch(e){

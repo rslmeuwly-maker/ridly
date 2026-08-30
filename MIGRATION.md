@@ -478,3 +478,27 @@ sur du dur. Le backflip mentionne le risque tête et nuque et invite les mineurs
 compétence à apprendre en même temps que les tricks.
 
 Vérifié : 243 entrées, 0 identifiant en double, les 4 langues sur chaque entrée.
+
+## Profil — heures de ride et passeport séparés
+
+Deux sections distinctes :
+- **Statistiques RIDLY — Spots** : le temps passé, avec les points de ride seuls.
+  Les spots sans temps de ride n'y apparaissent plus.
+- **Passeport skateparks** : les parks débloqués au scanner, triés par nombre de
+  check-ins, avec un en-tête « X débloqués sur Y » et un lien vers le scanner.
+
+Aucun point n'est compté deux fois : la liste des heures affiche
+`points - checkin_points`, le passeport affiche `checkin_points`, et la ligne
+« Total RIDLY » affiche la somme.
+
+### Deux défauts existants corrigés au passage
+- « Total RIDLY » affichait `Math.floor(totalSecondsAll/3600)` : il recalculait
+  les points depuis le temps au lieu d'additionner la colonne `points`. Depuis la
+  mise en service des check-ins, ce total les ignorait et **sous-estimait** les
+  points du rider.
+- Le bloc entier ne s'affichait que si `totalSecondsAll > 0`. Un rider n'ayant
+  que des check-ins et aucune session ne voyait rien.
+
+Le tri par `total_seconds` est conservé pour la ligne « Skatepark local » : le
+park d'attache est celui où l'on passe des heures, pas celui où l'on a pointé
+une fois.
