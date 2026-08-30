@@ -1227,6 +1227,19 @@
       <p id="postsEmpty" class="empty" style="display:none">Aucun post pour l’instant.</p>
     </section>
 
+    <!-- RIDLY_PUSH_BOUTON -->
+    <section class="card" id="pushCard" style="margin-top:14px;display:none">
+      <div class="posts-header">
+        <h2>Notifications</h2>
+        <button class="btn" id="btnPush" type="button">Activer</button>
+      </div>
+      <div class="spotstats-body">
+        <p class="empty" id="pushEtat">
+          Reçois une notification quand un rider t'envoie un message.
+        </p>
+      </div>
+    </section>
+
     <!-- RIDLY_PASSEPORT : parks debloques au scanner GPS, distincts du temps de ride -->
     <section class="card" id="passportCard" style="margin-top:14px;display:none">
       <div class="posts-header">
@@ -2270,6 +2283,55 @@ async function loadSpotStats(){
   menu.addEventListener('click',e=>e.stopPropagation());
   document.addEventListener('click',close);
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+})();
+
+/* ===== RIDLY_PUSH_BOUTON =====
+   Le navigateur refuse une demande de permission qui ne vient pas d'un
+   clic. D'ou ce bouton : un prompt automatique au chargement est rejete,
+   et sur iOS il grille definitivement la permission. */
+(function(){
+  const card = document.getElementById('pushCard');
+  const btn  = document.getElementById('btnPush');
+  const etat = document.getElementById('pushEtat');
+  if(!card || !btn) return;
+
+  // La carte ne s'affiche que sur son propre profil.
+  document.addEventListener('DOMContentLoaded', async ()=>{
+    try{
+      const { data:{ user } } = await supa.auth.getUser();
+      const monProfil = user && (typeof profileUserId === 'undefined' || profileUserId === user.id);
+      if(!monProfil) return;
+      if(!('Notification' in window)) return;
+
+      card.style.display = '';
+
+      if(Notification.permission === 'granted'){
+        btn.textContent = 'Activées';
+        btn.disabled = true;
+        etat.textContent = 'Tu reçois les notifications de messages sur cet appareil.';
+      }else if(Notification.permission === 'denied'){
+        btn.style.display = 'none';
+        etat.textContent = "Les notifications sont bloquées dans les réglages de ton navigateur. "
+          + "Il faut les réautoriser depuis le cadenas de la barre d'adresse.";
+      }
+    }catch(_){}
+  });
+
+  btn.onclick = async ()=>{
+    btn.disabled = true;
+    btn.textContent = '…';
+    const r = await (window.ridlyActiverPush?.() ?? { ok:false, raison:'indisponible' });
+    if(r.ok){
+      btn.textContent = 'Activées';
+      etat.textContent = 'Tu reçois les notifications de messages sur cet appareil.';
+    }else{
+      btn.disabled = false;
+      btn.textContent = 'Activer';
+      etat.textContent = r.raison === 'permission'
+        ? "Tu as refusé les notifications. Réessaie depuis les réglages de ton navigateur."
+        : "L'activation a échoué. Réessaie dans un moment.";
+    }
+  };
 })();
 </script>
 

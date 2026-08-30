@@ -56,4 +56,54 @@
       return null;
     }
   };
+
+  // ---------------------------------------------------------
+  // RIDLY_PUSH — enregistrement du jeton
+  // Sans stockage cote serveur, un jeton ne sert a rien : personne
+  // ne saurait a quel appareil envoyer la notification.
+  // ---------------------------------------------------------
+  window.ridlyEnregistrerToken = async function (token) {
+    try {
+      if (!token || !window.supabase || !window.env?.SUPABASE_URL) return false;
+
+      const db = window.supabase.createClient(
+        window.env.SUPABASE_URL, window.env.SUPABASE_ANON
+      );
+      const { data: { user } } = await db.auth.getUser();
+      if (!user) return false;
+
+      const { error } = await db.from("push_tokens").upsert({
+        token,
+        user_id: user.id,
+        plateforme: navigator.userAgent.slice(0, 120),
+        updated_at: new Date().toISOString()
+      }, { onConflict: "token" });
+
+      if (error) { console.error("[Push] enregistrement:", error.message); return false; }
+      return true;
+    } catch (e) {
+      console.error("[Push] enregistrement:", e);
+      return false;
+    }
+  };
+
+  // Active les notifications ET enregistre le jeton, en une fois.
+  // C'est cette fonction que les boutons doivent appeler.
+  window.ridlyActiverPush = async function () {
+    const token = await window.ridlyActiverNotifications();
+    if (!token) return { ok: false, raison: "permission" };
+    const ok = await window.ridlyEnregistrerToken(token);
+    return { ok, raison: ok ? null : "enregistrement" };
+  };
+
+  // Si le rider a deja autorise, on rafraichit le jeton en silence :
+  // Firebase le regenere periodiquement et l'ancien devient invalide.
+  window.addEventListener("load", async () => {
+    try {
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+      const token = await window.ridlyActiverNotifications();
+      if (token) await window.ridlyEnregistrerToken(token);
+    } catch (_) {}
+  });
+
 })();

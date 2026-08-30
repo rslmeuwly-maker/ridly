@@ -1891,6 +1891,7 @@ async function sendMessage(){
       chatError.textContent = "Erreur lors de l’envoi du message.";
     }else if(data){
       chatInput.value = "";
+      notifierDestinataire(data.id);
     }
   }catch(e){
     console.error(e);
@@ -1943,6 +1944,8 @@ async function toggleRecord(){
         if(error){
           console.error(error);
           chatError.textContent = "Erreur lors de l’envoi du vocal.";
+        }else if(data){
+          notifierDestinataire(data.id);
         }
       }catch(err){
         console.error(err);
@@ -2004,6 +2007,8 @@ async function handleMediaFile(file){
       if(error){
         console.error(error);
         chatError.textContent = "Erreur lors de l’envoi de la photo.";
+      }else if(data){
+        notifierDestinataire(data.id);
       }
     }else if(type.startsWith('video/')){
       const blobUrl = URL.createObjectURL(file);
@@ -2042,6 +2047,8 @@ async function handleMediaFile(file){
       if(error){
         console.error(error);
         chatError.textContent = "Erreur lors de l’envoi de la vidéo.";
+      }else if(data){
+        notifierDestinataire(data.id);
       }
     }else{
       chatError.textContent = "Format non supporté (photo ou vidéo uniquement).";
@@ -2120,6 +2127,30 @@ function openFlashFull(url, caption){
 function closeFlashFull(){
   document.getElementById('flashFull').classList.remove('open');
   document.getElementById('flashFullMedia').innerHTML = '';
+}
+
+/* ===== RIDLY_PUSH_NOTIF =====
+   Previent le destinataire apres l'insertion du message.
+   La fonction verifie cote serveur que l'appelant est bien l'auteur
+   du message : on ne peut pas declencher de notification au nom d'un
+   autre rider. L'echec est silencieux — un message envoye reste
+   envoye, meme si la notification ne part pas. */
+async function notifierDestinataire(messageId){
+  try{
+    const { data:{ session } } = await supa.auth.getSession();
+    if(!session) return;
+    await fetch(window.env.SUPABASE_URL + '/functions/v1/notif-message', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer ' + session.access_token,
+        'apikey': window.env.SUPABASE_ANON
+      },
+      body: JSON.stringify({ message_id: messageId })
+    });
+  }catch(e){
+    console.warn('[Push] notification non envoyee:', e);
+  }
 }
 </script>
 

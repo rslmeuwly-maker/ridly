@@ -596,3 +596,41 @@ en-têtes.
 
 Maskable à 56 % du cadre, vérifié par contrôle des 10 % de bordure puis
 visuellement en simulant le rognage Android.
+
+## Notifications push des messages privés
+
+### État trouvé : la chaîne était entièrement débranchée
+- `ridlyActiverNotifications()` était défini dans `js/firebase.js` mais
+  **appelé nulle part**. Aucun rider ne pouvait activer les notifications.
+- Le jeton FCM était obtenu puis **jamais stocké**. Même si quelqu'un avait
+  activé, le serveur n'aurait su à quel appareil envoyer.
+- Aucune fonction d'envoi n'existait.
+
+Seule la réception (`firebase-messaging-sw.js`) était correcte.
+
+### Les quatre maillons ajoutés
+1. **Table `push_tokens`** — un rider peut avoir plusieurs appareils. Le jeton
+   sert de clé primaire, Firebase le régénérant quand l'appareil change.
+2. **Enregistrement du jeton** — `ridlyActiverPush()` active et stocke en une
+   fois. Un rafraîchissement silencieux au chargement maintient le jeton à jour
+   pour ceux qui ont déjà autorisé.
+3. **Bouton dans le profil** — le navigateur refuse toute demande de permission
+   qui ne vient pas d'un clic, et sur iOS un prompt automatique grille
+   définitivement la permission. Le bouton n'apparaît que sur son propre profil,
+   et affiche un message spécifique si les notifications ont été bloquées.
+4. **Edge Function `notif-message`** — envoie via FCM HTTP v1.
+
+### Sécurité
+La fonction vérifie que le message existe et que l'appelant en est bien
+l'auteur. Sans cette vérification, n'importe qui pourrait déclencher des
+notifications au nom d'un autre rider.
+
+Les jetons périmés (`UNREGISTERED`) sont supprimés automatiquement, sinon la
+table se remplirait d'appareils désinstallés.
+
+### Couverture
+Les quatre chemins d'envoi notifient : texte, vocal, photo, vidéo. L'aperçu
+respecte la convention de préfixes du chat — un vocal affiche « Message vocal »
+et non `VOICE:https://…`.
+
+L'échec d'une notification est silencieux : un message envoyé reste envoyé.
