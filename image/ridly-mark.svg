@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="RIDLY">
+  <title>RIDLY</title>
+
+  <defs>
+    <linearGradient id="mkRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e51010"/>
+      <stop offset="1" stop-color="#b50000"/>
+    </linearGradient>
+    <radialGradient id="mkGlow" cx="50%" cy="42%" r="55%">
+      <stop offset="0" stop-color="#cc0000" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#cc0000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="#080808"/>
+  <rect width="512" height="512" fill="url(#mkGlow)"/>
+
+  <!-- Symbole seul, centré et large : lisible jusqu'à 48 px.
+       Aucun texte — « BY RSL » serait illisible à la taille d'une icône. -->
+  <path d="M256 96
+           c-70 0-127 56-127 125
+           0 30 11 54 29 77
+           l83 109c8 11 22 11 30 0
+           l83-109c18-23 29-47 29-77
+           0-69-57-125-127-125z"
+        fill="none" stroke="url(#mkRed)" stroke-width="34" stroke-linejoin="round"/>
+
+  <circle cx="256" cy="219" r="49" fill="url(#mkRed)"/>
+</svg>

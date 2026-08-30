@@ -502,3 +502,40 @@ Aucun point n'est compté deux fois : la liste des heures affiche
 Le tri par `total_seconds` est conservé pour la ligne « Skatepark local » : le
 park d'attache est celui où l'on passe des heures, pas celui où l'on a pointé
 une fois.
+
+## Nouveau logo — DA 2026
+
+### Le problème
+`image/1logo_ridly.png` est l'ancien logo : **vert sur fond blanc**. Toutes les
+icônes d'application en avaient été dérivées par `sips`. L'icône sur l'écran
+d'accueil du téléphone était donc verte sur blanc, alors que toute l'app est
+noire et rouge.
+
+Il restait aussi 14 occurrences de `box-shadow:0 0 12px rgba(34,197,94,.7)` —
+une lueur verte autour du logo dans l'en-tête de 14 pages.
+
+### Ce qui a été fait
+Logo redessiné en **vectoriel**, donc net à toutes les tailles et modifiable
+sans repasser par un éditeur d'images. Deux fichiers distincts :
+
+- `image/ridly-logo.svg` — le verrou complet (repère + RIDLY + BY RSL),
+  pour les en-têtes et les supports imprimés
+- `image/ridly-mark.svg` — le symbole seul, pour les icônes
+
+La séparation est nécessaire : à 192 px sur un écran d'accueil, « BY RSL »
+serait illisible. Une icône d'app ne porte que le symbole.
+
+Jeu d'icônes régénéré : `icon-192`, `icon-512`, `apple-touch-icon`,
+`icon-maskable-192`, `icon-maskable-512`.
+
+### Version maskable
+Android rogne jusqu'à 20 % de chaque bord selon le lanceur. Le symbole de la
+version maskable est réduit à 70 % et recentré pour tenir dans la zone sûre.
+Vérifié par contrôle programmatique des 10 % de bordure, puis visuellement en
+simulant le rognage : la pointe du repère reste entière.
+
+Lisibilité vérifiée à 512, 192, 96 et 48 px.
+
+La lueur verte de l'en-tête est passée au rouge sur les 14 pages, et le cache
+du service worker est passé de `ridly-v4` à `ridly-v5` pour que les anciennes
+icônes vertes ne restent pas servies depuis le cache des riders.

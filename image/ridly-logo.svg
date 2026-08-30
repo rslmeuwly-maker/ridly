@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="RIDLY by RSL">
+  <title>RIDLY — by RSL</title>
+
+  <defs>
+    <linearGradient id="rdRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e51010"/>
+      <stop offset="1" stop-color="#b50000"/>
+    </linearGradient>
+    <radialGradient id="rdGlow" cx="50%" cy="38%" r="52%">
+      <stop offset="0" stop-color="#cc0000" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#cc0000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Fond : le noir de la DA, pas de blanc -->
+  <rect width="512" height="512" fill="#080808"/>
+  <rect width="512" height="512" fill="url(#rdGlow)"/>
+
+  <!-- Repère de spot. La pointe descend vers le sol : c'est un marqueur de lieu,
+       cohérent avec une app qui cartographie les skateparks. -->
+  <path d="M256 78
+           c-59 0-107 47-107 105
+           0 25 9 45 24 65
+           l70 92c7 9 19 9 26 0
+           l70-92c15-20 24-40 24-65
+           0-58-48-105-107-105z"
+        fill="none" stroke="url(#rdRed)" stroke-width="26" stroke-linejoin="round"/>
+
+  <!-- Le point central évoque à la fois la roue et le point sur la carte -->
+  <circle cx="256" cy="196" r="40" fill="url(#rdRed)"/>
+
+  <!-- Wordmark condensé, dans l'esprit Bebas Neue de la DA.
+       Tracé en chemins pour rester identique sans dépendre d'une police. -->
+  <g fill="#f2f2f2">
+    <!-- R -->
+    <path d="M96 356h44c22 0 36 12 36 31 0 13-7 23-18 27l21 38h-30l-18-34h-9v34H96v-96z
+             m26 22v22h16c8 0 13-4 13-11s-5-11-13-11h-16z"/>
+    <!-- I -->
+    <path d="M192 356h26v96h-26z"/>
+    <!-- D -->
+    <path d="M234 356h40c31 0 51 19 51 48s-20 48-51 48h-40v-96z
+             m26 23v50h13c16 0 25-9 25-25s-9-25-25-25h-13z"/>
+    <!-- L -->
+    <path d="M338 356h26v73h47v23h-73v-96z"/>
+    <!-- Y, la branche descendante rappelle la pointe du repère -->
+    <path d="M404 356h29l21 38 21-38h29l-37 63v33h-26v-33l-37-63z"/>
+  </g>
+
+  <!-- Signature BY RSL, encadrée de filets rouges -->
+  <g>
+    <rect x="150" y="476" width="60" height="4" fill="#cc0000"/>
+    <rect x="302" y="476" width="60" height="4" fill="#cc0000"/>
+    <text x="256" y="484" text-anchor="middle"
+          font-family="Arial Narrow, Arial, Helvetica, sans-serif"
+          font-size="22" font-weight="700" letter-spacing="3.5" fill="#8a8a8a">BY RSL</text>
+  </g>
+</svg>
