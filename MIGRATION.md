@@ -666,3 +666,37 @@ ou d'un message vocal du chat déclenchait l'erreur.
 Corrigé en n'archivant que les `status === 200`, avec un `.catch()` sur les
 écritures de cache pour absorber aussi un quota plein. Cache passé en
 `ridly-v7`.
+
+## Boucle de rechargement — js/pwa.js
+
+Symptôme : après le passage du cache en `ridly-v7`, les pages se rechargeaient
+en continu.
+
+Cause : le garde-fou anti-rechargement était une simple variable.
+
+    var reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (reloaded) return;
+      reloaded = true;
+      window.location.reload();
+    });
+
+`window.location.reload()` recharge la page, ce qui **réinitialise la variable
+à false**. Le nouveau service worker reprend la main, `controllerchange` se
+déclenche à nouveau, et la page boucle indéfiniment. Le garde-fou ne protégeait
+que le chargement en cours, jamais le suivant.
+
+Corrigé avec `sessionStorage`, qui survit au rechargement et vaut pour la durée
+de l'onglet. Simulé : 6 rechargements avec la variable locale, 1 seul avec
+sessionStorage.
+
+### Non traité volontairement
+Sept pages (`recherche`, `spot`, `ajouter`, `games`, `games1`, `game`,
+`game_scoot_classic`) enregistrent encore le service worker en inline, en plus
+de `js/pwa.js`. C'est le même fichier sur la même portée : l'enregistrement en
+double est sans effet, et aucun de ces blocs ne recharge la page. Ils ne sont
+donc pas la cause.
+
+Ils n'ont pas été supprimés : c'est précisément ce type de retrait automatique
+qui avait effacé le code d'authentification de `compte.html`. À nettoyer à
+froid, un fichier à la fois.

@@ -3,10 +3,23 @@
 (function () {
   if (!("serviceWorker" in navigator)) return;
 
+  // Le garde-fou doit SURVIVRE au rechargement.
+  // Une simple variable repart a false apres reload : le nouveau SW
+  // reprend la main, on recharge, la variable est reinitialisee, et la
+  // page boucle indefiniment. sessionStorage persiste sur l'onglet.
+  var CLE = "ridly_sw_reloaded";
+
+  function dejaRecharge() {
+    try { return sessionStorage.getItem(CLE) === "1"; } catch (e) { return false; }
+  }
+  function marquerRecharge() {
+    try { sessionStorage.setItem(CLE, "1"); } catch (e) {}
+  }
+
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("/service-worker.js")
       .then(function (reg) {
-        // Si une nouvelle version est dispo, on l'active sans attendre
+        // Nouvelle version disponible : on l'active sans attendre.
         reg.addEventListener("updatefound", function () {
           var sw = reg.installing;
           if (!sw) return;
@@ -22,11 +35,9 @@
       });
   });
 
-  // Recharge une seule fois quand le nouveau SW prend la main
-  var reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", function () {
-    if (reloaded) return;
-    reloaded = true;
+    if (dejaRecharge()) return;   // un seul rechargement par onglet
+    marquerRecharge();
     window.location.reload();
   });
 })();
