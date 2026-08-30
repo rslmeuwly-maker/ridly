@@ -634,3 +634,19 @@ respecte la convention de préfixes du chat — un vocal affiche « Message voca
 et non `VOICE:https://…`.
 
 L'échec d'une notification est silencieux : un message envoyé reste envoyé.
+
+### Correctif — deux clients Supabase en conflit
+Au premier test, le jeton FCM était bien obtenu mais l'enregistrement échouait
+en silence, avec cet avertissement en console :
+
+    Multiple GoTrueClient instances detected in the same browser context.
+
+`js/firebase.js` créait son propre client alors que la page en avait déjà un.
+Les deux se disputaient la même clé de stockage de session, et `getUser()`
+pouvait renvoyer `null` alors que le rider était connecté.
+
+Corrigé en réutilisant le client de la page. Première tentative erronée :
+`window.supa`, qui est toujours `undefined` — les pages déclarent
+`const supa = …`, et un `const` au niveau supérieur vit dans la portée lexicale
+globale sans devenir une propriété de `window`. La détection passe donc par
+`typeof supa !== "undefined"`, vérifié par simulation.

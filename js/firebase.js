@@ -64,13 +64,26 @@
   // ---------------------------------------------------------
   window.ridlyEnregistrerToken = async function (token) {
     try {
-      if (!token || !window.supabase || !window.env?.SUPABASE_URL) return false;
+      if (!token) return false;
 
-      const db = window.supabase.createClient(
-        window.env.SUPABASE_URL, window.env.SUPABASE_ANON
-      );
+      // On REUTILISE le client de la page. En creer un second fait
+      // cohabiter deux GoTrueClient sur la meme cle de stockage : ils se
+      // disputent la session et getUser() peut renvoyer null alors que le
+      // rider est bien connecte — l'enregistrement echouait silencieusement.
+      // Les pages declarent `const supa = ...`. Un const au niveau superieur
+      // vit dans la portee lexicale globale : il est accessible par son nom,
+      // mais PAS via window.supa. D'ou le typeof.
+      let db = null;
+      if (typeof supa !== "undefined" && supa?.auth) db = supa;
+      else if (typeof sb !== "undefined" && sb?.auth) db = sb;
+      else if (window.supabase && window.env?.SUPABASE_URL) {
+        db = (window.__ridlyPushDb ||= window.supabase.createClient(
+          window.env.SUPABASE_URL, window.env.SUPABASE_ANON));
+      }
+      if (!db) { console.warn("[Push] client Supabase introuvable."); return false; }
+
       const { data: { user } } = await db.auth.getUser();
-      if (!user) return false;
+      if (!user) { console.warn("[Push] rider non connecte."); return false; }
 
       const { error } = await db.from("push_tokens").upsert({
         token,
@@ -79,7 +92,7 @@
         updated_at: new Date().toISOString()
       }, { onConflict: "token" });
 
-      if (error) { console.error("[Push] enregistrement:", error.message); return false; }
+      if (error) { console.error("[Push] enregistrement:", error.message, error.code || "", error.details || ""); return false; }
       return true;
     } catch (e) {
       console.error("[Push] enregistrement:", e);
