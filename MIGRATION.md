@@ -539,3 +539,28 @@ Lisibilité vérifiée à 512, 192, 96 et 48 px.
 La lueur verte de l'en-tête est passée au rouge sur les 14 pages, et le cache
 du service worker est passé de `ridly-v4` à `ridly-v5` pour que les anciennes
 icônes vertes ne restent pas servies depuis le cache des riders.
+
+## Pages d'entrée — DA 2026
+
+`reset_password.html`, `conditions.html` et `confidentialite.html` avaient reçu
+le socle PWA mais **jamais la charte 2026**. Elles gardaient le vert `#22c55e`,
+le vert foncé `#16a34a` et un fond bleu nuit `#020617` / `#022c22`, hérités de
+l'ancienne identité. Constaté en production sur `ridly.ch/reset_password`.
+
+Corrigé : variables `--green` / `--green-dark` renommées en `--red` /
+`--red-dark`, fonds passés au noir de la DA avec la lueur rouge, polices Bebas
+Neue et Barlow Condensed ajoutées, titres alignés. Zéro résidu vert sur ces
+trois pages. La logique de réinitialisation est intacte.
+
+### Vert résiduel ailleurs — volontairement non traité
+16 pages contiennent encore des occurrences de `#22c55e` / `#16a34a`, mais la
+plupart sont **mortes** : le bloc DA redéfinit `--accent:#cc0000` plus bas dans
+la feuille, donc tout ce qui passe par la variable rend en rouge.
+
+Restent visibles quelques valeurs écrites en dur, notamment dans
+`ou_rider.html` : un texte en style inline ligne 1276, le dégradé du bouton de
+partage ligne 463, des bordures lignes 2074 et 2103.
+
+Aucun remplacement global effectué : `int:mk('#16a34a','🏫')` est la couleur de
+la catégorie « cours » sur la carte, elle est délibérée, et un remplacement
+aveugle casserait la distinction visuelle des catégories.
