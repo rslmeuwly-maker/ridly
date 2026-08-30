@@ -2,7 +2,7 @@
 // v4 : migration Netlify -> Vercel
 // Changement de nom du cache = force la mise a jour chez tous les users.
 
-const CACHE_NAME = 'ridly-v6';
+const CACHE_NAME = 'ridly-v7';
 
 // Uniquement des assets stables. PAS de HTML :
 // avec cleanUrls, /feed.html redirige vers /feed et le precache
@@ -63,7 +63,7 @@ self.addEventListener('fetch', (event) => {
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+          caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
           return res;
         })
         .catch(() =>
@@ -78,9 +78,15 @@ self.addEventListener('fetch', (event) => {
     caches.match(req).then((hit) => {
       if (hit) return hit;
       return fetch(req).then((res) => {
-        if (res.ok && res.type === 'basic') {
+        // res.ok est vrai pour 206 (Partial Content), mais l'API Cache
+        // refuse de stocker une reponse partielle. Les requetes Range des
+        // balises audio/video en produisent a chaque lecture de son ou de
+        // message vocal. On n'archive donc que les 200 complets.
+        if (res.status === 200 && res.type === 'basic') {
           const copy = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(req, copy));
+          caches.open(CACHE_NAME)
+            .then((c) => c.put(req, copy))
+            .catch(() => {});   // quota plein, reponse opaque : sans consequence
         }
         return res;
       });

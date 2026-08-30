@@ -650,3 +650,19 @@ Corrigé en réutilisant le client de la page. Première tentative erronée :
 `const supa = …`, et un `const` au niveau supérieur vit dans la portée lexicale
 globale sans devenir une propriété de `window`. La détection passe donc par
 `typeof supa !== "undefined"`, vérifié par simulation.
+
+### Service worker — échec de cache sur les réponses 206
+Repéré en console pendant les tests push :
+
+    Failed to execute 'put' on 'Cache': Partial response (status code 206)
+    is unsupported
+
+Le cache-first testait `res.ok`, qui est vrai pour tout statut de 200 à 299 —
+donc aussi pour 206 Partial Content. Or l'API Cache refuse de stocker une
+réponse partielle. Les requêtes Range émises par les balises `<audio>` et
+`<video>` en produisent systématiquement : chaque lecture d'un son de `/sons/`
+ou d'un message vocal du chat déclenchait l'erreur.
+
+Corrigé en n'archivant que les `status === 200`, avec un `.catch()` sur les
+écritures de cache pour absorber aussi un quota plein. Cache passé en
+`ridly-v7`.
