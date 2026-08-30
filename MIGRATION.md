@@ -425,3 +425,56 @@ d'ajouter le spot, au lieu de sortir une liste au hasard.
 
 Vérifié : 7 formulations déclenchent la recherche, 5 formulations proches
 (« c'est quoi un spot ») ne la déclenchent pas.
+
+## Lya — définition avant technique
+
+Test réel : « c'est quoi un whip » renvoyait le tutoriel du tailwhip, identique
+à ce que renvoyait « whip ». Chaque trick n'avait qu'une entrée, rédigée en
+« comment apprendre », sans jamais dire ce qu'est le trick.
+
+Sept entrées commençaient directement par la technique : bunny hop, tailwhip,
+barspin, grinds, manual, 180, 360. Une phrase de définition a été mise en tête
+de chacune, dans les quatre langues, et les mots-clés « c'est quoi X » /
+« définition X » ont été ajoutés. Une seule entrée répond désormais
+correctement aux deux formes de question.
+
+« whip » était un mot-clé partagé entre `scooter-tailwhip` et
+`scooter-heelwhip` : le gagnant dépendait du score. Retiré de heelwhip, qui
+garde « heelwhip » et « heel whip ». Dans l'usage courant, un whip est un
+tailwhip.
+
+## Lya — extension encyclopédique + emoji trottinette
+
+### Emoji
+16 occurrences de 🛹 (skateboard) remplacées par 🛴 dans 11 fichiers, dont le
+marqueur des skateparks sur la carte de `ou_rider.html` et l'icône des parks
+débloqués du scanner. RIDLY est une app de trottinette.
+
+À noter : le marqueur « park » reste violet (`#7c3aed`) sur la carte, ce qui
+jure avec la DA noir/rouge. Changement de couleur non fait, c'est un choix
+graphique — les couleurs distinguent aussi les catégories (street orange,
+shop rouge, cours vert).
+
+### 31 entrées ajoutées
+La base passe de 212 à **243 entrées**.
+
+- Rotations : 540, nollie, nose manual
+- Grinds : 50-50, feeble, smith, icepick, toothpick, crooked
+- Style : no footer, one foot, can can, x-up, tabletop
+- Combinaisons : bar to whip, double whip, finger whip, opposite
+- Transition : drop in, pump, air, transfer, tailtap
+- Flips : backflip, frontflip, flair
+- Vocabulaire : coping, run, clean/sketchy, bail, session
+
+Chaque entrée suit le schéma **définition d'abord, technique ensuite**, dans
+les quatre langues. C'est ce qui permet à « c'est quoi X » et « comment faire
+X » de tomber sur la même entrée sans la dupliquer.
+
+### Encadrement des tricks à risque
+Les entrées backflip, frontflip et flair renvoient explicitement au foam pit ou
+à l'airbag et à un encadrement, et déconseillent l'apprentissage en autodidacte
+sur du dur. Le backflip mentionne le risque tête et nuque et invite les mineurs
+à en parler à un coach. L'entrée `bail` traite la chute contrôlée comme une
+compétence à apprendre en même temps que les tricks.
+
+Vérifié : 243 entrées, 0 identifiant en double, les 4 langues sur chaque entrée.

@@ -1033,7 +1033,7 @@
         <div class="more-menu" id="moreMenu" aria-hidden="true">
           <a href="games.html"><span class="mi">🎮</span><span>Game</span></a>
           <a href="classement.html"><span class="mi">🏆</span><span>Classement</span></a>
-          <a href="park.html"><span class="mi">🛹</span><span>Park Scanner</span></a>
+          <a href="park.html"><span class="mi">🛴</span><span>Park Scanner</span></a>
         </div>
       </div>
     </div>
@@ -1230,7 +1230,7 @@ function render(){
       const p = OFFICIAL_PARKS.find(x => String(x.id) === String(id));
       const d = document.createElement('div');
       d.className = 'pk-card pk-park';
-      d.innerHTML = `<div class="pk-ico">🛹</div>
+      d.innerHTML = `<div class="pk-ico">🛴</div>
         <div class="pk-info">
           <div class="pk-name">${esc(p ? p.nom : 'Skatepark')}</div>
           <div class="pk-meta">${esc(p && p.ville ? p.ville : '')} · ${v.count} check-in${v.count>1?'s':''} · ${v.points} pts</div>
@@ -1286,7 +1286,11 @@ $('pkScanBtn').onclick = async () => {
     const out = await res.json();
 
     if(!out.ok){
-      setStatus(esc(out.message || 'Check-in refusé.'), 'err');
+      // Le serveur renvoie un message actionnable ; on l'affiche tel quel.
+      let msg = esc(out.message || 'Check-in refusé.');
+      if(out.code) msg += ` <span style="opacity:.6">(${esc(out.code)})</span>`;
+      setStatus(msg, 'err');
+      console.warn('[park-checkin]', out);
       return;
     }
 

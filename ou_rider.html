@@ -1110,7 +1110,7 @@
   <div class="more-menu" id="moreMenu" aria-hidden="true">
     <a href="games.html"><span class="mi">🎮</span><span>Game</span></a>
     <a href="classement.html"><span class="mi">🏆</span><span>Classement</span></a>
-          <a href="park.html"><span class="mi">🛹</span><span>Park Scanner</span></a>
+          <a href="park.html"><span class="mi">🛴</span><span>Park Scanner</span></a>
   </div>
 </div>
 
@@ -1580,7 +1580,7 @@ document.getElementById('fabStyle').addEventListener('click', ()=>{
 });
 
 /* Icônes & calques — swirl + délai */
-const mk=(bg,emoji='🛹')=>{
+const mk=(bg,emoji='🛴')=>{
   const delay = (Math.random()*0.6+0.2).toFixed(2)+'s';
   return L.divIcon({
     className:'rsl-marker swirl',
@@ -1590,7 +1590,7 @@ const mk=(bg,emoji='🛹')=>{
   });
 };
 const icons={
-  park:mk('#7c3aed','🛹'),
+  park:mk('#7c3aed','🛴'),
   street:mk('#f97316','🧱'),
   shop:mk('#ef4444','🏪'),
   int:mk('#16a34a','🏫'),
@@ -1928,7 +1928,7 @@ function handlePresenceTick(lat,lng, nowMs){
     }else{
       lastPresenceSpotId = spot.id;
       lastPresenceTsMs   = nowMs;
-      showToast(`Tu es au skatepark ${spot.name} — chaque heure ici = 1 point local 🛹`);
+      showToast(`Tu es au skatepark ${spot.name} — chaque heure ici = 1 point local 🛴`);
     }
   }else{
     if(lastPresenceSpotId && lastPresenceTsMs){

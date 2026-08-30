@@ -90,7 +90,11 @@ Deno.serve(async (req) => {
   // ---- 3. Le park le plus proche, coordonnees lues en base
   const { data: spots, error: spotsError } = await db
     .from("spots").select("id,nom,ville,lat,lng");
-  if (spotsError) return json({ ok: false, reason: "db", message: "Base indisponible." }, 500);
+  if (spotsError) {
+    console.error("[park-checkin] spots:", JSON.stringify(spotsError));
+    return json({ ok: false, reason: "db",
+      message: "Base indisponible : " + (spotsError.message || ""), }, 500);
+  }
 
   let nearest: { id: string; nom: string; ville: string | null; d: number } | null = null;
   for (const s of spots ?? []) {
@@ -168,7 +172,22 @@ Deno.serve(async (req) => {
     distance_m: Math.round(nearest.d),
   }]);
   if (insertError) {
-    return json({ ok: false, reason: "db", message: "Enregistrement impossible." }, 500);
+    // On journalise le detail complet cote serveur (visible dans les logs
+    // du dashboard) et on renvoie un message actionnable au rider.
+    console.error("[park-checkin] insert:", JSON.stringify(insertError));
+
+    // 42P01 = relation inexistante : le SQL d'installation n'a pas ete joue.
+    const missing = insertError.code === "42P01"
+      || /does not exist|relation .* park_checkins/i.test(insertError.message || "");
+
+    return json({
+      ok: false, reason: "db",
+      message: missing
+        ? "La table park_checkins n'existe pas encore. Lance le script SQL d'installation."
+        : "Enregistrement impossible : " + (insertError.message || "erreur inconnue"),
+      code: insertError.code || null,
+      detail: insertError.details || null,
+    }, 500);
   }
 
   return json({
