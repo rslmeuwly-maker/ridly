@@ -320,3 +320,51 @@ Summit, North Satisfact, Tilt Contact Build. « Tilt Contact Build » existe bie
 au catalogue. « Panda Initio V2 » ne renvoie rien d'exploitable — le catalogue
 contient « Panda Initio scooter Freestyle », sans V2. À remplacer par des liens
 produit directs.
+
+## Park Scanner — points côté serveur
+
+### Ce que l'audit de la base a révélé
+`rider_spot_stats` n'est pas une table, c'est une **vue** :
+
+    points = floor(sum(seconds_spent) / 3600)
+
+Soit **1 point par heure** passée sur un spot. Le scanner d'origine
+distribuait 10 points par check-in et 25 de bonus : un rider pointant son
+GPS deux secondes aurait gagné l'équivalent de 35 heures de ride. Et
+inversement, un check-in ne durant rien, écrit tel quel il aurait rapporté 0.
+
+### Architecture retenue
+Les check-ins ne sont **pas** écrits dans `rider_spot_sessions` : la colonne
+`seconds_spent` représente du temps réel, affiché sur le profil. Y injecter une
+durée forfaitaire aurait rendu ce chiffre faux et irrécupérable.
+
+Table dédiée `park_checkins`, et la vue additionne les deux sources.
+`total_seconds` garde exactement son sens d'origine. Vérifié : sans aucun
+check-in, la vue renvoie les mêmes valeurs qu'avant.
+
+Échelle : 1 point par check-in, 3 au premier passage (constantes
+`POINTS_PER_CHECKIN` / `POINTS_FIRST_BONUS` en tête de l'Edge Function).
+
+### Anti-triche
+`park_checkins` n'a **aucune policy d'INSERT**. Le navigateur ne peut donc rien
+y écrire, même avec la clé anon en clair dans `env.js`. Seule l'Edge Function
+`park-checkin`, qui utilise la service_role, insère — après avoir vérifié :
+- identité du rider via le JWT, jamais via le corps de la requête
+- précision GPS sous 100 m (sinon le test des 150 m ne veut rien dire)
+- coordonnées du park lues en base, distance calculée côté serveur
+- pas de check-in sur ce park depuis 24 h
+- vitesse plausible depuis le check-in précédent (200 km/h max)
+
+Ce dernier contrôle est celui qui gêne le fake GPS : valider deux parks
+distants de 200 km à dix minutes d'intervalle est physiquement impossible.
+
+### Page
+`park.html`, construite en réutilisant l'ossature de `spot.html` : socle PWA,
+en-tête avec wordmark, barre du bas à 5 onglets, DA 2026, et les polices
+Bebas Neue / Barlow Condensed réellement chargées (le prototype les déclarait
+sans jamais les inclure, d'où un rendu en Arial).
+
+Lien ajouté dans le menu ••• de 11 pages.
+
+L'anti-doublon compare désormais aux parks officiels **et** aux propositions
+déjà envoyées.
