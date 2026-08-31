@@ -809,3 +809,28 @@ l'ordre de chargement.
 Les autres feuilles injectées de la même façon — partage de story dans
 `feed.html`, story plein écran dans `chat1v1.html` — utilisent des `onclick`
 inline, évalués au moment du clic. Elles ne sont pas affectées. Vérifié.
+
+## Base de connaissances de Lya sortie du code
+
+`ridly-lya.html` faisait 1 Mo, dont 31 % de données de connaissances mêlées au
+moteur. Modifier une réponse impliquait d'éditer un fichier d'un mégaoctet et
+de risquer une erreur de syntaxe dans le code applicatif.
+
+Les données étaient réparties entre un tableau principal de 243 entrées et
+**cinq appels `knowledge.push()`** successifs, ajoutés au fil du temps. Tout a
+été consolidé dans `js/lya-knowledge.js` : 296 entrées.
+
+    ridly-lya.html      1 051 130 -> 601 308 octets
+    js/lya-knowledge.js              489 688 octets
+
+Le fichier est chargé par une balise `<script src>` avant le moteur, donc de
+façon synchrone : aucune plomberie asynchrone à ajouter, et le navigateur le
+met en cache séparément de la page.
+
+Le moteur lit `window.RIDLY_KNOWLEDGE` et journalise une erreur explicite si le
+fichier n'est pas chargé.
+
+Vérifié : 296 entrées, 296 identifiants uniques, aucune entrée sans réponse
+française, aucune donnée résiduelle dans le HTML, aucune fonction perdue.
+
+Documentation d'édition dans `LYA-CONNAISSANCES.md`.
