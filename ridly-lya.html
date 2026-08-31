@@ -3754,6 +3754,105 @@
     return true;
   }
 
+
+  /* ===== RIDLY_LYA_MEMBRES =====
+     Recherche d'un membre RIDLY par pseudo. Reutilise le client Supabase
+     deja cree pour les spots.
+
+     On n'affiche que ce qui est deja public sur la page de profil :
+     pseudo, ville, et un lien. Lya ne decrit pas la personne et
+     n'invente rien a son sujet. */
+
+  let _membresCache = null;
+
+  async function chercherMembre(nom){
+    const db = spotsClient();
+    if(!db) return [];
+
+    const q = String(nom || '').trim();
+    if(q.length < 2) return [];
+
+    const motif = '%' + q.replace(/[%_]/g, '\\$&') + '%';
+    const { data, error } = await db
+      .from('profiles')
+      .select('id,pseudo,full_name,ville')
+      .or(`pseudo.ilike.${motif},full_name.ilike.${motif}`)
+      .limit(6);
+
+    if(error){ console.warn('[Lya] membres:', error.message); return []; }
+    return data || [];
+  }
+
+  // Mots qui suivent l'amorce sans faire partie du pseudo.
+  const MEMBRE_PARASITES = new Set([
+    'le','la','les','un','une','du','de','des','mon','ma','mes','ce','cet','cette',
+    'rider','riders','membre','pseudo','profil','compte','utilisateur','user',
+    'the','a','an','profile','account'
+  ]);
+
+  // Une question qui se termine par un terme du vocabulaire trottinette
+  // n'est pas une recherche de personne : « qui est le meilleur guidon »
+  // ne cherche personne.
+  const MEMBRE_NON_NOMS = new Set([
+    'guidon','deck','roue','roues','frein','fourche','collier','grip','grips',
+    'trottinette','scooter','spot','spots','skatepark','park','trick','tricks',
+    'shop','magasin','marque','prix','taille','modele','cours','event','contest'
+  ]);
+
+  function detectMembreIntent(text){
+    const n = normalize(text);
+    const m = n.match(/\b(qui est|c est qui|tu connais|connais tu|cherche|trouve|profil de)\s+(.{2,40})$/)
+           || n.match(/\b(who is|do you know|find)\s+(.{2,40})$/);
+    if(!m) return null;
+
+    // On retire les mots parasites en tete : « le rider matis » -> « matis ».
+    const mots = m[2].trim().split(/\s+/).filter(w => !MEMBRE_PARASITES.has(w));
+    if(!mots.length) return null;
+
+    // Si le dernier mot est du vocabulaire materiel, ce n'est pas un nom.
+    if(mots.some(w => MEMBRE_NON_NOMS.has(w))) return null;
+
+    // Un pseudo fait rarement plus de trois mots.
+    if(mots.length > 3) return null;
+
+    const terme = mots.join(' ');
+    return terme.length >= 2 ? terme : null;
+  }
+
+  async function answerMembreRidly(text){
+    const terme = detectMembreIntent(text);
+    if(!terme) return false;
+
+    const membres = await chercherMembre(terme);
+    if(!membres.length) return false;   // on laisse le routeur normal repondre
+
+    // Un pseudo qui commence par le terme passe devant.
+    const bas = normalize(terme);
+    membres.sort((a,b)=>{
+      const pa = normalize(a.pseudo||''), pb = normalize(b.pseudo||'');
+      return (pa.startsWith(bas)?0:1) - (pb.startsWith(bas)?0:1) || pa.localeCompare(pb);
+    });
+
+    const nomDe = m => m.pseudo || m.full_name || 'Rider';
+
+    if(membres.length === 1){
+      const m = membres[0];
+      const lieu = m.ville ? ` (${m.ville})` : '';
+      return smartReply(text,
+        `${nomDe(m)}${lieu} est sur RIDLY. Ouvre son profil pour voir ses spots, ses publications et lui écrire.`,
+        [{ label: `Voir le profil de ${nomDe(m)}`,
+           href: 'profil_ou_rider.html?id=' + encodeURIComponent(m.id) }]);
+    }
+
+    const liste = membres.map(m => '• ' + nomDe(m) + (m.ville ? ` — ${m.ville}` : '')).join('\n');
+    return smartReply(text,
+      `${membres.length} riders correspondent à « ${terme} » sur RIDLY :\n${liste}`,
+      membres.slice(0,4).map(m => ({
+        label: nomDe(m),
+        href: 'profil_ou_rider.html?id=' + encodeURIComponent(m.id)
+      })));
+  }
+
   /* RIDLY_LYA_GARDE_FOU — detection en trois niveaux.
      Une liste de racines large bloquait « baisser le guidon », « bande de grip »,
      « pipe de direction », « faire la queue » : du vocabulaire trottinette
@@ -6427,6 +6526,7 @@
 
   // Reprend le routeur normal quand la recherche de spots n'a rien donne.
   let _spotFallback = false;
+  let _membreFallback = false;
   function askFallback(q){
     _spotFallback = true;
     try { ask(q); } finally { _spotFallback = false; }
@@ -6528,6 +6628,19 @@
     if(answerSingleFirstName(clean)) return;
 
     // A full rider name must match the full name, not just the first name.
+    // Membres RIDLY : verifie AVANT de declarer un nom inconnu. Les 91
+    // entrees « Riders » sont des pros codes en dur ; un membre de l'app
+    // n'y figure evidemment pas. Asynchrone, donc on sort tout de suite.
+    if(!_membreFallback && detectMembreIntent(clean)){
+      answerMembreRidly(clean).then(traite => {
+        if(!traite && !_membreFallback){
+          _membreFallback = true;
+          try { ask(clean); } finally { _membreFallback = false; }
+        }
+      });
+      return;
+    }
+
     if(answerUnknownRiderName(clean)) return;
 
     if(!knowledge.length) return;

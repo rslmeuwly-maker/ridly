@@ -834,3 +834,32 @@ Vérifié : 296 entrées, 296 identifiants uniques, aucune entrée sans réponse
 française, aucune donnée résiduelle dans le HTML, aucune fonction perdue.
 
 Documentation d'édition dans `LYA-CONNAISSANCES.md`.
+
+## Lya — recherche de membres RIDLY
+
+Lya ne trouvait aucun utilisateur de l'app. Les 91 entrées « Riders » de sa
+base sont des riders **pros codés en dur** ; un membre inscrit n'y figure
+évidemment pas, et `answerUnknownRiderName` interceptait son nom pour déclarer
+qu'elle ne le connaissait pas.
+
+Ajouté : interrogation de la table `profiles` **avant** ce refus, en réutilisant
+le client Supabase déjà créé pour la recherche de spots.
+
+- Un seul résultat → réponse directe avec un bouton vers son profil.
+- Plusieurs → la liste, avec jusqu'à 4 boutons.
+- Aucun → le routeur normal reprend la main, avec un verrou anti-récursion.
+
+### Ce que Lya affiche
+Uniquement ce qui est déjà public sur la page de profil : pseudo, ville, et un
+lien. Lya ne décrit pas la personne et n'invente rien à son sujet — elle
+constate son existence et renvoie vers son profil.
+
+### Filtrage de l'intention
+Deux écueils traités :
+- Les mots parasites en tête sont retirés : « cherche le rider matis » cherche
+  bien `matis`, pas `le rider matis`.
+- Une question se terminant par du vocabulaire matériel n'est pas une recherche
+  de personne : « qui est le meilleur guidon » ne déclenche rien.
+
+Vérifié sur 11 formulations : 6 recherches correctes, 5 non-déclenchements,
+aucun faux positif.
