@@ -790,3 +790,22 @@ Sur iPhone hors app installée, `'Notification' in window` est faux et la carte
 restait invisible — l'utilisateur ne comprenait pas pourquoi. Elle s'affiche
 désormais avec un bouton « Installer l'app » et le message expliquant que les
 notifications exigent l'installation sur l'écran d'accueil.
+
+### Feuille Caméra : boutons inertes
+La feuille de choix s'affichait mais aucun bouton ne répondait.
+
+Cause : le markup est injecté juste avant `</body>`, alors que le JavaScript se
+trouve dans le dernier bloc `<script>` inline, situé **plus haut** dans le
+fichier. Les `getElementById` s'exécutaient donc avant que les boutons
+existent, et renvoyaient `null`.
+
+Le `?.` que j'avais utilisé par prudence a aggravé les choses : au lieu d'une
+erreur visible en console, les écouteurs n'étaient simplement jamais attachés,
+en silence.
+
+Corrigé par délégation d'événements sur `document`, qui ne dépend pas de
+l'ordre de chargement.
+
+Les autres feuilles injectées de la même façon — partage de story dans
+`feed.html`, story plein écran dans `chat1v1.html` — utilisent des `onclick`
+inline, évalués au moment du clic. Elles ne sont pas affectées. Vérifié.

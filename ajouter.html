@@ -1446,11 +1446,18 @@ function lancerCamera(type){
   const id = _camCible + 'FileCam' + (type === 'photo' ? 'Photo' : 'Video');
   document.getElementById(id)?.click();
 }
-document.getElementById('camOptPhoto')?.addEventListener('click', ()=> lancerCamera('photo'));
-document.getElementById('camOptVideo')?.addEventListener('click', ()=> lancerCamera('video'));
-document.getElementById('camOptCancel')?.addEventListener('click', fermerChoixCamera);
-document.getElementById('camChoice')?.addEventListener('click', (e)=>{
-  if(e.target.id === 'camChoice') fermerChoixCamera();
+// Delegation sur document : ce bloc s'execute avant que la feuille soit
+// dans le DOM (elle est injectee juste avant </body>). Un getElementById
+// ici renverrait null, et le `?.` masquait l'echec en silence — la feuille
+// s'ouvrait mais aucun bouton ne repondait.
+document.addEventListener('click', function(e){
+  const el = e.target.closest('#camOptPhoto,#camOptVideo,#camOptCancel,#camChoice');
+  if(!el) return;
+  if(el.id === 'camOptPhoto')  return lancerCamera('photo');
+  if(el.id === 'camOptVideo')  return lancerCamera('video');
+  if(el.id === 'camOptCancel') return fermerChoixCamera();
+  // clic sur le fond, hors de la feuille
+  if(el.id === 'camChoice' && e.target.id === 'camChoice') fermerChoixCamera();
 });
 </script>
 
