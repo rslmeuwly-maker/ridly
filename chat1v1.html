@@ -973,6 +973,49 @@
   position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));
   text-align:center;color:#eee;font-size:15px;padding:0 22px
 }
+
+/* ===== RIDLY_SIGNALEMENT ===== */
+.msg{position:relative}
+.msg.other .sig-btn{
+  position:absolute;top:2px;right:-4px;border:0;background:transparent;
+  color:#5a5a5a;font-size:15px;line-height:1;cursor:pointer;padding:4px;
+  opacity:0;transition:opacity .15s}
+.msg.other:hover .sig-btn,.msg.other:focus-within .sig-btn{opacity:1}
+@media (hover:none){ .msg.other .sig-btn{opacity:.45} }
+
+.sig-modal{position:fixed;inset:0;z-index:1400;display:none}
+.sig-modal.open{display:block}
+.sig-bg{position:absolute;inset:0;background:rgba(0,0,0,.74);backdrop-filter:blur(5px)}
+.sig-sheet{
+  position:absolute;left:0;right:0;bottom:0;max-width:540px;margin:auto;
+  max-height:90vh;overflow:auto;background:#101010;
+  border:1px solid rgba(255,255,255,.10);border-radius:24px 24px 0 0;
+  padding:18px 15px calc(20px + env(safe-area-inset-bottom))}
+.sig-sheet .grab{width:44px;height:4px;background:#444;border-radius:99px;margin:0 auto 13px}
+.sig-sheet h3{margin:0 0 4px;font-size:20px;color:#f2f2f2}
+.sig-sheet .sub{color:#8f8f8f;font-size:13px;margin-bottom:14px;line-height:1.4}
+.sig-extrait{
+  background:#171717;border:1px solid rgba(255,255,255,.08);border-radius:12px;
+  padding:11px 12px;color:#c9c9c9;font-size:14px;margin-bottom:14px;
+  max-height:110px;overflow:auto;line-height:1.4}
+.sig-opt{
+  display:block;width:100%;text-align:left;border:1px solid rgba(255,255,255,.10);
+  background:#181818;color:#fff;border-radius:13px;padding:13px;margin:7px 0;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.sig-opt:active,.sig-opt.on{border-color:#cc0000;background:rgba(204,0,0,.10)}
+.sig-sheet textarea{
+  width:100%;border:1px solid rgba(255,255,255,.10);background:#171717;color:#fff;
+  border-radius:12px;padding:11px;font-size:16px;font-family:inherit;
+  min-height:70px;resize:vertical;margin-top:8px}
+.sig-envoi{
+  width:100%;border:0;border-radius:13px;padding:13px;margin-top:12px;
+  font-weight:900;font-size:15px;cursor:pointer;font-family:inherit;
+  background:linear-gradient(#e51010,#b50000);color:#fff}
+.sig-envoi:disabled{background:#2a2a2a;color:#777;cursor:not-allowed}
+.sig-annul{width:100%;border:0;background:transparent;color:#888;padding:11px;
+  margin-top:2px;font-size:14px;cursor:pointer;font-family:inherit}
+.sig-msg{font-size:13px;font-weight:800;margin-top:9px;text-align:center}
+.sig-msg.ok{color:#45d17a}.sig-msg.err{color:#ff8a8a}
 </style>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2152,6 +2195,126 @@ async function notifierDestinataire(messageId){
     console.warn('[Push] notification non envoyee:', e);
   }
 }
+
+/* ===== RIDLY_SIGNALEMENT =====
+   Le bouton est ajoute par delegation sur les bulles recues : chaque
+   message porte deja data-msg-id, donc le rendu n'a pas ete touche. */
+
+let _sigMessageId = null;
+let _sigMotif = null;
+
+function ouvrirSignalement(msgId, extrait){
+  _sigMessageId = msgId;
+  _sigMotif = null;
+  document.querySelectorAll('.sig-opt').forEach(b => b.classList.remove('on'));
+  document.getElementById('sigCommentaire').value = '';
+  document.getElementById('sigRetour').textContent = '';
+  document.getElementById('sigEnvoi').disabled = true;
+
+  const ex = document.getElementById('sigExtrait');
+  let txt = extrait || '';
+  if(txt.startsWith('VOICE:'))      txt = '🎤 Message vocal';
+  else if(txt.startsWith('IMG:'))   txt = '📷 Photo';
+  else if(txt.startsWith('VID:'))   txt = '🎬 Vidéo';
+  else if(txt.startsWith('FLASH:')) txt = '⚡ Story partagée';
+  ex.textContent = txt.slice(0, 300);
+
+  document.getElementById('sigModal').classList.add('open');
+}
+
+function fermerSignalement(){
+  document.getElementById('sigModal').classList.remove('open');
+  _sigMessageId = null;
+}
+
+document.addEventListener('click', function(e){
+  // bouton de signalement sur une bulle recue
+  const sig = e.target.closest('.sig-btn');
+  if(sig){
+    const row = sig.closest('.msg');
+    const body = row?.querySelector('.msg-body');
+    return ouvrirSignalement(row?.dataset.msgId, body?.textContent || '');
+  }
+
+  const opt = e.target.closest('.sig-opt');
+  if(opt){
+    document.querySelectorAll('.sig-opt').forEach(b => b.classList.remove('on'));
+    opt.classList.add('on');
+    _sigMotif = opt.dataset.motif;
+    document.getElementById('sigEnvoi').disabled = false;
+    return;
+  }
+
+  if(e.target.id === 'sigAnnul' || e.target.id === 'sigBg') return fermerSignalement();
+
+  if(e.target.id === 'sigEnvoi') return envoyerSignalement();
+});
+
+async function envoyerSignalement(){
+  const btn = document.getElementById('sigEnvoi');
+  const ret = document.getElementById('sigRetour');
+  if(!_sigMessageId || !_sigMotif) return;
+
+  btn.disabled = true;
+  ret.className = 'sig-msg';
+  ret.textContent = 'Envoi…';
+
+  try{
+    const { data:{ user } } = await supa.auth.getUser();
+    if(!user) throw new Error('non connecté');
+
+    const { error } = await supa.from('message_reports').insert([{
+      message_id:  Number(_sigMessageId),
+      reporter_id: user.id,
+      reported_id: peerId,
+      motif:       _sigMotif,
+      commentaire: document.getElementById('sigCommentaire').value.trim() || null
+    }]);
+
+    if(error){
+      // index unique : le rider a deja signale ce message
+      if(error.code === '23505'){
+        ret.className = 'sig-msg ok';
+        ret.textContent = 'Tu as déjà signalé ce message.';
+        setTimeout(fermerSignalement, 1400);
+        return;
+      }
+      throw error;
+    }
+
+    ret.className = 'sig-msg ok';
+    ret.textContent = '✅ Signalement envoyé. Merci.';
+    setTimeout(fermerSignalement, 1500);
+  }catch(err){
+    console.error('[Signalement]', err);
+    btn.disabled = false;
+    ret.className = 'sig-msg err';
+    ret.textContent = "Impossible d'envoyer le signalement.";
+  }
+}
+
+/* Ajoute le bouton aux bulles recues. Un MutationObserver couvre aussi
+   les messages qui arrivent en direct. */
+function marquerSignalables(racine){
+  (racine || document).querySelectorAll('.msg.other:not([data-sig])').forEach(row => {
+    row.dataset.sig = '1';
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sig-btn';
+    b.title = 'Signaler ce message';
+    b.setAttribute('aria-label', 'Signaler ce message');
+    b.textContent = '⚑';
+    row.appendChild(b);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const zone = document.getElementById('chatMessages');
+  if(!zone) return;
+  marquerSignalables(zone);
+  new MutationObserver(()=> marquerSignalables(zone))
+    .observe(zone, { childList:true, subtree:true });
+});
 </script>
 
 
@@ -2169,6 +2332,29 @@ async function notifierDestinataire(messageId){
   <button type="button" class="x" onclick="closeFlashFull()">✕</button>
   <div id="flashFullMedia"></div>
   <div id="flashFullCap" class="cap2"></div>
+</div>
+
+<!-- RIDLY_SIGNALEMENT -->
+<div class="sig-modal" id="sigModal">
+  <div class="sig-bg" id="sigBg"></div>
+  <div class="sig-sheet">
+    <div class="grab"></div>
+    <h3>Signaler ce message</h3>
+    <div class="sub">Un modérateur RIDLY examinera la conversation. Ton signalement reste anonyme pour l'autre rider.</div>
+    <div class="sig-extrait" id="sigExtrait"></div>
+
+    <button type="button" class="sig-opt" data-motif="harcelement">Harcèlement ou insultes</button>
+    <button type="button" class="sig-opt" data-motif="sexuel">Contenu sexuel ou déplacé</button>
+    <button type="button" class="sig-opt" data-motif="menace">Menaces ou violence</button>
+    <button type="button" class="sig-opt" data-motif="arnaque">Arnaque ou spam</button>
+    <button type="button" class="sig-opt" data-motif="autre">Autre</button>
+
+    <textarea id="sigCommentaire" maxlength="400" placeholder="Précise si tu veux (facultatif)"></textarea>
+
+    <button type="button" class="sig-envoi" id="sigEnvoi" disabled>ENVOYER LE SIGNALEMENT</button>
+    <button type="button" class="sig-annul" id="sigAnnul">Annuler</button>
+    <div class="sig-msg" id="sigRetour"></div>
+  </div>
 </div>
 </body>
 </html>

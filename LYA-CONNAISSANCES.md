@@ -78,3 +78,39 @@ Les spots ne sont plus dans ce fichier : Lya les lit en direct dans la table
 Les liens vers JF Ride Shop sont construits par le code, à partir des
 catégories réelles de la boutique. Voir `JF_SHOP_CATEGORIES` dans
 `ridly-lya.html`.
+
+---
+
+# Graphe de progression
+
+`window.RIDLY_PROGRESSION`, en bas de `js/lya-knowledge.js`, relie les tricks
+entre eux. C'est lui qui permet à Lya de répondre à « et après ? », « c'est
+dur ? » ou « je bloque dessus » sans qu'on lui répète de quoi on parle.
+
+```js
+"scooter-tailwhip": {
+  avant: ["scooter-bunny-hop","scooter-180"],   // prérequis
+  apres: ["scooter-heelwhip","scooter-bar-to-whip"],
+  difficulte: 3,                                 // 1 débutant … 5 confirmé
+  erreur: "Tu suis le deck des yeux en tournant la tête. …"
+}
+```
+
+**`erreur`** est le champ qui fait le plus d'effet : c'est ce qu'un pote te
+dirait en te regardant rater. Quand un rider écrit « j'y arrive pas », Lya sort
+cette phrase. Une entrée sans `erreur` retombe sur un conseil générique — donc
+plus tu en remplis, plus elle paraît compétente.
+
+**Les identifiants doivent exister** dans la base de connaissances, sinon le
+lien est mort. Pour vérifier :
+
+```bash
+node -e 'global.window={};require("./js/lya-knowledge.js");
+const k=new Set(window.RIDLY_KNOWLEDGE.map(e=>e.id));
+let n=0;
+for(const [id,g] of Object.entries(window.RIDLY_PROGRESSION)){
+  if(!k.has(id)) {console.log("inconnu:",id);n++;}
+  [...g.avant,...g.apres].forEach(r=>{if(!k.has(r)){console.log("lien casse:",id,"->",r);n++;}});
+}
+console.log(n?n+" probleme(s)":"graphe coherent");'
+```

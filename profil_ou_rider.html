@@ -1058,7 +1058,30 @@
     img,video,svg{max-width:100%}
     /* RIDLY_MOBILE_BASE_END */
   
-  </style>
+  
+/* ===== RIDLY_MODERATION ===== */
+.mod-row{border:1px solid rgba(255,255,255,.09);background:#111;border-radius:15px;
+  padding:12px;margin:8px 0}
+.mod-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.mod-motif{font-size:11px;font-weight:900;border-radius:999px;padding:5px 10px;
+  background:rgba(204,0,0,.14);color:#ff6a6a}
+.mod-date{color:#7d7d7d;font-size:12px;margin-left:auto}
+.mod-qui{color:#bdbdbd;font-size:13px;margin-top:7px;line-height:1.45}
+.mod-com{color:#9a9a9a;font-size:13px;margin-top:6px;font-style:italic}
+.mod-actions{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.mod-btn{border:1px solid rgba(255,255,255,.11);background:#1a1a1a;color:#fff;
+  border-radius:11px;padding:9px 13px;font-weight:800;font-size:13px;
+  cursor:pointer;font-family:inherit}
+.mod-btn.red{background:linear-gradient(#e51010,#b50000);border:0}
+.mod-fil{margin-top:11px;border-top:1px solid rgba(255,255,255,.07);padding-top:10px;
+  display:none;max-height:340px;overflow:auto}
+.mod-fil.open{display:block}
+.mod-b{margin:6px 0;padding:8px 10px;border-radius:11px;background:#161616;font-size:14px;
+  line-height:1.4}
+.mod-b.cible{border:1px solid rgba(229,16,16,.5);background:rgba(204,0,0,.08)}
+.mod-b .qui{font-size:11px;color:#8a8a8a;font-weight:800;display:block;margin-bottom:3px}
+.mod-vide{color:#777;font-size:13px;padding:10px}
+</style>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -1225,6 +1248,22 @@
       </div>
       <div id="postGrid" class="post-grid"></div>
       <p id="postsEmpty" class="empty" style="display:none">Aucun post pour l’instant.</p>
+    </section>
+
+    <!-- RIDLY_MODERATION : visible uniquement pour un admin -->
+    <section class="card" id="modCard" style="margin-top:14px;display:none">
+      <div class="posts-header">
+        <h2>Signalements</h2>
+        <select id="modFiltre" class="btn" style="padding:6px 10px">
+          <option value="ouvert">À traiter</option>
+          <option value="traite">Traités</option>
+          <option value="rejete">Rejetés</option>
+        </select>
+      </div>
+      <div class="spotstats-body">
+        <p class="empty" id="modVide">Aucun signalement à traiter.</p>
+        <div id="modListe"></div>
+      </div>
     </section>
 
     <!-- RIDLY_PUSH_BOUTON -->
@@ -2366,6 +2405,164 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(r === 'deja-installee' && etat) etat.textContent = "RIDLY est déjà installée.";
   });
 });
+
+/* ===== RIDLY_MODERATION =====
+   L'admin ne voit QUE les conversations signalees : la policy RLS
+   « admin lit les conversations signalees » restreint la lecture aux
+   echanges contenant un message signale. Aucune surveillance globale. */
+(function(){
+  const card = document.getElementById('modCard');
+  if(!card) return;
+
+  let MOD_ADMIN = false;
+
+  async function initModeration(){
+    const { data:{ user } } = await supa.auth.getUser();
+    if(!user) return;
+
+    // La carte n'apparait que sur son propre profil, et seulement si admin.
+    if(typeof profileUserId !== 'undefined' && profileUserId !== user.id) return;
+
+    const { data: moi } = await supa
+      .from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
+    MOD_ADMIN = !!moi?.is_admin;
+    if(!MOD_ADMIN) return;
+
+    card.style.display = '';
+    document.getElementById('modFiltre').addEventListener('change', chargerSignalements);
+    chargerSignalements();
+  }
+
+  async function chargerSignalements(){
+    const liste = document.getElementById('modListe');
+    const vide  = document.getElementById('modVide');
+    const statut = document.getElementById('modFiltre').value;
+
+    liste.innerHTML = '';
+    vide.style.display = 'block';
+    vide.textContent = 'Chargement…';
+
+    const { data, error } = await supa
+      .from('message_reports')
+      .select('id,message_id,reporter_id,reported_id,motif,commentaire,statut,created_at')
+      .eq('statut', statut)
+      .order('created_at', { ascending:false })
+      .limit(50);
+
+    if(error){
+      vide.textContent = 'Erreur de chargement : ' + error.message;
+      return;
+    }
+    if(!data?.length){
+      vide.textContent = statut === 'ouvert'
+        ? 'Aucun signalement à traiter.' : 'Rien dans cette catégorie.';
+      return;
+    }
+    vide.style.display = 'none';
+
+    // Pseudos des personnes concernees
+    const ids = [...new Set(data.flatMap(r => [r.reporter_id, r.reported_id]))];
+    const { data: profs } = await supa
+      .from('profiles').select('id,pseudo,full_name').in('id', ids);
+    const nom = {};
+    (profs||[]).forEach(p => nom[p.id] = p.pseudo || p.full_name || 'Rider');
+
+    const MOTIFS = {
+      harcelement:'Harcèlement', sexuel:'Contenu sexuel',
+      menace:'Menaces', arnaque:'Arnaque / spam', autre:'Autre'
+    };
+
+    data.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'mod-row';
+      d.innerHTML = `
+        <div class="mod-head">
+          <span class="mod-motif">${MOTIFS[r.motif] || r.motif}</span>
+          <span class="mod-date">${new Date(r.created_at).toLocaleString('fr-CH')}</span>
+        </div>
+        <div class="mod-qui"><b>${escapeMod(nom[r.reported_id]||'?')}</b> signalé par ${escapeMod(nom[r.reporter_id]||'?')}</div>
+        ${r.commentaire ? `<div class="mod-com">« ${escapeMod(r.commentaire)} »</div>` : ''}
+        <div class="mod-actions">
+          <button type="button" class="mod-btn" data-voir="${r.message_id}">Voir la conversation</button>
+          <a class="mod-btn" href="profil_ou_rider.html?id=${encodeURIComponent(r.reported_id)}">Profil</a>
+          ${r.statut === 'ouvert' ? `
+            <button type="button" class="mod-btn red" data-traiter="${r.id}">Marquer traité</button>
+            <button type="button" class="mod-btn" data-rejeter="${r.id}">Rejeter</button>` : ''}
+        </div>
+        <div class="mod-fil" id="fil-${r.id}"></div>
+      `;
+      d.querySelector('[data-voir]').addEventListener('click', ()=> voirFil(r));
+      d.querySelector('[data-traiter]')?.addEventListener('click', ()=> statuer(r.id,'traite'));
+      d.querySelector('[data-rejeter]')?.addEventListener('click', ()=> statuer(r.id,'rejete'));
+      liste.appendChild(d);
+    });
+  }
+
+  function escapeMod(v){
+    return String(v ?? '').replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  }
+
+  async function voirFil(r){
+    const zone = document.getElementById('fil-' + r.id);
+    if(zone.classList.contains('open')){ zone.classList.remove('open'); return; }
+    zone.classList.add('open');
+    zone.innerHTML = '<div class="mod-vide">Chargement…</div>';
+
+    // Les messages entre les deux riders, dans les deux sens.
+    const { data, error } = await supa
+      .from('ridly_private_messages')
+      .select('id,from_id,to_id,content,created_at')
+      .or(`and(from_id.eq.${r.reporter_id},to_id.eq.${r.reported_id}),`
+        + `and(from_id.eq.${r.reported_id},to_id.eq.${r.reporter_id})`)
+      .order('created_at', { ascending:true })
+      .limit(200);
+
+    if(error){
+      zone.innerHTML = '<div class="mod-vide">Lecture impossible : ' + escapeMod(error.message) + '</div>';
+      return;
+    }
+    if(!data?.length){
+      zone.innerHTML = '<div class="mod-vide">Conversation vide ou inaccessible.</div>';
+      return;
+    }
+
+    const { data: profs } = await supa
+      .from('profiles').select('id,pseudo,full_name')
+      .in('id', [r.reporter_id, r.reported_id]);
+    const nom = {};
+    (profs||[]).forEach(p => nom[p.id] = p.pseudo || p.full_name || 'Rider');
+
+    zone.innerHTML = '';
+    data.forEach(m => {
+      let c = m.content || '';
+      if(c.startsWith('VOICE:'))      c = '🎤 Message vocal';
+      else if(c.startsWith('IMG:'))   c = '📷 Photo';
+      else if(c.startsWith('VID:'))   c = '🎬 Vidéo';
+      else if(c.startsWith('FLASH:')) c = '⚡ Story partagée';
+
+      const b = document.createElement('div');
+      b.className = 'mod-b' + (String(m.id) === String(r.message_id) ? ' cible' : '');
+      b.innerHTML = `<span class="qui">${escapeMod(nom[m.from_id]||'?')} · `
+        + `${new Date(m.created_at).toLocaleString('fr-CH')}</span>${escapeMod(c)}`;
+      zone.appendChild(b);
+    });
+
+    // Le message signale est mis en evidence : on y amene la vue.
+    zone.querySelector('.mod-b.cible')?.scrollIntoView({ block:'center' });
+  }
+
+  async function statuer(id, statut){
+    const { data:{ user } } = await supa.auth.getUser();
+    const { error } = await supa.from('message_reports')
+      .update({ statut, traite_par: user?.id || null, traite_le: new Date().toISOString() })
+      .eq('id', id);
+    if(error){ alert('Erreur : ' + error.message); return; }
+    chargerSignalements();
+  }
+
+  document.addEventListener('DOMContentLoaded', initModeration);
+})();
 </script>
 
 <script src="/js/pwa.js"></script>

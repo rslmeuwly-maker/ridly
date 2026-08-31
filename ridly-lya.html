@@ -3755,6 +3755,158 @@
   }
 
 
+
+  /* ===== RIDLY_LYA_RELANCE =====
+     Ce qui manquait pour que la conversation tienne : les relances courtes.
+     « et comment on l'apprend ? » n'a de sens que rapporte au trick dont on
+     vient de parler. Sans ca, chaque question repart de zero et Lya sonne
+     comme un formulaire. */
+
+  function progression(id){
+    return (window.RIDLY_PROGRESSION || {})[id] || null;
+  }
+
+  function nomTrick(id){
+    const e = knowledge.find(x => x.id === id);
+    if(!e) return null;
+    const q = (e.questions && (e.questions[language] || e.questions.fr)) || '';
+    // « C'est quoi un tailwhip ? » -> « tailwhip »
+    const m = q.match(/(?:un |une |le |la |l')([a-zA-Z0-9 '-]+?)\s*\?/);
+    return m ? m[1].trim() : id.replace('scooter-','').replace(/-/g,' ');
+  }
+
+  const NIVEAU = {
+    1:"très accessible, c'est une des premières choses qu'on apprend",
+    2:"pas très dur, quelques sessions suffisent en général",
+    3:"il faut y passer du temps, compte plusieurs semaines",
+    4:"c'est costaud, ça demande des bases vraiment solides",
+    5:"c'est du niveau confirmé, on ne s'y met pas sans encadrement"
+  };
+
+  // Types de relance, testes dans l'ordre.
+  const RELANCES = [
+    { cle:'apprendre', rx:/\b(comment (on |tu |je )?(l ?)?(apprend|apprends|fait|fais|arrive)|comment faire|comment on le fait|par ou commencer)\b/ },
+    { cle:'difficile', rx:/\b(c est dur|cest dur|c est difficile|c est chaud|dur a faire|difficile|complique|niveau)\b/ },
+    { cle:'apres',     rx:/\b(et apres|apres quoi|la suite|quoi ensuite|prochain|next)\b/ },
+    { cle:'avant',     rx:/\b(et avant|avant quoi|quoi avant|prerequis|il faut savoir quoi)\b/ },
+    { cle:'erreur',    rx:/\b(j y arrive pas|jy arrive pas|je bloque|ca marche pas|je rate|qu est ce que je fais mal|erreur|pourquoi ca marche pas)\b/ },
+    { cle:'danger',    rx:/\b(ca fait mal|c est dangereux|dangereux|je vais me faire mal|risque)\b/ }
+  ];
+
+  function detectRelance(text){
+    const n = normalize(text);
+    // Une relance est courte et sans sujet explicite. Si la phrase contient
+    // deja un nom de trick, ce n'est pas une relance mais une vraie question.
+    if(n.split(/\s+/).length > 9) return null;
+    for(const r of RELANCES) if(r.rx.test(n)) return r.cle;
+    return null;
+  }
+
+  function answerRelance(text){
+    const type = detectRelance(text);
+    if(!type) return false;
+
+    const id = conversationContext.entryId;
+    if(!id) return false;                 // on ne sait pas de quoi on parle
+    const entry = knowledge.find(e => e.id === id);
+    if(!entry) return false;
+
+    const g = progression(id);
+    const nom = nomTrick(id) || 'ce trick';
+    const rep = e => (e.answer && (e.answer[language] || e.answer.fr)) || '';
+    const actions = [];
+    let texte = '';
+
+    if(type === 'apprendre'){
+      // La reponse contient deja la technique : on la redonne en pointant
+      // les prerequis, ce qui est l'info qui manque le plus souvent.
+      texte = rep(entry);
+      if(g && g.avant.length){
+        const noms = g.avant.map(nomTrick).filter(Boolean);
+        texte += `\n\nAvant de t'y mettre, assure-toi d'avoir ${noms.join(' et ')} en automatique. C'est là que ça coince neuf fois sur dix.`;
+        g.avant.forEach(a => actions.push({ label: nomTrick(a), action: ()=> ask(`c'est quoi un ${nomTrick(a)}`) }));
+      }
+    }
+
+    else if(type === 'difficile'){
+      if(!g) return false;
+      texte = `Le ${nom} ? ${NIVEAU[g.difficulte]}.`;
+      if(g.avant.length){
+        texte += ` Ce qui compte vraiment, c'est d'avoir ${g.avant.map(nomTrick).filter(Boolean).join(' et ')} avant.`;
+      }else{
+        texte += ` Tu peux t'y mettre directement.`;
+      }
+      if(g.erreur) texte += `\n\nL'erreur classique : ${g.erreur}`;
+    }
+
+    else if(type === 'apres'){
+      if(!g || !g.apres.length){
+        texte = `Après le ${nom}, il n'y a pas de suite évidente — c'est déjà du haut niveau. Dis-moi ce qui t'intéresse et je te dirai par où passer.`;
+      }else{
+        const noms = g.apres.map(nomTrick).filter(Boolean);
+        texte = `Après le ${nom}, la suite logique c'est ${noms.join(', ')}.`;
+        g.apres.forEach(a => actions.push({ label: nomTrick(a), action: ()=> ask(`c'est quoi un ${nomTrick(a)}`) }));
+      }
+    }
+
+    else if(type === 'avant'){
+      if(!g || !g.avant.length){
+        texte = `Le ${nom} ne demande rien de particulier avant, à part un bunny hop propre.`;
+      }else{
+        const noms = g.avant.map(nomTrick).filter(Boolean);
+        texte = `Avant le ${nom}, il te faut ${noms.join(' et ')}.`;
+        g.avant.forEach(a => actions.push({ label: nomTrick(a), action: ()=> ask(`c'est quoi un ${nomTrick(a)}`) }));
+      }
+    }
+
+    else if(type === 'erreur'){
+      if(g && g.erreur){
+        texte = `Sur le ${nom}, l'erreur la plus courante : ${g.erreur}`;
+        if(g.avant.length){
+          texte += `\n\nSi ça ne débloque pas, redescends sur ${g.avant.map(nomTrick).filter(Boolean).join(' ou ')} et remonte après.`;
+        }
+      }else{
+        texte = `Sur le ${nom}, filme-toi une fois et regarde au ralenti — tu verras l'erreur en dix secondes. C'est ce qui débloque le plus vite.`;
+      }
+      actions.push({ label:'Pourquoi je stagne ?', action: ()=> ask('je ne progresse plus') });
+    }
+
+    else if(type === 'danger'){
+      const dur = g && g.difficulte >= 4;
+      texte = dur
+        ? `Le ${nom} n'est pas anodin. Casque et protège-poignets, et travaille-le en foam pit ou sur airbag avant le dur si tu peux.`
+        : `Le ${nom} reste raisonnable si tu as le niveau en dessous. Casque et protège-poignets quand même, le poignet est l'articulation la plus touchée.`;
+      actions.push({ label:'Comment bien tomber ?', action: ()=> ask('comment bien tomber') });
+    }
+
+    if(!texte) return false;
+    return smartReply(text, texte, actions, { entryId:id, topic:conversationContext.topic });
+  }
+
+  /* Boutons de suite apres une reponse sur un trick : une reponse reussie
+     ne doit pas etre un cul-de-sac. */
+  function ajouterSuiteTrick(entry){
+    const g = progression(entry && entry.id);
+    if(!g) return;
+    const bulle = messages.lastElementChild?.querySelector('.bubble');
+    if(!bulle || bulle.querySelector('.smart-actions')) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'smart-actions';
+
+    if(g.avant.length){
+      addSmartButton(wrap, "Ce qu'il faut avant", ()=> ask('et avant ?'));
+    }
+    addSmartButton(wrap, "C'est dur ?", ()=> ask("c'est dur ?"));
+    if(g.erreur){
+      addSmartButton(wrap, "L'erreur classique", ()=> ask("je bloque dessus"));
+    }
+    if(g.apres.length){
+      addSmartButton(wrap, "Et après ?", ()=> ask('et après ?'));
+    }
+    bulle.appendChild(wrap);
+  }
+
   /* ===== RIDLY_LYA_MEMBRES =====
      Recherche d'un membre RIDLY par pseudo. Reutilise le client Supabase
      deja cree pour les spots.
@@ -6542,6 +6694,10 @@
     // « Oui. » ressemble a un consentement.
     if(answerBoundary(clean)) return;
 
+    // Relances courtes : elles se rapportent au dernier sujet, donc elles
+    // doivent passer avant la recherche, qui ne comprendrait pas « et apres ? ».
+    if(answerRelance(clean)) return;
+
     // Spots : lecture en direct de la table Supabase. Asynchrone, donc on
     // sort tout de suite et la reponse arrive quand la requete revient.
     if(!_spotFallback && detectSpotIntent(clean)){
@@ -6651,6 +6807,7 @@
         const answer=(top.e.answer&&top.e.answer[language])||top.e.answer.fr||top.e.answer.en;
         rememberEntry(top.e,clean,'knowledge');
         addRidy(answer,top.e);
+        ajouterSuiteTrick(top.e);
 
         // Useful call-to-action when the matched topic is courses.
         if(topicFromEntry(top.e)==='courses'){

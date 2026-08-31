@@ -2817,7 +2817,6 @@ window.RIDLY_KNOWLEDGE = [
   "keywords": [
    "entretien",
    "maintenance",
-   "serrage",
    "axes",
    "fissure",
    "crack",
@@ -9490,5 +9489,607 @@ window.RIDLY_KNOWLEDGE = [
   },
   "dynamic": false,
   "verified": "2026-08-27"
+ },
+ {
+  "id": "scooter-echauffement",
+  "category": "Sécurité & pratique",
+  "questions": {
+   "fr": "Faut-il s'échauffer avant de rider ?",
+   "de": "Faut-il s'échauffer avant de rider ?",
+   "it": "Faut-il s'échauffer avant de rider ?",
+   "en": "Should I warm up before riding?"
+  },
+  "answer": {
+   "fr": "Oui, et c'est le truc que tout le monde saute. Cinq à dix minutes suffisent : mobilise les chevilles et les poignets, fais quelques squats, puis roule tranquillement avant d'attaquer les modules. Les blessures arrivent le plus souvent sur les premiers essais, quand le corps est encore froid, et sur les derniers, quand il est fatigué.",
+   "de": "Oui, et c'est le truc que tout le monde saute. Cinq à dix minutes suffisent : mobilise les chevilles et les poignets, fais quelques squats, puis roule tranquillement avant d'attaquer les modules. Les blessures arrivent le plus souvent sur les premiers essais, quand le corps est encore froid, et sur les derniers, quand il est fatigué.",
+   "it": "Oui, et c'est le truc que tout le monde saute. Cinq à dix minutes suffisent : mobilise les chevilles et les poignets, fais quelques squats, puis roule tranquillement avant d'attaquer les modules. Les blessures arrivent le plus souvent sur les premiers essais, quand le corps est encore froid, et sur les derniers, quand il est fatigué.",
+   "en": "Yes, and everyone skips it. Five to ten minutes: mobilise ankles and wrists, a few squats, then roll easy before hitting obstacles. Injuries happen most on the first tries, when the body is cold, and on the last, when it's tired."
+  },
+  "keywords": [
+   "echauffement",
+   "s echauffer",
+   "avant de rider",
+   "preparation"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-protections-poignets",
+  "category": "Sécurité & pratique",
+  "questions": {
+   "fr": "Faut-il des protège-poignets ?",
+   "de": "Faut-il des protège-poignets ?",
+   "it": "Faut-il des protège-poignets ?",
+   "en": "Do I need wrist guards?"
+  },
+  "answer": {
+   "fr": "Le poignet est l'articulation la plus touchée en trottinette : le réflexe est de tendre les bras à la chute. Des protège-poignets coûtent peu et évitent une fracture qui t'arrête trois mois. Le casque reste la priorité absolue, mais les poignets viennent juste après, avant les genoux.",
+   "de": "Le poignet est l'articulation la plus touchée en trottinette : le réflexe est de tendre les bras à la chute. Des protège-poignets coûtent peu et évitent une fracture qui t'arrête trois mois. Le casque reste la priorité absolue, mais les poignets viennent juste après, avant les genoux.",
+   "it": "Le poignet est l'articulation la plus touchée en trottinette : le réflexe est de tendre les bras à la chute. Des protège-poignets coûtent peu et évitent une fracture qui t'arrête trois mois. Le casque reste la priorité absolue, mais les poignets viennent juste après, avant les genoux.",
+   "en": "The wrist is the most injured joint in scootering — the reflex is to put your hands out. Guards are cheap and prevent a fracture that costs you three months. Helmet first, wrists right after."
+  },
+  "keywords": [
+   "poignet",
+   "protege poignet",
+   "protection poignet",
+   "protections"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-chute",
+  "category": "Sécurité & pratique",
+  "questions": {
+   "fr": "Comment bien tomber ?",
+   "de": "Comment bien tomber ?",
+   "it": "Comment bien tomber ?",
+   "en": "How do I fall properly?"
+  },
+  "answer": {
+   "fr": "Lâche la trottinette : la garder en main, c'est se blesser avec. Essaie de rouler sur l'épaule plutôt que de bloquer avec les mains tendues, et garde le menton rentré. Ça s'apprend, et c'est même le premier vrai réflexe à travailler — voir aussi le bail, qui consiste à abandonner un trick avant qu'il tourne mal.",
+   "de": "Lâche la trottinette : la garder en main, c'est se blesser avec. Essaie de rouler sur l'épaule plutôt que de bloquer avec les mains tendues, et garde le menton rentré. Ça s'apprend, et c'est même le premier vrai réflexe à travailler — voir aussi le bail, qui consiste à abandonner un trick avant qu'il tourne mal.",
+   "it": "Lâche la trottinette : la garder en main, c'est se blesser avec. Essaie de rouler sur l'épaule plutôt que de bloquer avec les mains tendues, et garde le menton rentré. Ça s'apprend, et c'est même le premier vrai réflexe à travailler — voir aussi le bail, qui consiste à abandonner un trick avant qu'il tourne mal.",
+   "en": "Let go of the scooter — holding on is how you get hurt by it. Roll onto your shoulder rather than blocking with straight arms, and tuck your chin."
+  },
+  "keywords": [
+   "tomber",
+   "bien tomber",
+   "se faire mal",
+   "blessure"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-rider-seul",
+  "category": "Sécurité & pratique",
+  "questions": {
+   "fr": "Est-ce qu'on peut rider seul ?",
+   "de": "Est-ce qu'on peut rider seul ?",
+   "it": "Est-ce qu'on peut rider seul ?",
+   "en": "Can I ride alone?"
+  },
+  "answer": {
+   "fr": "Techniquement oui, mais évite les tricks engagés quand tu es seul : personne pour appeler du secours si ça tourne mal. Si tu rides seul, préviens quelqu'un de l'endroit et de l'heure, garde ton téléphone sur toi, et garde les gros essais pour les sessions à plusieurs. C'est aussi plus motivant à plusieurs.",
+   "de": "Techniquement oui, mais évite les tricks engagés quand tu es seul : personne pour appeler du secours si ça tourne mal. Si tu rides seul, préviens quelqu'un de l'endroit et de l'heure, garde ton téléphone sur toi, et garde les gros essais pour les sessions à plusieurs. C'est aussi plus motivant à plusieurs.",
+   "it": "Techniquement oui, mais évite les tricks engagés quand tu es seul : personne pour appeler du secours si ça tourne mal. Si tu rides seul, préviens quelqu'un de l'endroit et de l'heure, garde ton téléphone sur toi, et garde les gros essais pour les sessions à plusieurs. C'est aussi plus motivant à plusieurs.",
+   "en": "Technically yes, but avoid committing tricks alone — nobody to call for help. Tell someone where you are, keep your phone on you, and save the big attempts for group sessions."
+  },
+  "keywords": [
+   "seul",
+   "rider seul",
+   "tout seul"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-pluie",
+  "category": "Sécurité & pratique",
+  "questions": {
+   "fr": "Peut-on rider quand c'est mouillé ?",
+   "de": "Peut-on rider quand c'est mouillé ?",
+   "it": "Peut-on rider quand c'est mouillé ?",
+   "en": "Can I ride in the wet?"
+  },
+  "answer": {
+   "fr": "Non, et pas seulement pour le grip : les roues glissent sans prévenir, le grip tape mouillé ne tient plus, et le métal rouille. Une transition humide est une des façons les plus fiables de se faire très mal. Attends que ce soit sec, ou trouve un park couvert.",
+   "de": "Non, et pas seulement pour le grip : les roues glissent sans prévenir, le grip tape mouillé ne tient plus, et le métal rouille. Une transition humide est une des façons les plus fiables de se faire très mal. Attends que ce soit sec, ou trouve un park couvert.",
+   "it": "Non, et pas seulement pour le grip : les roues glissent sans prévenir, le grip tape mouillé ne tient plus, et le métal rouille. Une transition humide est une des façons les plus fiables de se faire très mal. Attends que ce soit sec, ou trouve un park couvert.",
+   "en": "No. Wheels slip without warning, wet griptape stops holding, and metal rusts. A damp transition is one of the most reliable ways to get badly hurt."
+  },
+  "keywords": [
+   "pluie",
+   "mouille",
+   "humide",
+   "sous la pluie",
+   "hiver"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-serrage",
+  "category": "Entretien",
+  "questions": {
+   "fr": "À quelle fréquence resserrer sa trottinette ?",
+   "de": "À quelle fréquence resserrer sa trottinette ?",
+   "it": "À quelle fréquence resserrer sa trottinette ?",
+   "en": "How often should I tighten my scooter?"
+  },
+  "answer": {
+   "fr": "Vérifie avant chaque session, ça prend trente secondes : collier, potence, roues, frein. Une trottinette qui prend du jeu s'use beaucoup plus vite, et un guidon qui tourne dans le collier en plein trick est une chute garantie. Ne serre pas comme un bourrin non plus : trop serré, tu foires le filetage ou tu bloques les roulements.",
+   "de": "Vérifie avant chaque session, ça prend trente secondes : collier, potence, roues, frein. Une trottinette qui prend du jeu s'use beaucoup plus vite, et un guidon qui tourne dans le collier en plein trick est une chute garantie. Ne serre pas comme un bourrin non plus : trop serré, tu foires le filetage ou tu bloques les roulements.",
+   "it": "Vérifie avant chaque session, ça prend trente secondes : collier, potence, roues, frein. Une trottinette qui prend du jeu s'use beaucoup plus vite, et un guidon qui tourne dans le collier en plein trick est une chute garantie. Ne serre pas comme un bourrin non plus : trop serré, tu foires le filetage ou tu bloques les roulements.",
+   "en": "Check before every session — thirty seconds: clamp, headset, wheels, brake. Play makes everything wear faster, and a bar spinning in the clamp mid-trick is a guaranteed crash."
+  },
+  "keywords": [
+   "serrer",
+   "serrage",
+   "resserrer",
+   "jeu",
+   "verifier"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-roulement-bruit",
+  "category": "Entretien",
+  "questions": {
+   "fr": "Mes roulements font du bruit, que faire ?",
+   "de": "Mes roulements font du bruit, que faire ?",
+   "it": "Mes roulements font du bruit, que faire ?",
+   "en": "My bearings are noisy, what do I do?"
+  },
+  "answer": {
+   "fr": "Un roulement qui crisse a pris de la poussière ou de l'eau. Sors-le, nettoie-le, remets une goutte d'huile fine. S'il gratte encore ou si la roue s'arrête net quand tu la lances, il est mort — remplace-le. Et surtout n'utilise jamais de WD-40 : ça dissout la graisse et le roulement se détruit en quelques sessions.",
+   "de": "Un roulement qui crisse a pris de la poussière ou de l'eau. Sors-le, nettoie-le, remets une goutte d'huile fine. S'il gratte encore ou si la roue s'arrête net quand tu la lances, il est mort — remplace-le. Et surtout n'utilise jamais de WD-40 : ça dissout la graisse et le roulement se détruit en quelques sessions.",
+   "it": "Un roulement qui crisse a pris de la poussière ou de l'eau. Sors-le, nettoie-le, remets une goutte d'huile fine. S'il gratte encore ou si la roue s'arrête net quand tu la lances, il est mort — remplace-le. Et surtout n'utilise jamais de WD-40 : ça dissout la graisse et le roulement se détruit en quelques sessions.",
+   "en": "Dust or water. Take it out, clean it, one drop of light oil. If it still grinds, replace it. Never use WD-40 — it dissolves the grease and destroys the bearing."
+  },
+  "keywords": [
+   "bruit",
+   "grince",
+   "crisse",
+   "roule mal"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-changer-roue",
+  "category": "Entretien",
+  "questions": {
+   "fr": "Comment changer une roue ?",
+   "de": "Comment changer une roue ?",
+   "it": "Comment changer une roue ?",
+   "en": "How do I change a wheel?"
+  },
+  "answer": {
+   "fr": "Desserre l'axe avec deux clés Allen, sors la roue, transfère les roulements et l'entretoise dans la nouvelle si tu la réutilises. Remonte sans forcer et vérifie que la roue tourne librement avant de serrer à fond. Si elle frotte le deck, c'est que l'entretoise manque ou que la largeur ne convient pas.",
+   "de": "Desserre l'axe avec deux clés Allen, sors la roue, transfère les roulements et l'entretoise dans la nouvelle si tu la réutilises. Remonte sans forcer et vérifie que la roue tourne librement avant de serrer à fond. Si elle frotte le deck, c'est que l'entretoise manque ou que la largeur ne convient pas.",
+   "it": "Desserre l'axe avec deux clés Allen, sors la roue, transfère les roulements et l'entretoise dans la nouvelle si tu la réutilises. Remonte sans forcer et vérifie que la roue tourne librement avant de serrer à fond. Si elle frotte le deck, c'est que l'entretoise manque ou que la largeur ne convient pas.",
+   "en": "Undo the axle with two Allen keys, swap the bearings and spacer over. Check the wheel spins freely before final tightening — if it rubs the deck, the spacer is missing or the width is wrong."
+  },
+  "keywords": [
+   "changer roue",
+   "remplacer roue",
+   "monter roue",
+   "axe"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-grip-use",
+  "category": "Entretien",
+  "questions": {
+   "fr": "Quand changer le grip tape ?",
+   "de": "Quand changer le grip tape ?",
+   "it": "Quand changer le grip tape ?",
+   "en": "When should I change my griptape?"
+  },
+  "answer": {
+   "fr": "Quand tu ne sens plus l'accroche sous les pieds, ou dès qu'il se décolle sur les bords. Un grip lisse te fait glisser au décollage, c'est plus dangereux qu'on ne croit. Décolle l'ancien au décapeur thermique ou à l'eau chaude, nettoie bien le résidu de colle, puis pose le neuf sans bulles.",
+   "de": "Quand tu ne sens plus l'accroche sous les pieds, ou dès qu'il se décolle sur les bords. Un grip lisse te fait glisser au décollage, c'est plus dangereux qu'on ne croit. Décolle l'ancien au décapeur thermique ou à l'eau chaude, nettoie bien le résidu de colle, puis pose le neuf sans bulles.",
+   "it": "Quand tu ne sens plus l'accroche sous les pieds, ou dès qu'il se décolle sur les bords. Un grip lisse te fait glisser au décollage, c'est plus dangereux qu'on ne croit. Décolle l'ancien au décapeur thermique ou à l'eau chaude, nettoie bien le résidu de colle, puis pose le neuf sans bulles.",
+   "en": "When you stop feeling the grip underfoot, or as soon as the edges peel. Smooth grip makes you slip on takeoff. Heat gun or hot water to remove, clean the glue residue, apply the new one without bubbles."
+  },
+  "keywords": [
+   "grip",
+   "griptape",
+   "grip tape",
+   "use",
+   "changer grip",
+   "colle"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-occasion",
+  "category": "Entretien",
+  "questions": {
+   "fr": "Faut-il acheter une trottinette d'occasion ?",
+   "de": "Faut-il acheter une trottinette d'occasion ?",
+   "it": "Faut-il acheter une trottinette d'occasion ?",
+   "en": "Should I buy a used scooter?"
+  },
+  "answer": {
+   "fr": "Ça peut être une très bonne affaire, mais vérifie trois choses : le deck ne doit pas être fissuré ni tordu au niveau du col, la fourche doit être droite, et le jeu de direction ne doit pas craquer. Un deck fêlé ne se répare pas et lâche sans prévenir. Si tu débutes, fais-toi accompagner par quelqu'un qui sait regarder.",
+   "de": "Ça peut être une très bonne affaire, mais vérifie trois choses : le deck ne doit pas être fissuré ni tordu au niveau du col, la fourche doit être droite, et le jeu de direction ne doit pas craquer. Un deck fêlé ne se répare pas et lâche sans prévenir. Si tu débutes, fais-toi accompagner par quelqu'un qui sait regarder.",
+   "it": "Ça peut être une très bonne affaire, mais vérifie trois choses : le deck ne doit pas être fissuré ni tordu au niveau du col, la fourche doit être droite, et le jeu de direction ne doit pas craquer. Un deck fêlé ne se répare pas et lâche sans prévenir. Si tu débutes, fais-toi accompagner par quelqu'un qui sait regarder.",
+   "en": "Can be a great deal, but check three things: the deck must not be cracked or bent at the neck, the fork straight, and the headset must not crunch. A cracked deck can't be repaired and fails without warning."
+  },
+  "keywords": [
+   "occasion",
+   "seconde main",
+   "acheter occasion",
+   "usage",
+   "vendre"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-peur",
+  "category": "Progression",
+  "questions": {
+   "fr": "J'ai peur d'essayer un trick, que faire ?",
+   "de": "J'ai peur d'essayer un trick, que faire ?",
+   "it": "J'ai peur d'essayer un trick, que faire ?",
+   "en": "I'm scared to try a trick, what should I do?"
+  },
+  "answer": {
+   "fr": "La peur est une information, pas un défaut : elle signale souvent que tu n'as pas encore la base nécessaire. Redescends d'un cran, sécurise le trick d'avant jusqu'à ce qu'il soit automatique, et reviens. Découpe aussi le mouvement : travaille la réception seule, à l'arrêt, avant de le faire en entier. Et ne te force jamais parce que quelqu'un te pousse.",
+   "de": "La peur est une information, pas un défaut : elle signale souvent que tu n'as pas encore la base nécessaire. Redescends d'un cran, sécurise le trick d'avant jusqu'à ce qu'il soit automatique, et reviens. Découpe aussi le mouvement : travaille la réception seule, à l'arrêt, avant de le faire en entier. Et ne te force jamais parce que quelqu'un te pousse.",
+   "it": "La peur est une information, pas un défaut : elle signale souvent que tu n'as pas encore la base nécessaire. Redescends d'un cran, sécurise le trick d'avant jusqu'à ce qu'il soit automatique, et reviens. Découpe aussi le mouvement : travaille la réception seule, à l'arrêt, avant de le faire en entier. Et ne te force jamais parce que quelqu'un te pousse.",
+   "en": "Fear is information, not a flaw — it often means the base isn't there yet. Go back a step, make the previous trick automatic, then return. Break the movement down. And never force it because someone is pushing you."
+  },
+  "keywords": [
+   "peur",
+   "j ai peur",
+   "ose pas",
+   "bloque",
+   "confiance",
+   "stress"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-plateau",
+  "category": "Progression",
+  "questions": {
+   "fr": "Je ne progresse plus, pourquoi ?",
+   "de": "Je ne progresse plus, pourquoi ?",
+   "it": "Je ne progresse plus, pourquoi ?",
+   "en": "I've stopped progressing, why?"
+  },
+  "answer": {
+   "fr": "Les plateaux sont normaux et durent parfois des semaines. Trois causes fréquentes : tu répètes ce que tu sais déjà au lieu de travailler ce qui coince, tu enchaînes trop de tricks différents dans une session, ou tu es simplement fatigué. Choisis un seul objectif par session, filme-toi pour voir ce qui ne va pas, et prends de vrais jours de repos.",
+   "de": "Les plateaux sont normaux et durent parfois des semaines. Trois causes fréquentes : tu répètes ce que tu sais déjà au lieu de travailler ce qui coince, tu enchaînes trop de tricks différents dans une session, ou tu es simplement fatigué. Choisis un seul objectif par session, filme-toi pour voir ce qui ne va pas, et prends de vrais jours de repos.",
+   "it": "Les plateaux sont normaux et durent parfois des semaines. Trois causes fréquentes : tu répètes ce que tu sais déjà au lieu de travailler ce qui coince, tu enchaînes trop de tricks différents dans une session, ou tu es simplement fatigué. Choisis un seul objectif par session, filme-toi pour voir ce qui ne va pas, et prends de vrais jours de repos.",
+   "en": "Plateaus are normal. Three common causes: repeating what you already know, trying too many different tricks in one session, or plain fatigue. One goal per session, film yourself, take real rest days."
+  },
+  "keywords": [
+   "plateau",
+   "progresse plus",
+   "stagne",
+   "bloque niveau"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-se-filmer",
+  "category": "Progression",
+  "questions": {
+   "fr": "Pourquoi se filmer en ridant ?",
+   "de": "Pourquoi se filmer en ridant ?",
+   "it": "Pourquoi se filmer en ridant ?",
+   "en": "Why film yourself riding?"
+  },
+  "answer": {
+   "fr": "Parce que la sensation ment. Tu crois avoir les pieds bien placés et la vidéo montre l'inverse. C'est l'outil de progression le plus efficace et le moins cher : filme un trick qui coince, regarde au ralenti, tu verras l'erreur en dix secondes. Et sur RIDLY, tu peux poster la vidéo en reel et demander l'avis d'autres riders.",
+   "de": "Parce que la sensation ment. Tu crois avoir les pieds bien placés et la vidéo montre l'inverse. C'est l'outil de progression le plus efficace et le moins cher : filme un trick qui coince, regarde au ralenti, tu verras l'erreur en dix secondes. Et sur RIDLY, tu peux poster la vidéo en reel et demander l'avis d'autres riders.",
+   "it": "Parce que la sensation ment. Tu crois avoir les pieds bien placés et la vidéo montre l'inverse. C'est l'outil de progression le plus efficace et le moins cher : filme un trick qui coince, regarde au ralenti, tu verras l'erreur en dix secondes. Et sur RIDLY, tu peux poster la vidéo en reel et demander l'avis d'autres riders.",
+   "en": "Because feel lies. You think your feet are placed right and the video shows otherwise. Film a trick that isn't working, watch it slowed down, you'll spot the mistake in ten seconds."
+  },
+  "keywords": [
+   "filmer",
+   "se filmer",
+   "video",
+   "ralenti",
+   "progresser"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-frequence",
+  "category": "Progression",
+  "questions": {
+   "fr": "Combien de fois par semaine faut-il rider ?",
+   "de": "Combien de fois par semaine faut-il rider ?",
+   "it": "Combien de fois par semaine faut-il rider ?",
+   "en": "How often should I ride?"
+  },
+  "answer": {
+   "fr": "Deux à trois sessions régulières valent mieux qu'une seule très longue. Le corps a besoin de récupérer, et c'est entre les sessions que la mémoire du mouvement se construit. Une session de deux heures bien concentrée fait plus progresser que quatre heures fatiguées où tu répètes des erreurs.",
+   "de": "Deux à trois sessions régulières valent mieux qu'une seule très longue. Le corps a besoin de récupérer, et c'est entre les sessions que la mémoire du mouvement se construit. Une session de deux heures bien concentrée fait plus progresser que quatre heures fatiguées où tu répètes des erreurs.",
+   "it": "Deux à trois sessions régulières valent mieux qu'une seule très longue. Le corps a besoin de récupérer, et c'est entre les sessions que la mémoire du mouvement se construit. Une session de deux heures bien concentrée fait plus progresser que quatre heures fatiguées où tu répètes des erreurs.",
+   "en": "Two or three regular sessions beat one very long one. The body needs to recover, and motor memory builds between sessions, not during them."
+  },
+  "keywords": [
+   "combien de fois",
+   "frequence",
+   "par semaine",
+   "entrainement",
+   "combien de temps"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-budget-debutant",
+  "category": "Budget & pratique",
+  "questions": {
+   "fr": "Quel budget pour débuter ?",
+   "de": "Quel budget pour débuter ?",
+   "it": "Quel budget pour débuter ?",
+   "en": "What budget do I need to start?"
+  },
+  "answer": {
+   "fr": "Pour une trottinette freestyle complète de marque correcte, compte à partir de 130 à 200 francs environ, plus le casque. En dessous, tu tombes sur du matériel de supermarché qui casse vite et se répare mal. Vérifie les prix actuels chez JF Ride Shop, ils changent selon les modèles et les arrivages.",
+   "de": "Pour une trottinette freestyle complète de marque correcte, compte à partir de 130 à 200 francs environ, plus le casque. En dessous, tu tombes sur du matériel de supermarché qui casse vite et se répare mal. Vérifie les prix actuels chez JF Ride Shop, ils changent selon les modèles et les arrivages.",
+   "it": "Pour une trottinette freestyle complète de marque correcte, compte à partir de 130 à 200 francs environ, plus le casque. En dessous, tu tombes sur du matériel de supermarché qui casse vite et se répare mal. Vérifie les prix actuels chez JF Ride Shop, ils changent selon les modèles et les arrivages.",
+   "en": "For a decent complete freestyle scooter, from roughly 130–200 francs, plus a helmet. Below that you get supermarket gear that breaks fast. Check current prices at JF Ride Shop."
+  },
+  "keywords": [
+   "budget",
+   "prix debutant",
+   "combien ca coute",
+   "pas cher"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-supermarche",
+  "category": "Budget & pratique",
+  "questions": {
+   "fr": "Une trottinette de supermarché, ça marche ?",
+   "de": "Une trottinette de supermarché, ça marche ?",
+   "it": "Une trottinette de supermarché, ça marche ?",
+   "en": "Does a supermarket scooter work?"
+  },
+  "answer": {
+   "fr": "Pour rouler en ville oui, pour le freestyle non. Ces trottinettes sont pliantes, souvent en aluminium fin, et le mécanisme de pliage casse dès le premier saut sérieux. Le problème n'est pas seulement la durée de vie : une rupture en plein trick, c'est une chute que tu ne vois pas venir.",
+   "de": "Pour rouler en ville oui, pour le freestyle non. Ces trottinettes sont pliantes, souvent en aluminium fin, et le mécanisme de pliage casse dès le premier saut sérieux. Le problème n'est pas seulement la durée de vie : une rupture en plein trick, c'est une chute que tu ne vois pas venir.",
+   "it": "Pour rouler en ville oui, pour le freestyle non. Ces trottinettes sont pliantes, souvent en aluminium fin, et le mécanisme de pliage casse dès le premier saut sérieux. Le problème n'est pas seulement la durée de vie : une rupture en plein trick, c'est une chute que tu ne vois pas venir.",
+   "en": "For riding around town yes, for freestyle no. They fold, the folding mechanism breaks on the first serious jump, and a failure mid-trick is a crash you don't see coming."
+  },
+  "keywords": [
+   "supermarche",
+   "pliante",
+   "pas cher",
+   "premier prix"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-ou-rider",
+  "category": "Budget & pratique",
+  "questions": {
+   "fr": "Où rider quand il n'y a pas de skatepark ?",
+   "de": "Où rider quand il n'y a pas de skatepark ?",
+   "it": "Où rider quand il n'y a pas de skatepark ?",
+   "en": "Where can I ride if there's no skatepark?"
+  },
+  "answer": {
+   "fr": "Un parking lisse, une place, un préau : de quoi travailler bunny hop, manual et 180, qui sont la base de tout. Vérifie que l'endroit est autorisé et que tu ne gênes personne — la mauvaise réputation d'un spot le fait fermer pour tout le monde. Sur RIDLY, la carte recense les spots street en plus des skateparks.",
+   "de": "Un parking lisse, une place, un préau : de quoi travailler bunny hop, manual et 180, qui sont la base de tout. Vérifie que l'endroit est autorisé et que tu ne gênes personne — la mauvaise réputation d'un spot le fait fermer pour tout le monde. Sur RIDLY, la carte recense les spots street en plus des skateparks.",
+   "it": "Un parking lisse, une place, un préau : de quoi travailler bunny hop, manual et 180, qui sont la base de tout. Vérifie que l'endroit est autorisé et que tu ne gênes personne — la mauvaise réputation d'un spot le fait fermer pour tout le monde. Sur RIDLY, la carte recense les spots street en plus des skateparks.",
+   "en": "A smooth car park, a square, a covered playground: enough for bunny hops, manuals and 180s. Check it's allowed and you're not bothering anyone — a spot's bad reputation gets it closed for everyone."
+  },
+  "keywords": [
+   "ou rider",
+   "pas de skatepark",
+   "parking"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-hauteur-guidon-regler",
+  "category": "Réglages",
+  "questions": {
+   "fr": "À quelle hauteur régler le guidon ?",
+   "de": "À quelle hauteur régler le guidon ?",
+   "it": "À quelle hauteur régler le guidon ?",
+   "en": "What height should my bar be?"
+  },
+  "answer": {
+   "fr": "Entre le nombril et le bas des côtes, debout sur le deck, est un bon point de départ. Plus haut donne du contrôle en park et facilite les tricks de guidon, plus bas laisse de la place pour les whips. Il n'y a pas de règle absolue : essaie, ride une session complète, ajuste. La plupart des riders changent d'avis plusieurs fois la première année.",
+   "de": "Entre le nombril et le bas des côtes, debout sur le deck, est un bon point de départ. Plus haut donne du contrôle en park et facilite les tricks de guidon, plus bas laisse de la place pour les whips. Il n'y a pas de règle absolue : essaie, ride une session complète, ajuste. La plupart des riders changent d'avis plusieurs fois la première année.",
+   "it": "Entre le nombril et le bas des côtes, debout sur le deck, est un bon point de départ. Plus haut donne du contrôle en park et facilite les tricks de guidon, plus bas laisse de la place pour les whips. Il n'y a pas de règle absolue : essaie, ride une session complète, ajuste. La plupart des riders changent d'avis plusieurs fois la première année.",
+   "en": "Between navel and lower ribs, standing on the deck, is a good starting point. Higher gives park control, lower leaves room for whips. Try it, ride a full session, adjust."
+  },
+  "keywords": [
+   "regler guidon",
+   "hauteur bar",
+   "couper bar"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-couper-bar",
+  "category": "Réglages",
+  "questions": {
+   "fr": "Peut-on couper son guidon ?",
+   "de": "Peut-on couper son guidon ?",
+   "it": "Peut-on couper son guidon ?",
+   "en": "Can I cut my bars?"
+  },
+  "answer": {
+   "fr": "Oui, c'est courant, mais c'est irréversible : coupe toujours moins que ce que tu penses, tu pourras recouper. Attention selon le système de serrage — sur un HIC ou un IHC, la découpe touche à la zone de compression et une coupe ratée rend le guidon inutilisable. Si tu n'as jamais fait, fais-le faire en shop.",
+   "de": "Oui, c'est courant, mais c'est irréversible : coupe toujours moins que ce que tu penses, tu pourras recouper. Attention selon le système de serrage — sur un HIC ou un IHC, la découpe touche à la zone de compression et une coupe ratée rend le guidon inutilisable. Si tu n'as jamais fait, fais-le faire en shop.",
+   "it": "Oui, c'est courant, mais c'est irréversible : coupe toujours moins que ce que tu penses, tu pourras recouper. Attention selon le système de serrage — sur un HIC ou un IHC, la découpe touche à la zone de compression et une coupe ratée rend le guidon inutilisable. Si tu n'as jamais fait, fais-le faire en shop.",
+   "en": "Yes, it's common, but it's irreversible: always cut less than you think. Careful with HIC and IHC systems — the cut affects the compression area and a bad cut ruins the bar."
+  },
+  "keywords": [
+   "couper bar",
+   "couper guidon",
+   "raccourcir",
+   "scie"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
  }
 ];
+
+
+// Graphe de progression des tricks. Editable librement.
+//
+//   avant     : ce qu'il faut maitriser d'abord
+//   apres     : la suite logique
+//   difficulte: 1 (debutant) a 5 (pro)
+//   erreur    : l'erreur classique, celle qu'un pote te signalerait
+//
+// Sert aux relances « et apres ? », « c'est dur ? », « j'y arrive pas ».
+window.RIDLY_PROGRESSION = {
+ "scooter-bunny-hop":  { avant:[], apres:["scooter-manual","scooter-fakie"], difficulte:1,
+   erreur:"Tu tires sur le guidon sans armer les jambes. Le saut vient des jambes, le guidon ne fait que suivre." },
+ "scooter-manual":     { avant:["scooter-bunny-hop"], apres:["scooter-nose-manual","scooter-180"], difficulte:2,
+   erreur:"Tu cherches l'equilibre avec les bras. Il se joue aux chevilles et au bassin, pas en haut." },
+ "scooter-fakie":      { avant:["scooter-bunny-hop"], apres:["scooter-180"], difficulte:2,
+   erreur:"Tu regardes devant toi. Il faut regarder par-dessus l'epaule, sinon tu ne corriges rien." },
+ "scooter-180":        { avant:["scooter-bunny-hop","scooter-fakie"], apres:["scooter-barspin","scooter-tailwhip","scooter-360"], difficulte:2,
+   erreur:"Tu amorces la rotation apres le decollage. Les epaules et le regard partent AVANT que les roues quittent le sol." },
+ "scooter-barspin":    { avant:["scooter-bunny-hop","scooter-180"], apres:["scooter-bar-to-whip","scooter-x-up"], difficulte:3,
+   erreur:"Tu lances le guidon trop bas. Plus tu es haut au moment du lancer, plus tu as le temps de rattraper." },
+ "scooter-tailwhip":   { avant:["scooter-bunny-hop","scooter-180"], apres:["scooter-heelwhip","scooter-bar-to-whip","scooter-double-whip"], difficulte:3,
+   erreur:"Tu suis le deck des yeux en tournant la tete. Garde la tete droite et regarde le deck revenir, sinon tu deportes tout le corps." },
+ "scooter-grinds":     { avant:["scooter-bunny-hop","scooter-180"], apres:["scooter-feeble","scooter-smith","scooter-5050"], difficulte:3,
+   erreur:"Tu arrives trop lentement. Un grind se fait avec de la vitesse : trop lent, tu accroches et tu pars en avant." },
+ "scooter-5050":       { avant:["scooter-grinds"], apres:["scooter-feeble","scooter-smith"], difficulte:3,
+   erreur:"Tu vises la barre au lieu de viser au-dela. Regarde la sortie, pas l'entree." },
+ "scooter-feeble":     { avant:["scooter-5050"], apres:["scooter-smith","scooter-icepick"], difficulte:4,
+   erreur:"Tu poses le deck a plat. Il doit etre en travers, sinon tu ne verrouilles pas et tu glisses." },
+ "scooter-smith":      { avant:["scooter-5050","scooter-feeble"], apres:["scooter-crooked","scooter-toothpick"], difficulte:4,
+   erreur:"Tu mets trop de poids derriere. L'appui est devant, il faut accepter d'y aller." },
+ "scooter-icepick":    { avant:["scooter-feeble"], apres:["scooter-toothpick"], difficulte:4, erreur:"" },
+ "scooter-toothpick":  { avant:["scooter-icepick","scooter-smith"], apres:[], difficulte:5, erreur:"" },
+ "scooter-crooked":    { avant:["scooter-smith"], apres:[], difficulte:4, erreur:"" },
+ "scooter-heelwhip":   { avant:["scooter-tailwhip"], apres:["scooter-double-whip"], difficulte:4,
+   erreur:"Tu lances avec la pointe par habitude du tailwhip. C'est le talon qui pousse, vers l'exterieur." },
+ "scooter-360":        { avant:["scooter-180"], apres:["scooter-540"], difficulte:4,
+   erreur:"Tu t'ouvres en l'air et tu perds la rotation. Reste compact, bras pres du corps." },
+ "scooter-540":        { avant:["scooter-360","scooter-fakie"], apres:[], difficulte:5, erreur:"" },
+ "scooter-x-up":       { avant:["scooter-bunny-hop"], apres:["scooter-barspin"], difficulte:2, erreur:"" },
+ "scooter-no-footer":  { avant:["scooter-bunny-hop"], apres:["scooter-tuck-no-hander"], difficulte:2, erreur:"" },
+ "scooter-one-foot":   { avant:["scooter-bunny-hop"], apres:["scooter-no-footer"], difficulte:1, erreur:"" },
+ "scooter-can-can":    { avant:["scooter-bunny-hop"], apres:["scooter-no-footer"], difficulte:2, erreur:"" },
+ "scooter-tabletop":   { avant:["scooter-bunny-hop"], apres:[], difficulte:3, erreur:"" },
+ "scooter-tuck-no-hander": { avant:["scooter-no-footer"], apres:[], difficulte:3, erreur:"" },
+ "scooter-nollie":     { avant:["scooter-bunny-hop"], apres:["scooter-nose-manual"], difficulte:3, erreur:"" },
+ "scooter-nose-manual":{ avant:["scooter-manual"], apres:[], difficulte:4,
+   erreur:"Tu mets trop de poids devant d'un coup. Cherche le point d'equilibre progressivement, a faible vitesse." },
+ "scooter-bar-to-whip":{ avant:["scooter-barspin","scooter-tailwhip"], apres:["scooter-double-whip"], difficulte:4,
+   erreur:"Tu enchaines trop tot. Laisse le barspin se terminer avant de lancer le whip, sinon les deux se genent." },
+ "scooter-double-whip":{ avant:["scooter-tailwhip"], apres:["scooter-briflip"], difficulte:5,
+   erreur:"Tu lances plus fort au lieu de sauter plus haut. C'est la hauteur qui donne le temps, pas la force." },
+ "scooter-briflip":    { avant:["scooter-tailwhip","scooter-barspin","scooter-double-whip"], apres:[], difficulte:5, erreur:"" },
+ "scooter-finger-whip":{ avant:[], apres:["scooter-tailwhip"], difficulte:1, erreur:"" },
+ "scooter-drop-in":    { avant:[], apres:["scooter-pump","scooter-air"], difficulte:2,
+   erreur:"Tu hesites au milieu. C'est la premiere cause de chute : une fois lance, le poids va vers l'avant, sans reflechir." },
+ "scooter-pump":       { avant:["scooter-drop-in"], apres:["scooter-air","scooter-tailtap"], difficulte:2, erreur:"" },
+ "scooter-air":        { avant:["scooter-pump"], apres:["scooter-transfer","scooter-360"], difficulte:3, erreur:"" },
+ "scooter-tailtap":    { avant:["scooter-pump"], apres:["scooter-air"], difficulte:3, erreur:"" },
+ "scooter-transfer":   { avant:["scooter-air"], apres:[], difficulte:4, erreur:"" },
+ "scooter-backflip":   { avant:["scooter-air"], apres:["scooter-flair"], difficulte:5, erreur:"" },
+ "scooter-frontflip":  { avant:["scooter-backflip"], apres:[], difficulte:5, erreur:"" },
+ "scooter-flair":      { avant:["scooter-backflip","scooter-180"], apres:[], difficulte:5, erreur:"" }
+};

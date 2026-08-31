@@ -863,3 +863,77 @@ Deux écueils traités :
 
 Vérifié sur 11 formulations : 6 recherches correctes, 5 non-déclenchements,
 aucun faux positif.
+
+## Modération sur signalement
+
+Besoin exprimé : pouvoir intervenir « au cas où » sur les conversations privées.
+Retenu : modération **déclenchée par les riders**, pas surveillance globale.
+
+Raison : un accès permanent à tout donne moins de sécurité réelle qu'il n'y
+paraît — personne n'est prévenu, et un problème peut durer des semaines sans
+que l'admin, qui ne lit évidemment pas les conversations d'ados toute la
+journée, s'en aperçoive. Le signalement alerte au moment où ça compte.
+
+Et la politique de confidentialité annonce déjà exactement ce dispositif
+(« Les utilisateurs peuvent signaler des contenus »), donc rien à modifier
+juridiquement. Un accès total aurait exigé de la réécrire : la nLPD impose
+d'informer des traitements effectués.
+
+### Côté rider — `chat1v1.html`
+Un bouton ⚑ discret sur les messages reçus, ajouté par délégation puisque
+chaque bulle porte déjà `data-msg-id`. Cinq motifs, commentaire facultatif,
+signalement anonyme pour l'autre rider. Un index unique empêche de signaler
+deux fois le même message, et le cas est traité proprement côté client
+(code `23505`).
+
+### Côté admin — `profil_ou_rider.html`
+Carte « Signalements » visible **uniquement** sur son propre profil et
+seulement si `is_admin`. Filtre à traiter / traités / rejetés, conversation
+complète dépliable avec le message signalé mis en évidence, et actions
+« Marquer traité » ou « Rejeter ».
+
+### Portée de l'accès
+La policy `admin lit les conversations signalées` ne donne accès qu'aux
+échanges **contenant un message signalé**. La policy des participants reste
+intacte. Un admin ne peut pas lire une conversation que personne n'a signalée
+— la restriction est côté base, pas seulement côté interface.
+
+La fonction `est_admin()` est en `security definer` pour lire `profiles` sans
+que la RLS de cette table interfère, et évite de répéter la sous-requête dans
+chaque policy.
+
+## Lya conversationnelle — sans IA
+
+Objectif : que la discussion tienne comme avec un rider qui s'y connaît, sans
+modèle de langage et sans coût.
+
+Trois manques comblés.
+
+**Les relances courtes n'étaient pas comprises.** « Et après ? », « c'est
+dur ? », « je bloque dessus » n'ont de sens que rapportées au trick dont on
+vient de parler. Sans ça, chaque question repartait de zéro et Lya sonnait
+comme un formulaire. Six types de relance sont désormais résolus contre
+`conversationContext.entryId` : apprendre, difficulté, avant, après, erreur,
+danger.
+
+**Une réponse réussie était un cul-de-sac.** `showSuggestions` n'était appelé
+que dans la branche d'échec. Chaque réponse sur un trick propose maintenant la
+suite : ce qu'il faut avant, la difficulté, l'erreur classique, le trick
+suivant.
+
+**Rien ne reliait les tricks.** `window.RIDLY_PROGRESSION` couvre 36 tricks
+avec prérequis, suites, difficulté sur 5, et surtout **l'erreur classique** —
+celle qu'un pote signalerait en te regardant rater. C'est ce champ qui donne
+l'impression de compétence.
+
+### Vérifications
+- 36 tricks, 0 identifiant inconnu, 0 lien cassé vers la base.
+- 6 relances détectées, 6 vraies questions laissées à la recherche normale,
+  aucun faux positif. Une phrase de plus de 9 mots n'est jamais traitée comme
+  une relance.
+- Simulation d'une conversation complète : « c'est quoi un tailwhip » puis
+  « et avant / c'est dur / je bloque / et après / ça fait mal » — les cinq
+  relances répondent correctement en gardant le contexte.
+
+Le graphe est éditable dans `js/lya-knowledge.js`, documenté dans
+`LYA-CONNAISSANCES.md`.
