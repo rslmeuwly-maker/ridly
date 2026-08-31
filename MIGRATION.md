@@ -937,3 +937,46 @@ l'impression de compétence.
 
 Le graphe est éditable dans `js/lya-knowledge.js`, documenté dans
 `LYA-CONNAISSANCES.md`.
+
+## Lya — confiance et ambiguïté
+
+Diagnostic issu d'un vrai transcript d'utilisation.
+
+**« Ok sylf? » répondait sur Taj Shambrook.** Un mot inconnu accrochait une
+entrée rider et Lya l'affirmait avec assurance. Mesure des scores réels :
+
+    c est quoi un tailwhip      30.5   écart 18.0   ✓
+    qui est matis neyroud      124.5   écart 115    ✓
+    Ok sylf?                    13.0   écart 2.0    ✗
+    Collier ethic               13.0   écart 0.5    ✗
+    ou acheter des roues        11.0   écart 0.0    ✗
+
+Le score absolu ne discrimine pas — 13 pour une absurdité, 30 pour une vraie
+question, l'écart est trop faible. **C'est la marge avec la deuxième entrée qui
+discrimine** : 12 à 115 pour une bonne réponse, 0 à 2 pour un match douteux.
+
+### Règle retenue
+Répondre si `score ≥ 5.5` **et** (`écart ≥ 3` ou `score ≥ 25`).
+Sinon, si le score reste correct, proposer les trois meilleures pistes en
+boutons plutôt que d'affirmer.
+
+L'ambiguïté devient un choix utile au lieu d'une réponse fausse. Un tap donne
+la réponse, et la suite conversationnelle s'enchaîne normalement.
+
+Testé sur 18 bonnes questions et 6 requêtes absurdes : aucune régression, sauf
+« faut-il un casque » qui passe en question de clarification — son écart est de
+2.0, identique à « Ok sylf? », donc aucun seuil ne les sépare. Proposer deux
+pistes y reste correct.
+
+### Deux entrées manquantes ajoutées
+- **`scooter-collier`** — le collier n'existait pas comme pièce ; seul SCS était
+  couvert. « Colier de serrages » et « Collier ethic » tombaient à côté.
+- **`scooter-ou-acheter`** — « où acheter des roues » sortait une entrée sur les
+  notes du feed.
+
+Base à **317 entrées**.
+
+### Outil de mesure
+Les fonctions de score peuvent être extraites et exécutées hors navigateur pour
+mesurer l'effet d'un changement avant de le livrer. C'est ce qui a permis de
+choisir le seuil sur des données plutôt qu'à l'estime.

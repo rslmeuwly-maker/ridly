@@ -6803,7 +6803,40 @@
     addUser(clean); input.value=''; setBusy(true);
     setTimeout(()=>{
       const results=rank(clean); const top=results[0];
-      if(top && top.score>=5.5){
+      const second=results[1]||{score:0};
+
+      /* ===== RIDLY_LYA_CONFIANCE =====
+         Le score absolu ne distingue pas une bonne reponse d'une mauvaise :
+         « Ok sylf? » marquait 13 et sortait un rider au hasard, alors qu'une
+         vraie question marque 30 a 124. Ce qui discrimine, c'est l'ECART avec
+         la deuxieme entree : 12 a 115 pour une bonne reponse, 0 a 2 pour un
+         match douteux. En cas d'egalite, on propose au lieu d'affirmer. */
+      const ecart = top ? top.score - second.score : 0;
+      const sur   = top && top.score >= 5.5 && (ecart >= 3 || top.score >= 25);
+
+      if(top && top.score >= 5.5 && !sur){
+        const choix = results.slice(0,3).filter(r => r.score >= 5.5);
+        addRidy("Je ne suis pas sûre de ce que tu cherches. Tu veux dire :");
+        const bulle = messages.lastElementChild?.querySelector('.bubble');
+        if(bulle){
+          const wrap = document.createElement('div');
+          wrap.className = 'smart-actions';
+          choix.forEach(c => {
+            const q = (c.e.questions && (c.e.questions[language] || c.e.questions.fr)) || c.e.id;
+            addSmartButton(wrap, q.replace(/\s*\?\s*$/, ''), () => {
+              const rep = (c.e.answer && (c.e.answer[language] || c.e.answer.fr)) || '';
+              rememberEntry(c.e, clean, 'knowledge');
+              addRidy(rep, c.e);
+              ajouterSuiteTrick(c.e);
+            });
+          });
+          bulle.appendChild(wrap);
+        }
+        setBusy(false); input.focus();
+        return;
+      }
+
+      if(sur){
         const answer=(top.e.answer&&top.e.answer[language])||top.e.answer.fr||top.e.answer.en;
         rememberEntry(top.e,clean,'knowledge');
         addRidy(answer,top.e);

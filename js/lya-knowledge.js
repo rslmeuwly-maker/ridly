@@ -10027,6 +10027,67 @@ window.RIDLY_KNOWLEDGE = [
   },
   "dynamic": false,
   "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-collier",
+  "category": "Matériel trottinette",
+  "questions": {
+   "fr": "C'est quoi le collier ?",
+   "de": "C'est quoi le collier ?",
+   "it": "C'est quoi le collier ?",
+   "en": "C'est quoi le collier ?"
+  },
+  "answer": {
+   "fr": "Le collier, ou clamp, serre le guidon sur la fourche. Il existe en une, deux, trois ou quatre vis : plus il y a de vis, mieux ça tient, mais plus c'est lourd. Sur un système SCS, le collier assure aussi la compression. C'est la pièce à vérifier avant chaque session : un guidon qui tourne dans le collier en plein trick, c'est une chute garantie.",
+   "de": "Le collier, ou clamp, serre le guidon sur la fourche. Il existe en une, deux, trois ou quatre vis : plus il y a de vis, mieux ça tient, mais plus c'est lourd. Sur un système SCS, le collier assure aussi la compression. C'est la pièce à vérifier avant chaque session : un guidon qui tourne dans le collier en plein trick, c'est une chute garantie.",
+   "it": "Le collier, ou clamp, serre le guidon sur la fourche. Il existe en une, deux, trois ou quatre vis : plus il y a de vis, mieux ça tient, mais plus c'est lourd. Sur un système SCS, le collier assure aussi la compression. C'est la pièce à vérifier avant chaque session : un guidon qui tourne dans le collier en plein trick, c'est une chute garantie.",
+   "en": "Le collier, ou clamp, serre le guidon sur la fourche. Il existe en une, deux, trois ou quatre vis : plus il y a de vis, mieux ça tient, mais plus c'est lourd. Sur un système SCS, le collier assure aussi la compression. C'est la pièce à vérifier avant chaque session : un guidon qui tourne dans le collier en plein trick, c'est une chute garantie."
+  },
+  "keywords": [
+   "collier",
+   "clamp",
+   "collier de serrage",
+   "colier",
+   "serrage guidon",
+   "combien de vis"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
+ },
+ {
+  "id": "scooter-ou-acheter",
+  "category": "JF Ride Shop",
+  "questions": {
+   "fr": "Où acheter du matériel de trottinette ?",
+   "de": "Où acheter du matériel de trottinette ?",
+   "it": "Où acheter du matériel de trottinette ?",
+   "en": "Où acheter du matériel de trottinette ?"
+  },
+  "answer": {
+   "fr": "JF Ride Shop est le shop partenaire de RIDLY, basé à Montreux et principalement en ligne. Tu y trouves les pièces détachées comme les trottinettes complètes. Demande-moi une pièce précise et je t'envoie directement sur la bonne catégorie.",
+   "de": "JF Ride Shop est le shop partenaire de RIDLY, basé à Montreux et principalement en ligne. Tu y trouves les pièces détachées comme les trottinettes complètes. Demande-moi une pièce précise et je t'envoie directement sur la bonne catégorie.",
+   "it": "JF Ride Shop est le shop partenaire de RIDLY, basé à Montreux et principalement en ligne. Tu y trouves les pièces détachées comme les trottinettes complètes. Demande-moi une pièce précise et je t'envoie directement sur la bonne catégorie.",
+   "en": "JF Ride Shop est le shop partenaire de RIDLY, basé à Montreux et principalement en ligne. Tu y trouves les pièces détachées comme les trottinettes complètes. Demande-moi une pièce précise et je t'envoie directement sur la bonne catégorie."
+  },
+  "keywords": [
+   "ou acheter",
+   "acheter",
+   "commander",
+   "shop",
+   "boutique",
+   "magasin",
+   "ou trouver"
+  ],
+  "source": {
+   "label": "RSL – Cours",
+   "url": "https://rsl-swiss.ch/cours"
+  },
+  "dynamic": false,
+  "verified": "2026-08-31"
  }
 ];
 
