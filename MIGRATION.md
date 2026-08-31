@@ -755,3 +755,38 @@ au propre profil du rider, elle renverra toujours zéro résultat.
 
 Indice rassurant : `recherche.html` lit déjà les profils d'autres riders pour
 afficher les noms sous les publications, et cela fonctionne.
+
+## Bouton d'installation — Android et iPhone
+
+`compte.html` et `ou_rider.html` avaient déjà un gestionnaire
+`beforeinstallprompt`. Mais **Apple n'implémente pas cet événement** : sur
+iPhone, il ne se déclenche jamais. Les utilisateurs iOS ne voyaient donc
+strictement rien, alors que c'est précisément la plateforme où l'installation
+est obligatoire pour recevoir des notifications.
+
+### `js/install.js`
+Module unique chargé sur 9 pages, qui s'injecte lui-même — aucun markup à
+ajouter.
+
+- **Android / Chrome** : capte `beforeinstallprompt` et affiche une bannière
+  avec un vrai bouton d'installation.
+- **iPhone / Safari** : aucune API n'existe, donc la bannière explique la
+  manipulation en trois étapes (Partager → Sur l'écran d'accueil → ouvrir
+  depuis l'icône).
+
+Garde-fous :
+- Rien ne s'affiche si l'app est déjà installée (`display-mode: standalone` ou
+  `navigator.standalone`).
+- Un refus est mémorisé 14 jours.
+- Sous iOS 16.4, la bannière ne s'affiche pas : les notifications web n'existent
+  pas, l'installation ne changerait rien.
+- iPadOS 13+ s'annonçant comme un Mac, la détection le distingue par
+  `maxTouchPoints`. Vérifié sur 4 combinaisons.
+- Les appels à `prompt()` sont protégés : `ou_rider.html` garde son propre
+  bouton `btnPwa`, et une invite ne peut être consommée qu'une fois.
+
+### Carte Notifications du profil
+Sur iPhone hors app installée, `'Notification' in window` est faux et la carte
+restait invisible — l'utilisateur ne comprenait pas pourquoi. Elle s'affiche
+désormais avec un bouton « Installer l'app » et le message expliquant que les
+notifications exigent l'installation sur l'écran d'accueil.

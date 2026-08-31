@@ -1232,6 +1232,7 @@
       <div class="posts-header">
         <h2>Notifications</h2>
         <button class="btn" id="btnPush" type="button">Activer</button>
+        <button class="btn" id="rdlInstallBtn" type="button" style="display:none">Installer l'app</button>
       </div>
       <div class="spotstats-body">
         <p class="empty" id="pushEtat">
@@ -2333,8 +2334,41 @@ async function loadSpotStats(){
     }
   };
 })();
+
+/* RIDLY_INSTALL — sur iPhone, la carte Notifications reste vide hors app
+   installee : l'API Notification n'existe pas dans Safari. On propose donc
+   l'installation a la place, sinon l'utilisateur ne voit rien du tout. */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const card = document.getElementById('pushCard');
+  const btnI = document.getElementById('rdlInstallBtn');
+  const btnP = document.getElementById('btnPush');
+  const etat = document.getElementById('pushEtat');
+  if(!card || !btnI) return;
+
+  const installee = (window.matchMedia && matchMedia('(display-mode: standalone)').matches)
+                 || window.navigator.standalone === true;
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent)
+           || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+  if(!('Notification' in window)){
+    card.style.display = '';
+    if(btnP) btnP.style.display = 'none';
+    btnI.style.display = '';
+    if(etat) etat.textContent = ios && !installee
+      ? "Sur iPhone, les notifications ne fonctionnent que si RIDLY est installé sur ton écran d'accueil."
+      : "Ton navigateur ne gère pas les notifications.";
+  }else if(!installee && ios){
+    btnI.style.display = '';
+  }
+
+  btnI.addEventListener('click', ()=>{
+    const r = window.ridlyProposerInstallation?.();
+    if(r === 'deja-installee' && etat) etat.textContent = "RIDLY est déjà installée.";
+  });
+});
 </script>
 
 <script src="/js/pwa.js"></script>
+<script src="/js/install.js"></script>
 </body>
 </html>
