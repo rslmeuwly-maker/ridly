@@ -159,10 +159,16 @@ Deno.serve(async (req) => {
         message: {
           token,
           notification: { title: nom, body: apercu(msg.content || "") },
-          data: { url: `/chat1v1.html?peer=${msg.from_id}`, tag: `msg-${msg.from_id}` },
+          data: { url: `/chat1v1.html?to=${msg.from_id}`, tag: `msg-${msg.from_id}` },
           webpush: {
-            fcm_options: { link: `/chat1v1.html?peer=${msg.from_id}` },
-            notification: { icon: "/image/icon-192.png", badge: "/image/icon-192.png" },
+            fcm_options: { link: `/chat1v1.html?to=${msg.from_id}` },
+            notification: {
+              icon: "/image/icon-192.png",
+              // Android n'utilise QUE le canal alpha du badge et teinte la
+              // forme. Une image opaque donne donc un carre blanc plein :
+              // il faut une silhouette sur fond transparent.
+              badge: "/image/badge-96.png",
+            },
           },
         },
       }),

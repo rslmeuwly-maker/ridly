@@ -980,3 +980,83 @@ Base à **317 entrées**.
 Les fonctions de score peuvent être extraites et exécutées hors navigateur pour
 mesurer l'effet d'un changement avant de le livrer. C'est ce qui a permis de
 choisir le seuil sur des données plutôt qu'à l'estime.
+
+## Lya — salutations et recherche sans nom
+
+Deuxième transcript, deux défauts de plus.
+
+**« Salutations » répondait sur le chromoly et l'aluminium.** Le smalltalk
+intercepte les salutations avant la recherche, mais sa liste ne contenait que
+`salut|bonjour|hello|hey|coucou|yo|slt|wesh|hola`. « Salutations » tombait donc
+dans le moteur et accrochait `scooter-bar-materials` avec un écart de 8 — la
+règle de confiance ne l'aurait pas rattrapée non plus.
+
+Liste élargie aux variantes et abréviations que les riders écrivent vraiment :
+`salutations`, `bjr`, `cc`, `salu`, `yooo`, `heyy`, `sup`, `gruezi`, `moin`…
+Testé sur 14 salutations et 4 vraies questions commençant par une salutation
+(« salut comment faire un tailwhip ») : aucun faux positif.
+
+**« Ou un utilisateur » sortait une blague.** L'intention était claire mais
+aucun pseudo n'était donné, donc `detectMembreIntent` ne trouvait rien et la
+question partait au repli humoristique.
+
+Lya demande désormais le pseudo et propose un lien vers la page Recherche.
+
+Première tentative erronée : une expression régulière d'exclusion pour
+distinguer « je cherche un rider » de « cherche le rider matis ». Trop
+grossière — 3 cas sur 9 en échec. Remplacée par une vérification directe : si
+`detectMembreIntent` extrait un nom on cherche, sinon on demande. 9 cas sur 9.
+
+## Lya — dernier post en direct
+
+« C'est quoi le dernier post ? » renvoyait l'explication des formats de
+publication (feed, story, reel). C'est de la donnée vivante, au même titre que
+les spots et les riders : Lya lit désormais `spot_posts`.
+
+Elle donne l'auteur, le spot rattaché si le post en a un, le temps écoulé en
+langage naturel (« il y a 3 h », « hier ») et la légende. Puis les trois posts
+précédents, et un bouton vers le feed.
+
+Détection : un mot de récence (`dernier`, `récent`, `nouveau`, `neuf`…) **et**
+un mot d'objet (`post`, `publication`, `photo`, `reel`, `story`…), ou bien
+« quoi de neuf » seul. Testé sur 18 formulations : 18 correctes.
+
+À noter : « comment publier un post » et « c'est quoi un reel » restent traités
+par la base de connaissances — ce sont des questions sur le fonctionnement, pas
+sur le contenu.
+
+Une première version ratait « nouvelles publications » : la regex testait
+`nouvelle` sans le pluriel.
+
+### Les trois sources vivantes de Lya
+Elle interroge maintenant Supabase pour les **spots**, les **membres** et le
+**feed**. Le reste vient de la base de connaissances. C'est la bonne répartition :
+ce qui change tous les jours ne doit jamais être écrit en dur.
+
+## Lya annonce les messages non lus
+
+À l'ouverture, Lya signale les messages en attente. Elle passe d'un rôle
+purement réactif à celui d'un guide qui pointe ce qui compte.
+
+    « Au fait, tu as un message de Matis. »          [ Lire ]
+    « Au fait, tu as 4 messages non lus — de Matis,  [ Matis ] [ Lucas ]
+      Lucas et 1 autre. »
+
+Lue depuis `ridly_private_unread_counts`, qui expose `peer_id` : Lya nomme
+l'expéditeur au lieu d'afficher un compteur anonyme.
+
+Volontairement discret : un seul message, jamais répété dans la session
+(`_accueilFait`), affiché 1,2 s après l'accueil pour ne pas le recouvrir, et
+rien du tout si la boîte est vide.
+
+### Un bug trouvé au passage, plus grave
+Mes liens pointaient vers `chat1v1.html?peer=…`, or la page lit `?to=`. Elle
+aurait ouvert une conversation vide.
+
+Le même défaut était présent dans l'**Edge Function de notification push** :
+`fcm_options.link` et `data.url` utilisaient aussi `?peer=`. Autrement dit,
+**taper sur une notification ouvrait une conversation vide** — un bug livré
+plus tôt et jamais repéré, puisqu'on avait vérifié que la notification
+arrivait, pas ce qu'elle faisait au clic.
+
+Corrigé aux trois endroits. Il ne reste aucun `?peer=` dans le projet.

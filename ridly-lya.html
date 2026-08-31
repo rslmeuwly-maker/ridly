@@ -3907,6 +3907,156 @@
     bulle.appendChild(wrap);
   }
 
+
+
+  /* ===== RIDLY_LYA_ACCUEIL =====
+     Lya annonce les messages non lus a l'ouverture. Elle passe d'un role
+     purement reactif — elle attend qu'on lui parle — a un role de guide qui
+     signale ce qui compte.
+
+     Deliberement discret : un seul message, jamais repete dans la session,
+     et rien du tout si la boite est vide. */
+
+  let _accueilFait = false;
+
+  async function accueilMessages(){
+    if(_accueilFait) return;
+    _accueilFait = true;
+
+    const db = spotsClient();
+    if(!db) return;
+
+    try{
+      const { data:{ user } } = await db.auth.getUser();
+      if(!user) return;
+
+      const { data, error } = await db
+        .from('ridly_private_unread_counts')
+        .select('peer_id,unread_count')
+        .eq('user_id', user.id);
+      if(error || !data) return;
+
+      const nonLus = data.filter(r => Number(r.unread_count || 0) > 0);
+      if(!nonLus.length) return;
+
+      const total = nonLus.reduce((n, r) => n + Number(r.unread_count || 0), 0);
+
+      // Pseudos des expediteurs : « un message de Matis » vaut mieux
+      // qu'un compteur anonyme.
+      const { data: profs } = await db
+        .from('profiles').select('id,pseudo,full_name')
+        .in('id', nonLus.map(r => r.peer_id));
+      const nom = {};
+      (profs||[]).forEach(p => nom[p.id] = p.pseudo || p.full_name || 'un rider');
+
+      let texte;
+      const actions = [];
+
+      if(nonLus.length === 1){
+        const r = nonLus[0];
+        const qui = nom[r.peer_id] || 'un rider';
+        const n = Number(r.unread_count);
+        texte = n === 1
+          ? `Au fait, tu as un message de ${qui}.`
+          : `Au fait, tu as ${n} messages de ${qui}.`;
+        actions.push({ label: `Lire`, href: `chat1v1.html?to=${encodeURIComponent(r.peer_id)}` });
+      }else{
+        const noms = nonLus.slice(0,3).map(r => nom[r.peer_id] || 'un rider');
+        const reste = nonLus.length - noms.length;
+        texte = `Au fait, tu as ${total} messages non lus — de ${noms.join(', ')}`
+              + (reste > 0 ? ` et ${reste} autre${reste>1?'s':''}.` : '.');
+        nonLus.slice(0,3).forEach(r => actions.push({
+          label: nom[r.peer_id] || 'Rider',
+          href: `chat1v1.html?to=${encodeURIComponent(r.peer_id)}`
+        }));
+      }
+
+      // On laisse le message d'accueil s'afficher avant d'enchainer.
+      setTimeout(()=>{
+        addRidy(texte);
+        const bulle = messages.lastElementChild?.querySelector('.bubble');
+        if(bulle && actions.length){
+          const wrap = document.createElement('div');
+          wrap.className = 'smart-actions';
+          actions.forEach(a => addSmartButton(wrap, a.label, null, a.href));
+          bulle.appendChild(wrap);
+        }
+      }, 1200);
+
+    }catch(e){
+      console.warn('[Lya] accueil messages:', e);
+    }
+  }
+
+  /* ===== RIDLY_LYA_FEED =====
+     « C'est quoi le dernier post ? » renvoyait l'explication des formats de
+     publication. C'est de la donnee vivante, comme les spots et les riders :
+     Lya doit lire spot_posts au lieu de reciter une entree figee. */
+
+  function detectFeedIntent(text){
+    const n = normalize(text);
+    if(n.split(/\s+/).length > 10) return null;
+    const recent = /\b(dernier|derniere|derniers|dernieres|recent|recents|recente|recentes|nouveau|nouveaux|nouvelle|nouvelles|neuf|quoi de neuf)\b/.test(n)
+                || /\b(latest|last|new|recent)\b/.test(n);
+    const objet  = /\b(post|poste|posts|publication|publications|photo|photos|video|videos|feed|reel|reels|story|stories|flash)\b/.test(n);
+    if(recent && objet) return 'posts';
+    // « quoi de neuf » seul suffit
+    if(/\b(quoi de neuf|quoi de nouveau|what s new|whats new)\b/.test(n)) return 'posts';
+    return null;
+  }
+
+  async function answerFeedLive(text){
+    if(!detectFeedIntent(text)) return false;
+    const db = spotsClient();
+    if(!db) return false;
+
+    const { data, error } = await db
+      .from('spot_posts')
+      .select('user_display,caption,created_at,spot_id,spot_type')
+      .order('created_at', { ascending:false })
+      .limit(5);
+
+    if(error){ console.warn('[Lya] feed:', error.message); return false; }
+    if(!data || !data.length){
+      return smartReply(text,
+        "Il n'y a encore aucune publication sur RIDLY. Sois le premier : poste une photo ou une vidéo de ta session.",
+        [{ label:'Publier', href:'ajouter.html' }]);
+    }
+
+    // Noms des spots rattaches, pour situer les posts
+    const spotIds = [...new Set(data.map(p => p.spot_id).filter(Boolean))];
+    let spots = {};
+    if(spotIds.length){
+      const { data: sp } = await db.from('spots').select('id,nom').in('id', spotIds);
+      (sp||[]).forEach(x => spots[x.id] = x.nom);
+    }
+
+    const quand = iso => {
+      const h = (Date.now() - new Date(iso).getTime()) / 3600000;
+      if(h < 1)  return "il y a moins d'une heure";
+      if(h < 24) return `il y a ${Math.round(h)} h`;
+      const j = Math.round(h / 24);
+      return j === 1 ? 'hier' : `il y a ${j} jours`;
+    };
+
+    const p = data[0];
+    const qui  = p.user_display || 'Un rider';
+    const ou   = p.spot_id && spots[p.spot_id] ? ` à ${spots[p.spot_id]}` : '';
+    const quoi = (p.caption || '').trim();
+
+    let texte = `Le dernier post, c'est ${qui}${ou}, ${quand(p.created_at)}.`;
+    if(quoi) texte += `\n« ${quoi.slice(0, 140)} »`;
+
+    if(data.length > 1){
+      const autres = data.slice(1, 4)
+        .map(x => `• ${x.user_display || 'Rider'}${x.spot_id && spots[x.spot_id] ? ' — ' + spots[x.spot_id] : ''} (${quand(x.created_at)})`)
+        .join('\n');
+      texte += `\n\nJuste avant :\n${autres}`;
+    }
+
+    return smartReply(text, texte, [{ label:'Ouvrir le feed', href:'feed.html' }]);
+  }
+
   /* ===== RIDLY_LYA_MEMBRES =====
      Recherche d'un membre RIDLY par pseudo. Reutilise le client Supabase
      deja cree pour les spots.
@@ -3950,6 +4100,26 @@
     'trottinette','scooter','spot','spots','skatepark','park','trick','tricks',
     'shop','magasin','marque','prix','taille','modele','cours','event','contest'
   ]);
+
+  /* RIDLY_MEMBRE_SANS_NOM — « ou un utilisateur », « je cherche un rider » :
+     l'intention est claire mais aucun nom n'est donne. Lya doit demander le
+     pseudo, pas sortir une blague. */
+  function veutChercherMembre(text){
+    const n = normalize(text);
+    if(n.split(/\s+/).length > 7) return false;
+    // Le mot « utilisateur / rider / pseudo » suffit a signaler l'intention.
+    // C'est detectMembreIntent qui dira s'il reste un nom exploitable :
+    // une exclusion par expression reguliere ici serait trop grossiere.
+    return /\b(utilisateur|utilisateurs|rider|riders|membre|membres|pseudo|profil|compte|user|users)\b/.test(n);
+  }
+
+  function answerMembreSansNom(text){
+    if(!veutChercherMembre(text)) return false;
+    if(detectMembreIntent(text)) return false;   // un nom est present
+    return smartReply(text,
+      "Donne-moi son pseudo et je te sors son profil. Tu peux aussi passer par la page Recherche pour parcourir les riders.",
+      [{ label:'Ouvrir la recherche', href:'recherche.html' }]);
+  }
 
   function detectMembreIntent(text){
     const n = normalize(text);
@@ -4347,11 +4517,15 @@
         /^(buonasera)$/,
         /^(good evening|evening)$/
       ],
+      // RIDLY_SALUTATIONS — « Salutations » tombait dans le moteur de
+      // recherche et accrochait scooter-bar-materials avec un ecart de 8,
+      // donc meme la regle de confiance ne la rattrapait pas. Les riders
+      // ecrivent vite : on couvre les variantes et les abreviations.
       greeting:[
-        /^(salut|bonjour|hello|hey|coucou|yo|slt|wesh|hola)( ridy)?[!. ]*$/,
-        /^(hallo|hi|hey|servus)( ridy)?[!. ]*$/,
-        /^(ciao|salve|hey)( ridy)?[!. ]*$/,
-        /^(hello|hi|hey|yo)( ridy)?[!. ]*$/
+        /^(salut|salutation|salutations|bonjour|bjr|bonsoir|hello|helo|hey|heyy+|coucou|cc|yo|yoo+|slt|wesh|hola|salu|salutt)( ridy| lya)?[!. ]*$/,
+        /^(hallo|hi|hii+|hey|servus|moin|gruezi|gruessech)( ridy| lya)?[!. ]*$/,
+        /^(ciao|salve|hey)( ridy| lya)?[!. ]*$/,
+        /^(hello|hi|hey|yo|sup|whats up|what s up)( ridy| lya)?[!. ]*$/
       ],
       howAreYou:[
         /^(?:(?:salut|bonjour|hello|hey|coucou|yo|slt|wesh|hola)\s+)?(?:(?:ca|sa) va|sava|comment (?:ca|sa) va|comment vas tu|tu vas bien|comment tu vas)( ridy)?[?. ]*$/,
@@ -6679,6 +6853,7 @@
   // Reprend le routeur normal quand la recherche de spots n'a rien donne.
   let _spotFallback = false;
   let _membreFallback = false;
+  let _feedFallback = false;
   function askFallback(q){
     _spotFallback = true;
     try { ask(q); } finally { _spotFallback = false; }
@@ -6787,6 +6962,19 @@
     // Membres RIDLY : verifie AVANT de declarer un nom inconnu. Les 91
     // entrees « Riders » sont des pros codes en dur ; un membre de l'app
     // n'y figure evidemment pas. Asynchrone, donc on sort tout de suite.
+    // Feed en direct : asynchrone, on sort tout de suite.
+    if(!_feedFallback && detectFeedIntent(clean)){
+      answerFeedLive(clean).then(traite => {
+        if(!traite && !_feedFallback){
+          _feedFallback = true;
+          try { ask(clean); } finally { _feedFallback = false; }
+        }
+      });
+      return;
+    }
+
+    if(answerMembreSansNom(clean)) return;
+
     if(!_membreFallback && detectMembreIntent(clean)){
       answerMembreRidly(clean).then(traite => {
         if(!traite && !_membreFallback){
@@ -6928,6 +7116,9 @@
   langButtons.forEach(btn=>btn.addEventListener('click',()=>{if(!busy)applyLanguage(btn.dataset.lang,true)}));
 
   applyLanguage(language,false);
+
+  // Signale les messages non lus une fois la page prete.
+  accueilMessages();
 
   // Base de connaissances : chargee depuis js/lya-knowledge.js.
   // Les donnees sont hors du code pour pouvoir corriger une reponse
