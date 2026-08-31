@@ -22,7 +22,7 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(notif.title || "RIDLY", {
     body:  notif.body || "",
     icon:  "/image/icon-192.png",
-    badge: "/image/icon-192.png",
+    badge: "/image/badge-96.png",
     tag:   data.tag || "ridly",
     data:  { url: data.url || "/feed" }
   });

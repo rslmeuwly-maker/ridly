@@ -700,3 +700,58 @@ donc pas la cause.
 Ils n'ont pas été supprimés : c'est précisément ce type de retrait automatique
 qui avait effacé le code d'authentification de `compte.html`. À nettoyer à
 froid, un fichier à la fois.
+
+## Badge de notification — carré blanc
+
+Sur Android, la petite icône de la barre d'état s'affichait en carré blanc plein.
+
+Cause : le champ `badge` pointait sur `icon-192.png`. Android n'utilise **que le
+canal alpha** du badge et teinte la forme obtenue — la couleur de l'image est
+ignorée. `icon-192.png` étant entièrement opaque (fond noir compris), toute la
+surface devenait blanche.
+
+Corrigé avec `image/badge-96.png` : la silhouette du repère, opaque, sur fond
+transparent. Générée depuis `ridly-logo-exact.webp` par détection de la boîte
+englobante rouge, puis binarisation de l'alpha.
+
+Vérifié : coins transparents, 24 % de pixels opaques. Le rendu Android a été
+simulé — l'ancien badge donne un carré plein, le nouveau la silhouette du repère.
+
+Appliqué à l'Edge Function `notif-message` et à `firebase-messaging-sw.js`, qui
+affiche les notifications reçues en arrière-plan. Badge déclaré dans le manifest
+avec `purpose: monochrome`. Cache passé en `ridly-v8`.
+
+À noter : la teinte de l'icône de barre d'état est imposée par le système
+Android, elle ne peut pas être forcée en rouge depuis le web.
+
+## Recherche de riders par pseudo
+
+`recherche.html` avait bien un mode « Rider (pseudo) », mais il filtrait les
+**reels déjà chargés** par le pseudo de leur auteur. Un rider n'ayant jamais
+posté de vidéo était donc introuvable — c'est-à-dire la majorité des nouveaux
+inscrits.
+
+Ajouté : un bloc « Riders » au-dessus des reels, qui interroge la table
+`profiles` côté serveur sur `pseudo` et `full_name`, en `ilike` avec un `%` de
+chaque côté — « meuwly » se trouve en tapant « euwl ».
+
+Détails d'implémentation :
+- **Délai de 280 ms** avant la requête : une requête par frappe saturerait la base.
+- **Minimum 2 caractères**, sinon la recherche renverrait presque tous les profils.
+- **Tri** : un pseudo qui commence par le terme passe devant les correspondances
+  partielles.
+- Les caractères `%` et `_` du terme sont échappés, sinon ils seraient
+  interprétés comme des jokers SQL.
+- Chaque résultat mène à `profil_ou_rider.html?id=<uuid>`, le format déjà
+  utilisé par les 14 autres liens de l'app.
+
+### À vérifier
+La recherche dépend de la politique RLS de `profiles`. Si la lecture est limitée
+au propre profil du rider, elle renverra toujours zéro résultat.
+
+    select policyname, cmd, qual::text
+    from pg_policies
+    where schemaname = 'public' and tablename = 'profiles';
+
+Indice rassurant : `recherche.html` lit déjà les profils d'autres riders pour
+afficher les noms sous les publications, et cela fonctionne.

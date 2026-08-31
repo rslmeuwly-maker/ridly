@@ -826,7 +826,26 @@
       font-size:21px;font-weight:700;box-shadow:0 8px 20px rgba(204,0,0,.28) !important;
     }
     .add-btn span{transform:translateY(-1px)}
-  </style>
+  
+/* ===== RIDLY_RECHERCHE_RIDERS ===== */
+.riders-block{margin:14px 0 4px}
+.riders-block h3{
+  margin:0 0 9px;font-family:'Bebas Neue',Impact,sans-serif;
+  font-size:19px;letter-spacing:.03em;color:#f2f2f2}
+.rider-row{
+  display:flex;align-items:center;gap:11px;padding:9px 8px;margin:5px 0;
+  border:1px solid rgba(255,255,255,.09);background:#111;border-radius:15px;
+  text-decoration:none;color:inherit}
+.rider-row:active{background:rgba(255,255,255,.05)}
+.rider-row img,.rider-row .ph{
+  width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;
+  background:#1e1e1e;display:grid;place-items:center;color:#777;font-weight:900}
+.rider-row .nm{flex:1;min-width:0}
+.rider-row .pseudo{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rider-row .meta{color:#888;font-size:12px;margin-top:2px}
+.rider-row .go{color:#e51010;font-weight:900;flex:none}
+.riders-empty{color:#777;font-size:13px;padding:8px}
+</style>
 
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -909,6 +928,12 @@
           </select>
         </div>
       </section>
+
+      <!-- RIDLY_RECHERCHE_RIDERS -->
+      <div class="riders-block" id="ridersBlock" style="display:none">
+        <h3>Riders</h3>
+        <div id="ridersList"></div>
+      </div>
 
       <section class="results">
         <p class="count" id="count">Chargement des reels…</p>
@@ -1537,6 +1562,89 @@ initSwipe();
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
   }
+
+/* ===== RIDLY_RECHERCHE_RIDERS =====
+   Le mode « Rider » filtrait les reels deja charges : un rider sans
+   aucune video n'apparaissait jamais. On interroge donc `profiles`
+   directement, cote serveur, sur le pseudo et le nom. */
+
+let _ridersTimer = null;
+
+function escRider(v){
+  return String(v ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+
+async function chercherRiders(terme){
+  const bloc  = document.getElementById('ridersBlock');
+  const liste = document.getElementById('ridersList');
+  if(!bloc || !liste) return;
+
+  const q = String(terme || '').replace(/^[@#]/, '').trim();
+
+  // En dessous de 2 caracteres, la recherche renverrait presque tout.
+  if(q.length < 2){ bloc.style.display = 'none'; return; }
+
+  bloc.style.display = '';
+  liste.innerHTML = '<div class="riders-empty">Recherche…</div>';
+
+  try{
+    // Le % encadre le terme : on trouve « meuwly » en tapant « euwl ».
+    const motif = '%' + q.replace(/[%_]/g, '\\$&') + '%';
+    const { data, error } = await supa
+      .from('profiles')
+      .select('id,pseudo,full_name,ville,avatar_url')
+      .or(`pseudo.ilike.${motif},full_name.ilike.${motif}`)
+      .limit(20);
+
+    if(error) throw error;
+
+    if(!data || !data.length){
+      liste.innerHTML = '<div class="riders-empty">Aucun rider trouvé pour « '
+        + escRider(q) + ' ».</div>';
+      return;
+    }
+
+    // Un pseudo qui commence par le terme passe devant.
+    const bas = q.toLowerCase();
+    data.sort((a,b)=>{
+      const pa = (a.pseudo||'').toLowerCase(), pb = (b.pseudo||'').toLowerCase();
+      const sa = pa.startsWith(bas) ? 0 : 1, sb = pb.startsWith(bas) ? 0 : 1;
+      return sa - sb || pa.localeCompare(pb);
+    });
+
+    liste.innerHTML = '';
+    for(const r of data){
+      const nom = r.pseudo || r.full_name || 'Rider';
+      const a = document.createElement('a');
+      a.className = 'rider-row';
+      a.href = 'profil_ou_rider.html?id=' + encodeURIComponent(r.id);
+      a.innerHTML =
+        (r.avatar_url
+          ? `<img src="${escRider(r.avatar_url)}" alt="">`
+          : `<div class="ph">${escRider(nom.slice(0,1).toUpperCase())}</div>`)
+        + `<div class="nm">
+             <div class="pseudo">${escRider(nom)}</div>
+             <div class="meta">${escRider(r.ville || (r.pseudo && r.full_name ? r.full_name : ''))}</div>
+           </div>
+           <div class="go">›</div>`;
+      liste.appendChild(a);
+    }
+  }catch(e){
+    console.error('[Recherche riders]', e);
+    liste.innerHTML = '<div class="riders-empty">Recherche indisponible.</div>';
+  }
+}
+
+// Une requete par frappe saturerait la base : on attend une pause.
+function planifierRecherche(){
+  clearTimeout(_ridersTimer);
+  const v = searchInput.value;
+  _ridersTimer = setTimeout(()=>chercherRiders(v), 280);
+}
+
+searchInput.addEventListener('input', planifierRecherche);
+searchMode.addEventListener('change', planifierRecherche);
 </script>
 
 <script src="/js/pwa.js"></script>

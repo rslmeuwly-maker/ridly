@@ -441,7 +441,25 @@
     }
     /* RIDLY_DA_2026_GENERIC_END */
   
-  </style>
+  
+/* ===== RIDLY_CAMERA_FIX ===== */
+.cam-choice{position:fixed;inset:0;z-index:1200;display:none;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(4px)}
+.cam-choice.open{display:block}
+.cam-sheet{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:auto;
+  background:#101010;border:1px solid rgba(255,255,255,.09);
+  border-radius:22px 22px 0 0;padding:16px 14px calc(18px + env(safe-area-inset-bottom))}
+.cam-sheet .grab{width:42px;height:4px;background:#444;border-radius:99px;margin:0 auto 12px}
+.cam-sheet h3{margin:0 0 12px;font-size:19px;text-align:center;color:#f2f2f2}
+.cam-opt{display:flex;align-items:center;gap:12px;width:100%;
+  border:1px solid rgba(255,255,255,.10);background:#181818;color:#fff;
+  border-radius:14px;padding:14px;margin:8px 0;font-size:16px;font-weight:800;
+  cursor:pointer;font-family:inherit}
+.cam-opt:active{background:rgba(255,255,255,.06)}
+.cam-opt .ic{font-size:22px}
+.cam-cancel{width:100%;border:0;background:transparent;color:#888;
+  padding:12px;margin-top:4px;font-size:15px;cursor:pointer;font-family:inherit}
+</style>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -559,7 +577,10 @@
                 <span class="ic">🎛️</span><span>Studio (à venir)</span>
               </button>
             </div>
-            <input id="fFileCam"    class="file-input" type="file" accept="image/*,video/*" capture="environment">
+            <!-- RIDLY_CAMERA_FIX : un accept unique par input, sinon Chrome Android
+                   ignore capture et ouvre l'album. -->
+              <input id="fFileCamPhoto" class="file-input" type="file" accept="image/*" capture="environment">
+              <input id="fFileCamVideo" class="file-input" type="file" accept="video/*" capture="environment">
             <input id="fFileAlbum" class="file-input" type="file" accept="image/*,video/*">
           </div>
           <textarea id="fCaption" class="input" maxlength="140" placeholder="Légende (ex: Double whip à Vidy 🔥)"></textarea>
@@ -594,7 +615,10 @@
                 <span class="ic">🎛️</span><span>Studio (à venir)</span>
               </button>
             </div>
-            <input id="sFileCam"    class="file-input" type="file" accept="image/*,video/*" capture="environment">
+            <!-- RIDLY_CAMERA_FIX : un accept unique par input, sinon Chrome Android
+                   ignore capture et ouvre l'album. -->
+              <input id="sFileCamPhoto" class="file-input" type="file" accept="image/*" capture="environment">
+              <input id="sFileCamVideo" class="file-input" type="file" accept="video/*" capture="environment">
             <input id="sFileAlbum" class="file-input" type="file" accept="image/*,video/*">
           </div>
           <textarea id="sCaption" class="input" maxlength="120" placeholder="Texte de la story (optionnel)…"></textarea>
@@ -948,13 +972,15 @@ const fSpotType  = document.getElementById('fSpotType');
 const btnPickSpot   = document.getElementById('btnPickSpot');
 const chosenSpotLabel = document.getElementById('chosenSpotLabel');
 
-const fFileCam      = document.getElementById('fFileCam');
+const fFileCamPhoto = document.getElementById('fFileCamPhoto');
+const fFileCamVideo = document.getElementById('fFileCamVideo');
 const fFileAlbum    = document.getElementById('fFileAlbum');
 const fPickCam      = document.getElementById('fPickCam');
 const fPickAlbum    = document.getElementById('fPickAlbum');
 const fFileLabel    = document.getElementById('fFileLabel');
 
-const sFileCam      = document.getElementById('sFileCam');
+const sFileCamPhoto = document.getElementById('sFileCamPhoto');
+const sFileCamVideo = document.getElementById('sFileCamVideo');
 const sFileAlbum    = document.getElementById('sFileAlbum');
 const sPickCam      = document.getElementById('sPickCam');
 const sPickAlbum    = document.getElementById('sPickAlbum');
@@ -986,9 +1012,9 @@ const btnPickSpotReel = document.getElementById('btnPickSpotReel');
 const chosenSpotLabelReel = document.getElementById('chosenSpotLabelReel');
 
 /* Choix Caméra / Album */
-fPickCam?.addEventListener('click', ()=> fFileCam.click());
+fPickCam?.addEventListener('click', ()=> ouvrirChoixCamera('f'));
 fPickAlbum?.addEventListener('click', ()=> fFileAlbum.click());
-sPickCam?.addEventListener('click', ()=> sFileCam.click());
+sPickCam?.addEventListener('click', ()=> ouvrirChoixCamera('s'));
 sPickAlbum?.addEventListener('click', ()=> sFileAlbum.click());
 rPickCam?.addEventListener('click', ()=> rFileCam.click());
 rPickAlbum?.addEventListener('click', ()=> rFileAlbum.click());
@@ -1003,18 +1029,24 @@ function updateReelLabel(){
   rFileLabel.textContent = reelFile ? (reelFile.name || 'Média sélectionné') : 'Ajouter un reel (vidéo)';
 }
 
-fFileCam?.addEventListener('change', ()=>{
-  feedFile = fFileCam.files?.[0] || null;
-  updateFeedLabel();
+// RIDLY_CAMERA_FIX : deux inputs camera, un par type de media.
+[fFileCamPhoto, fFileCamVideo].forEach(el => {
+  el?.addEventListener('change', function(){
+    feedFile = this.files?.[0] || null;
+    updateFeedLabel();
+  });
 });
 fFileAlbum?.addEventListener('change', ()=>{
   feedFile = fFileAlbum.files?.[0] || null;
   updateFeedLabel();
 });
 
-sFileCam?.addEventListener('change', ()=>{
-  storyFile = sFileCam.files?.[0] || null;
-  updateStoryLabel();
+// RIDLY_CAMERA_FIX : deux inputs camera, un par type de media.
+[sFileCamPhoto, sFileCamVideo].forEach(el => {
+  el?.addEventListener('change', function(){
+    storyFile = this.files?.[0] || null;
+    updateStoryLabel();
+  });
 });
 sFileAlbum?.addEventListener('change', ()=>{
   storyFile = sFileAlbum.files?.[0] || null;
@@ -1292,7 +1324,7 @@ formFeed.addEventListener('submit',async e=>{
 
     feedMsg.style.color='#22c55e'; feedMsg.textContent='Post publié ✅';
     feedFile = null;
-    fFileCam.value=''; fFileAlbum.value='';
+    fFileCamPhoto.value=''; fFileCamVideo.value=''; fFileAlbum.value='';
     updateFeedLabel();
     fCaption.value=''; fSpotId.value=''; fSpotType.value=''; chosenSpotLabel.textContent='Pas de spot sélectionné';
   }catch(err){ feedMsg.style.color='#f97373'; feedMsg.textContent='Erreur: '+(err?.message||''); }
@@ -1322,7 +1354,7 @@ formStory.addEventListener('submit',async e=>{
 
     storyMsg.style.color='#22c55e'; storyMsg.textContent='Story publiée ✅';
     storyFile = null;
-    sFileCam.value=''; sFileAlbum.value='';
+    sFileCamPhoto.value=''; sFileCamVideo.value=''; sFileAlbum.value='';
     updateStoryLabel();
     sCaption.value='';
   }catch(err){ storyMsg.style.color='#f97373'; storyMsg.textContent='Erreur: '+(err?.message||''); }
@@ -1394,8 +1426,45 @@ formReel.addEventListener('submit',async e=>{
   document.addEventListener('click',close);
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
 })();
+
+/* ===== RIDLY_CAMERA_FIX =====
+   Un input « photo ou video » avec capture ne fonctionne pas : Chrome
+   Android ignore capture des que accept couvre plusieurs types de media
+   et retombe sur le selecteur de fichiers, donc l'album. On garde un
+   input par type, et on demande lequel au moment du clic. */
+let _camCible = 'f';
+
+function ouvrirChoixCamera(cible){
+  _camCible = cible;
+  document.getElementById('camChoice').classList.add('open');
+}
+function fermerChoixCamera(){
+  document.getElementById('camChoice').classList.remove('open');
+}
+function lancerCamera(type){
+  fermerChoixCamera();
+  const id = _camCible + 'FileCam' + (type === 'photo' ? 'Photo' : 'Video');
+  document.getElementById(id)?.click();
+}
+document.getElementById('camOptPhoto')?.addEventListener('click', ()=> lancerCamera('photo'));
+document.getElementById('camOptVideo')?.addEventListener('click', ()=> lancerCamera('video'));
+document.getElementById('camOptCancel')?.addEventListener('click', fermerChoixCamera);
+document.getElementById('camChoice')?.addEventListener('click', (e)=>{
+  if(e.target.id === 'camChoice') fermerChoixCamera();
+});
 </script>
 
 <script src="/js/pwa.js"></script>
+
+<!-- RIDLY_CAMERA_FIX -->
+<div class="cam-choice" id="camChoice">
+  <div class="cam-sheet">
+    <div class="grab"></div>
+    <h3>Avec la caméra</h3>
+    <button type="button" class="cam-opt" id="camOptPhoto"><span class="ic">📷</span>Prendre une photo</button>
+    <button type="button" class="cam-opt" id="camOptVideo"><span class="ic">🎬</span>Filmer une vidéo</button>
+    <button type="button" class="cam-cancel" id="camOptCancel">Annuler</button>
+  </div>
+</div>
 </body>
 </html>
